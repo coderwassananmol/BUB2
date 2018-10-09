@@ -1,0 +1,26 @@
+{
+  "name": "BUB2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node server.js",
+    "build": "next build",
+    "start": "NODE_ENV=production node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.4",
+    "dotenv": "^6.0.0",
+    "eslint": "^5.6.0",
+    "express": "^4.16.3",
+    "isomorphic-fetch": "^2.2.1",
+    "next": "7.0.0",
+    "puppeteer": "^1.8.0",
+    "react": "^16.5.2",
+    "react-dom": "^16.5.2"
+  }
+}
