@@ -4,11 +4,10 @@ import Books from '../components/Books';
 const init = () => (
     <div>
         <Header page="index" />
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
+        <div className="container">
+            <div className="row">
                     <Books />
-                </div>
+                <div className="col-md-6"></div>
             </div>
         </div>
         <Footer />

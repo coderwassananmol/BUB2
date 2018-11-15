@@ -12,15 +12,29 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "aws-sdk": "^2.353.0",
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
     "dotenv": "^6.0.0",
     "eslint": "^5.6.0",
     "express": "^4.16.3",
+    "express-fileupload": "^1.0.0",
+    "fs": "0.0.1-security",
+    "http": "0.0.0",
+    "https": "^1.0.0",
     "isomorphic-fetch": "^2.2.1",
+    "loaders.css": "^0.1.2",
     "next": "7.0.0",
-    "puppeteer": "^1.8.0",
+    "node-fetch": "^2.2.1",
+    "nodemailer": "^4.6.8",
     "react": "^16.5.2",
-    "react-dom": "^16.5.2"
+    "react-dom": "^16.5.2",
+    "react-loaders": "^3.0.1",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.2",
+    "s3-upload-stream": "^1.0.7",
+    "scissors": "^0.2.5",
+    "styled-jsx": "^3.1.1",
+    "sweetalert2": "^7.28.12"
   }
 }
