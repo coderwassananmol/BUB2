@@ -24,7 +24,7 @@
     "https": "^1.0.0",
     "isomorphic-fetch": "^2.2.1",
     "loaders.css": "^0.1.2",
-    "next": "7.0.0",
+    "next": ">=7.0.0",
     "node-fetch": "^2.2.1",
     "nodemailer": "^4.6.8",
     "react": "^16.5.2",
