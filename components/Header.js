@@ -18,6 +18,10 @@ const Header = (props) => (
                 href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
                 integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
                 crossOrigin="anonymous" />
+            <link 
+                href="https://fonts.googleapis.com/css?family=Montserrat:300|Open+Sans:300|Raleway:300" 
+                rel="stylesheet" />
+
         </Head>
         <nav className="navbar navbar-default">
             <div className="container-fluid">

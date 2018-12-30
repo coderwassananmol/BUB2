@@ -7,11 +7,21 @@ const download = require('./utils/download.js');
 const scissors = require('scissors');
 const fs = require('fs');
 require('dotenv').config();
+var Book = require('./models/book');
 
 const dev = process.env.NODE_ENV !== 'production'
 const GB_KEY = process.env.GB_KEY;
 const app = next({ dev })
 const handle = app.getRequestHandler()
+var emailaddr = '';
+const mongoose = require('mongoose');
+const mongoDB = 'mongodb://localhost:27017/BUB';
+mongoose.connect(mongoDB);
+mongoose.Promise = global.Promise;
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+
+const book_controller = require('./controller/bookController');
 
 app.prepare()
   .then(() => {
@@ -28,12 +38,60 @@ app.prepare()
 
     let details; //This contains the details of the book after we fetch informaton from the API.
 
+    /**
+     * Every custom route that we build needs to arrive before the * wildcard.
+     * This is necessary because otherwise the server won't recognise the route.
+     */
+
+    /**
+     * Get the information on the basis of book id that we generate on each book being requested to upload.
+     */
+    server.get('/upload/:id', (req, res) => {
+      const actualPage = '/status';
+      //book_controller.book_detail(req,res);
+      const queryParams = { id: req.params.id }
+      app.render(req, res, actualPage, queryParams)
+    })
+
+    server.get('/queuedata', async (req,res) => {
+      /**
+       * Slight modification to be done here.
+       * @param {Number} page that contains a number which can be used in pagination.
+       * Suppose page=1, then fetch the latest 20 entries which implies that each page can
+       * get maximum 20 entries.
+       * Whenever a request to http://localhost:3000/queue occurs, it by default checks for 
+       * http://localhost:3000/queue?page=1, else, it checks for ?page parameter.
+       * Fetch data for 40 books at once.
+       */
+      //res.send({data: book_controller.book_create_get()});
+      const actualPage = '/queue';
+      const queryParams = {page: 1};
+      Book.find({},function (err, data) {
+        if(err) throw err;
+        if (data) {
+            res.send(data);
+        }
+      });
+      //app.render(req, res, actualPage, queryParams);
+      //res.send(mydata);
+    });
+
+    
+    /**
+     * The express handler for default routes.
+     */
     server.get('*', (req, res) => {
       return handle(req, res)
     })
 
+    
+    /**
+     * This route is called when the user submits the form with book id, option and email.
+     */
     server.post('/volumeinfo', (req, res) => {
+      book_controller.book_create_get(req,res);
       const { bookid, option, email } = req.body;
+      emailaddr = email;
       switch (option) {
         case 'gb':
           fetch(`https://www.googleapis.com/books/v1/volumes/${bookid}?key=${GB_KEY}`, {
@@ -45,28 +103,30 @@ app.prepare()
             .then(response => response.json())
             .then(async response => {
               if (response.error) {
-                if (response.error.code === 503) {
+                if (response.error.code === 503) { //Google Books error
                   res.send({ error: true, message: response.error.message });
                 }
               }
               else {
+                //Checking if the document already exists on Internet Archive
+
                 /*await fetch(`https://archive.org/advancedsearch.php?q=${response.id}&fl[]=identifier&output=json`, {
                   method: "GET"
                 })
                 .then(resp => resp.json())
                 .then(resp => {
-                  //var pdf = scissors('https://books.googleusercontent.com/books/content?req=AKW5QafdirdktGwfJQzF_qIb62l5OBHaQ--KGur8FbAPGoB8ho3hIj5pamtvriDN0H-hHJ-nIS4jykjMRtcpYB8m8lbvYx9s9YMc5iaMWJ37KbDgGtCz9nmsa4D0VRGdhczf5CdNcwy3Tv1P7Zs_3eHmkSnYjsosnchXbEm0sR1Kv26LQ30SOpMxMDt1KKqIbL3dD8XCkDXrafVbcIADNT6bNjuF8Biq7qwO7kG70Mq59HC5u8c2VFUTmZq3v_Jw23E6p0JRlEewK2x3A_u1_tjo-UnfiUcMAL2Et5gf-5zC_7HUlHwlZfs').pdfStream().pipe(fs.createWriteStream('nope.pdf'));
 ;                  if(resp.response.numFound == 1) {
                     res.send({ error: false, message: "The document is already available in Internet Archive." });
                   }
                 })
                 .catch(err => console.log(err))*/
                 const { publicDomain } = response.accessInfo; //Response object destructuring
-                if (publicDomain === false) {
+                if (publicDomain === false) { //Checking if the book belongs to publicDomain
                   res.send({ error: true, message: "Not in public domain." });
                 }
                 else {
                   details = response;
+                  //book_controller.book_create_get(req,res);
                   res.send({
                     error: false,
                     message: "In public domain.",
@@ -82,9 +142,9 @@ app.prepare()
 
     server.post('/download', async (req, res) => {
       res.send({ error: false, message: "You will be mailed with the details soon!" });
-      const result = await download.downloadFile(req.body.url, details); //I don't think it works. Need to check if it actually returns a promise.
+      const result = await download.downloadFile(req.body.url, details, emailaddr);
       console.log(result);
-    })
+    });
 
     server.listen(3000, (err) => {
       if (err) throw err

@@ -42,15 +42,6 @@ export default class Books extends React.Component {
         return url;
     }
 
-    openwin(url) {
-        var a = document.createElement("a");
-        a.setAttribute("href", url);
-        a.setAttribute("target", "_blank");
-        a.setAttribute("id", "openwin");
-        document.body.appendChild(a);
-        a.click();
-    }
-
     onSubmit = (event) => {
         event.preventDefault();
         this.setState({
@@ -73,7 +64,6 @@ export default class Books extends React.Component {
                 this.setState({
                     loader: false
                 });
-                console.log(response);
                 if (response.error) {
                     Swal(
                         'Error!',
@@ -110,7 +100,6 @@ export default class Books extends React.Component {
                         this.setState({
                             loader: false
                         })
-                        console.log(response);
                         Swal(
                             'Voila!',
                             response.message,
