@@ -66,7 +66,7 @@ export default class ShowQueue extends React.Component {
         </div>
         {this.props.data.map((item,index) => {
         return (
-            <div className="row itemRow">
+            <div key={item._id} className="row itemRow">
             <div className="col-md-3 item">
               <a href="#">{item.isbn}</a>
             </div>

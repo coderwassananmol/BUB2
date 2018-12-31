@@ -1,6 +1,22 @@
 var Book = require('../models/book');
 
-exports.index = function(req, res) {
+module.exports = {
+    /**
+     * @returns {Promise} The books as per required
+     */
+    book_create_get: async () => {
+        var allBooks;
+        await Book.find({},function (err, data) {
+            if(err) throw err;
+            if (data) {
+                allBooks = data;
+            }
+          });
+          return allBooks;
+    }
+}
+
+/*exports.index = function(req, res) {
     res.send('NOT IMPLEMENTED: Site Home Page');
 };
 
@@ -55,4 +71,4 @@ exports.book_update_get = function(req, res) {
 // Handle book update on POST.
 exports.book_update_post = function(req, res) {
     res.send('NOT IMPLEMENTED: Book update POST');
-};
+};*/

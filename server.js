@@ -63,17 +63,10 @@ app.prepare()
        * http://localhost:3000/queue?page=1, else, it checks for ?page parameter.
        * Fetch data for 40 books at once.
        */
-      //res.send({data: book_controller.book_create_get()});
       const actualPage = '/queue';
       const queryParams = {page: 1};
-      Book.find({},function (err, data) {
-        if(err) throw err;
-        if (data) {
-            res.send(data);
-        }
-      });
-      //app.render(req, res, actualPage, queryParams);
-      //res.send(mydata);
+      const ans = book_controller.book_create_get();
+      ans.then(response => res.send(response));
     });
 
     

@@ -17,7 +17,7 @@ const Queue = (props) => (
 )
 
 Queue.getInitialProps = async function() {
-    const res = await fetch('http://192.168.1.206:3000/queuedata');
+    const res = await fetch('http://192.168.1.11:3000/queuedata');
     const json = await res.json();
     return { data: json }
   }
