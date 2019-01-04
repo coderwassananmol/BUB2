@@ -1,7 +1,7 @@
 /**
  * I don't know but a script has to be written that runs in background and keeps on adding books
  * to IA. This needs to be done and then it's done. Only WB will be left then.
- * Let's finish this goddamn thing tomorrow itself.
+ * Let's finish this goddamn thing tonight itself.
  */
 
 import Header from '../components/Header';
@@ -17,7 +17,7 @@ const Queue = (props) => (
 )
 
 Queue.getInitialProps = async function() {
-    const res = await fetch('http://192.168.1.11:3000/queuedata');
+    const res = await fetch('http://localhost:3000/queuedata');
     const json = await res.json();
     return { data: json }
   }

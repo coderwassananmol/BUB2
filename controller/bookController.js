@@ -2,9 +2,10 @@ var Book = require('../models/book');
 
 module.exports = {
     /**
-     * @returns {Promise} The books as per required
+     * @returns {Promise} Returns the books based on the pagination
+     * 
      */
-    book_create_get: async () => {
+    book_create_get: async (page) => {
         var allBooks;
         await Book.find({},function (err, data) {
             if(err) throw err;
@@ -13,10 +14,38 @@ module.exports = {
             }
           });
           return allBooks;
+    },
+
+    createBook: async (id,publisher,downloadLink,publishedDate,imageLinks,previewLink,title,uri,status) => {
+        Book.create({
+            bookid: id,
+            publisher: publisher,
+            publishedDate: publishedDate,
+            imageLinks: imageLinks,
+            previewLink: previewLink,
+            downloadLink: downloadLink,
+            title: title,
+            uri: uri,
+            status: status
+        }, function (err, data) {
+            if (err) throw err;
+          });
+    },
+
+    updateBook: async (status,bookid) => {
+        try {
+            Book.findOneAndUpdate(
+                {bookid: bookid},
+                {status: status}
+            )
+        }
+        catch(e) {
+            console.log(e);
+        }
     }
 }
 
-/*exports.index = function(req, res) {
+exports.index = function(req, res) {
     res.send('NOT IMPLEMENTED: Site Home Page');
 };
 
@@ -42,15 +71,7 @@ exports.book_create_get = function(req, res) {
 
 // Handle book create on POST.
 exports.book_create_post = function(req, res) {
-    Book.create({
-        title: 'My name is Anmol', 
-        author: 'Anmol Wassan', 
-        summary: 'This is a sample book',
-        isbn: '1234567890'
-    }, function (err, awesome_instance) {
-        if (err) throw err;
-        console.log("Saved");
-      });
+    
 };
 
 // Display book delete form on GET.
@@ -71,4 +92,4 @@ exports.book_update_get = function(req, res) {
 // Handle book update on POST.
 exports.book_update_post = function(req, res) {
     res.send('NOT IMPLEMENTED: Book update POST');
-};*/
+};

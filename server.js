@@ -36,6 +36,8 @@ app.prepare()
     //Enable and use CORS
     server.use(cors({ credentials: true, origin: true }));
 
+    const ans2 = book_controller.book_create_get();
+
     let details; //This contains the details of the book after we fetch informaton from the API.
 
     /**
@@ -74,6 +76,7 @@ app.prepare()
      * The express handler for default routes.
      */
     server.get('*', (req, res) => {
+      //book_controller.book_upload();
       return handle(req, res)
     })
 
@@ -82,7 +85,6 @@ app.prepare()
      * This route is called when the user submits the form with book id, option and email.
      */
     server.post('/volumeinfo', (req, res) => {
-      book_controller.book_create_get(req,res);
       const { bookid, option, email } = req.body;
       emailaddr = email;
       switch (option) {
@@ -119,7 +121,6 @@ app.prepare()
                 }
                 else {
                   details = response;
-                  //book_controller.book_create_get(req,res);
                   res.send({
                     error: false,
                     message: "In public domain.",
@@ -136,7 +137,6 @@ app.prepare()
     server.post('/download', async (req, res) => {
       res.send({ error: false, message: "You will be mailed with the details soon!" });
       const result = await download.downloadFile(req.body.url, details, emailaddr);
-      console.log(result);
     });
 
     server.listen(3000, (err) => {
