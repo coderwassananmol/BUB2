@@ -1,23 +1,10 @@
 import React from "react";
+import Link from 'next/link';
 
 export default class ShowQueue extends React.Component {
   constructor(props) {
     super(props);
   }
-
-  /*componentDidMount() {
-        fetch('http://localhost:3000', {
-            headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*"
-            },
-            method: 'GET'
-        })
-        .then(response => response.json())
-        .then(response => {
-            console.log(response);
-        })
-    }*/
 
   render() {
     /**
@@ -68,13 +55,13 @@ export default class ShowQueue extends React.Component {
         return (
             <div key={item._id} className="row itemRow">
             <div className="col-md-3 item">
-              <a href="#">{item.isbn}</a>
+              <Link href={`/upload/${item.bookid}`} prefetch><a>{item.bookid}</a></Link>
             </div>
             <div className="col-md-6 item">
               <p>{item.title}</p>
             </div>
             <div className="col-md-3 item">
-              <p>{item.author}</p>
+              <p>{item.statusText}</p>
             </div>
           </div>
         )

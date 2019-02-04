@@ -1,8 +1,6 @@
-
-
 module.exports = {
-    emailtemplate: (title, id, status) => {
-        const email_success = `<!doctype html>
+  emailtemplate: (title, statusText, uri) => {
+    const email_success = `<!doctype html>
 <html>
 	<head>
 		<meta charset="UTF-8">
@@ -582,7 +580,7 @@ BUB v2.0</p>
                     <tbody>
                         <tr>
                             <td class="mcnButtonContent" style="font-family: Helvetica; font-size: 18px; padding: 18px;" valign="middle" align="center">
-                                <a class="mcnButton " title="View file" href="https://archive.org/details/bub_gb_${id}" target="_self" style="font-weight: bold;letter-spacing: -0.5px;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;">View file</a>
+                                <a class="mcnButton " title="View file" href="${uri}" target="_self" style="font-weight: bold;letter-spacing: -0.5px;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;">View file</a>
                             </td>
                         </tr>
                     </tbody>
@@ -628,7 +626,7 @@ BUB v2.0</p>
     </body>
 </html>`;
 
-        const email_failure = `<!doctype html>
+    const email_failure = `<!doctype html>
 <html>
 	<head>
 		<meta charset="UTF-8">
@@ -1160,7 +1158,7 @@ BUB v2.0</p>
                         
                         <td class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;" valign="top">
                         
-                            <h3>Your file "${title}" was not uploaded to Internet Archive successfully!</h3>
+                            <h3>Your file "${title}" was not uploaded to Internet Archive!</h3>
 
 <p>Please try again later<br>
 <br>
@@ -1238,11 +1236,10 @@ BUB v2.0</p>
     </body>
 </html>`;
 
-    if(status == 'Successful') {
-        return email_success;
+    if (statusText === "Successful") {
+      return email_success;
+    } else {
+      return email_failure;
     }
-    else {
-        return email_failure;
-    }
-    }
-}
+  }
+};

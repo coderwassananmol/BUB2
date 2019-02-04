@@ -50,12 +50,14 @@ app.prepare()
      */
     server.get('/upload/:id', (req, res) => {
       const actualPage = '/status';
-      //book_controller.book_detail(req,res);
-      const queryParams = { id: req.params.id }
-      app.render(req, res, actualPage, queryParams)
+      let queryParams;
+      book_controller.getParticularBook(req.params.id).then(response => {
+        queryParams = response;
+        app.render(req, res, actualPage, queryParams);
+      })      
     })
 
-    server.get('/queuedata', async (req,res) => {
+    server.get('/api/queue', async (req,res) => {
       /**
        * Slight modification to be done here.
        * @param {Number} page that contains a number which can be used in pagination.
@@ -65,13 +67,15 @@ app.prepare()
        * http://localhost:3000/queue?page=1, else, it checks for ?page parameter.
        * Fetch data for 40 books at once.
        */
-      const actualPage = '/queue';
-      const queryParams = {page: 1};
-      const ans = book_controller.book_create_get();
-      ans.then(response => res.send(response));
+      const ans = book_controller.book_create_get(1);
+      let queryParams;
+      ans.then(response => {
+          queryParams = response.docs;
+          res.send(queryParams);
+        })
+      //ans.then(response => res.send(response));
     });
 
-    
     /**
      * The express handler for default routes.
      */

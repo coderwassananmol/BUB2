@@ -7,16 +7,26 @@ module.exports = {
      */
     book_create_get: async (page) => {
         var allBooks;
-        await Book.find({},function (err, data) {
+        await Book.paginate(
+            {}, 
+            {page: page,sort: {_id : -1}}, 
+            (err,result) => {
+            if(err) throw err;
+            if(result) {
+                allBooks = result;
+            }
+        });
+        return allBooks;
+        /*await Book.find({},function (err, data) {
             if(err) throw err;
             if (data) {
                 allBooks = data;
             }
           });
-          return allBooks;
+          return allBooks;*/
     },
 
-    createBook: async (id,publisher,downloadLink,publishedDate,imageLinks,previewLink,title,uri,status) => {
+    createBook: (id,publisher,downloadLink,publishedDate,imageLinks,previewLink,title,uri,statusText,callback) => {
         Book.create({
             bookid: id,
             publisher: publisher,
@@ -26,22 +36,46 @@ module.exports = {
             downloadLink: downloadLink,
             title: title,
             uri: uri,
-            status: status
-        }, function (err, data) {
-            if (err) throw err;
+            statusText: statusText
+        }, (err, data) => {
+            if (err)
+                throw err;
+            else
+                return callback(data._id);
           });
     },
 
-    updateBook: async (status,bookid) => {
+    updateBook: async (statusText,id) => {
+        console.log(statusText,id);
         try {
             Book.findOneAndUpdate(
-                {bookid: bookid},
-                {status: status}
+                {_id: id},
+                {
+                    $set: {
+                        statusText: statusText,
+                    }
+                },
+                (err,doc,res) => {
+                    if(err) throw err;
+                    console.log(doc);
+                }
             )
+            console.log("Book ID: " + id + "Status: " + statusText)
         }
         catch(e) {
             console.log(e);
         }
+    },
+
+    getParticularBook: async (bookid) => {
+        var bookdetails;
+        await Book.findOne({bookid: bookid}, (err, res) => {
+            if(err) throw err;
+            if(res) {
+                bookdetails = res;
+            }
+        })
+        return bookdetails;
     }
 }
 

@@ -14,7 +14,7 @@ var BookSchema = new Schema(
     title: {type: String, required: true},
     isbn: {type: String, required: false},
     uri: {type: String, required: true},
-    status: {type: Boolean, required: true}
+    statusText: {type: String, required: true}
   }
 );
 

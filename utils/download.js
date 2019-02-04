@@ -1,7 +1,5 @@
 const request = require('request');
 const nodemailer = require('nodemailer');
-const scissors = require('scissors');
-const fs = require('fs');
 const emailtemp = require('./email.js');
 const bookController = require('../controller/bookController');
 
@@ -18,7 +16,8 @@ const transporter = nodemailer.createTransport({
 module.exports = {
 	downloadFile: (uri, details, email) => {
 		const requestURI = request(uri);
-		let status = false;
+		let statusText = 'Uploading';
+		let documentID;
 		const {id,volumeInfo,accessInfo} = details;
 		const {
 			publisher,publishedDate,imageLinks,previewLink,title,language,accessViewStatus,
@@ -26,8 +25,13 @@ module.exports = {
 		} = volumeInfo;
 		const {pdf} = accessInfo;
 		const IAuri = `http://s3.us.archive.org/bub_gb_${id}/bub_gb_${id}.pdf`;
+		const trueURI = `http://archive.org/details/bub_gb_${id}`;
 		bookController.createBook(
-			id,publisher,pdf.downloadLink,publishedDate,imageLinks.thumbnail,previewLink,title,IAuri,status
+			id,publisher,pdf.downloadLink,publishedDate,imageLinks.thumbnail,previewLink,title,trueURI,statusText,
+			function(id) {
+				console.log(id);
+				documentID = id;
+			}
 		);
 		requestURI.pipe(request({
 			method: 'PUT',
@@ -54,33 +58,48 @@ module.exports = {
 		},
 			(error, response, body) => {
 				if (error || response.statusCode != 200) {
+					console.log("There was some error");
 					console.error(error);
 					console.error(response);
-					status = 'Error';
+					statusText = 'Error';
+					bookController.updateBook(statusText,documentID);
+					if(email != '') {
+						const mailOptions = {
+							from: 'bub.wikimedia@gmail.com', // sender address
+							to: email, // list of receivers
+							subject: 'BUB File Upload - "Error"', // Subject line
+							html: emailtemp.emailtemplate(title,statusText,trueURI)// plain text body
+						};
+			
+						transporter.sendMail(mailOptions, function (err, info) {
+							if (err)
+								console.log(err)
+							else
+								console.log(info);
+						});
+					}
 					return { error: true, message: "Download from Google Books failed!" + response }
 				}
 				else {
-					status = 'Successful';
-					bookController.updateBook(id,true);
+					statusText = 'Successful';
+					bookController.updateBook(statusText,documentID);
+					if(email != '') {
+						const mailOptions = {
+							from: 'bub.wikimedia@gmail.com', // sender address
+							to: email, // list of receivers
+							subject: 'BUB File Upload - "Sucessful"', // Subject line
+							html: emailtemp.emailtemplate(title,statusText,trueURI)// plain text body
+						};
+			
+						transporter.sendMail(mailOptions, function (err, info) {
+							if (err)
+								console.log(err)
+							else
+								console.log(info);
+						});
+					}
 					return { error: false, message: "Upload Successful!" }
 				}
 			}))
-
-			if(email != '') {
-				const mailOptions = {
-					from: 'wassan.anmol@gmail.com', // sender address
-					to: email, // list of receivers
-					subject: `BUB File Upload - ${status}`, // Subject line
-					html: emailtemp.emailtemplate(details.volumeInfo.title,details.id,status)// plain text body
-				};
-	
-				transporter.sendMail(mailOptions, function (err, info) {
-					if (err)
-						console.log(err)
-					else
-						console.log(info);
-				});
-			}
 	},
-
 }

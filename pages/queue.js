@@ -7,6 +7,7 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ShowQueue from '../components/ShowQueue';
+import Link from 'next/link';
 
 const Queue = (props) => (
     <div>
@@ -16,10 +17,10 @@ const Queue = (props) => (
     </div>
 )
 
-Queue.getInitialProps = async function() {
-    const res = await fetch('http://localhost:3000/queuedata');
-    const json = await res.json();
-    return { data: json }
-  }
+Queue.getInitialProps = async () => {
+    const data = await fetch('http://localhost:3000/api/queue');
+    const json = await data.json();
+    return {data: json}
+}
 
 export default Queue;
