@@ -46,7 +46,6 @@ module.exports = {
     },
 
     updateBook: async (statusText,id) => {
-        console.log(statusText,id);
         try {
             Book.findOneAndUpdate(
                 {_id: id},
@@ -57,10 +56,8 @@ module.exports = {
                 },
                 (err,doc,res) => {
                     if(err) throw err;
-                    console.log(doc);
                 }
             )
-            console.log("Book ID: " + id + "Status: " + statusText)
         }
         catch(e) {
             console.log(e);
