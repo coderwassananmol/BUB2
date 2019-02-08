@@ -7,20 +7,20 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ShowQueue from '../components/ShowQueue';
+import Paginate from '../components/Paginate';
 import Link from 'next/link';
 
 const Queue = (props) => (
     <div>
         <Header page="queue"/>
-            <ShowQueue data={props.data}/>
+            <Paginate prev={props.prev != 0 ? props.prev : ''} next={props.next}/>
+            <ShowQueue data = {props.data} />
         <Footer />
     </div>
 )
 
-Queue.getInitialProps = async () => {
-    const data = await fetch('http://localhost:3000/api/queue');
-    const json = await data.json();
-    return {data: json}
+Queue.getInitialProps = ({query},res) => {
+    return {data: query, prev: query.page-1, next: Number(query.page)+1}
 }
 
 export default Queue;

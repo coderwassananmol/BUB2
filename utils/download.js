@@ -29,7 +29,6 @@ module.exports = {
 		bookController.createBook(
 			id,publisher,pdf.downloadLink,publishedDate,imageLinks.thumbnail,previewLink,title,trueURI,statusText,
 			function(id) {
-				console.log(id);
 				documentID = id;
 			}
 		);
@@ -58,7 +57,6 @@ module.exports = {
 		},
 			(error, response, body) => {
 				if (error || response.statusCode != 200) {
-					console.log("There was some error");
 					console.error(error);
 					console.error(response);
 					statusText = 'Error';
@@ -72,10 +70,7 @@ module.exports = {
 						};
 			
 						transporter.sendMail(mailOptions, function (err, info) {
-							if (err)
-								console.log(err)
-							else
-								console.log(info);
+							if (err) throw err
 						});
 					}
 					return { error: true, message: "Download from Google Books failed!" + response }
@@ -92,10 +87,7 @@ module.exports = {
 						};
 			
 						transporter.sendMail(mailOptions, function (err, info) {
-							if (err)
-								console.log(err)
-							else
-								console.log(info);
+							if (err) throw err
 						});
 					}
 					return { error: false, message: "Upload Successful!" }
