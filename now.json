@@ -1,7 +1,6 @@
 {
     "version": 2,
     "builds": [
-      { "src": "package.json", "use": "@now/next" },
-      { "src": "server.js", "use": "@now/node" }
+      { "src": "package.json", "use": "@now/next" }
     ]
   }
