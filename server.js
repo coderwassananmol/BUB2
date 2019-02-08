@@ -6,7 +6,6 @@ const cors = require('cors');
 const download = require('./utils/download.js');
 const scissors = require('scissors');
 const fs = require('fs');
-const compression = require('compression')  
 require('dotenv').config();
 var Book = require('./models/book');
 
@@ -37,8 +36,6 @@ app.prepare()
     //Enable and use CORS
     server.use(cors({ credentials: true, origin: true }));
 
-    server.use(compression())
-
     const ans2 = book_controller.book_create_get();
 
     let details; //This contains the details of the book after we fetch informaton from the API.
@@ -60,11 +57,7 @@ app.prepare()
       })      
     })
 
-    server.get('/queue',(req,res) => {
-      res.redirect('/queue/1');
-    })
-
-    server.get('/queue/:id', (req,res) => {
+    server.get('/api/queue', async (req,res) => {
       /**
        * Slight modification to be done here.
        * @param {Number} page that contains a number which can be used in pagination.
@@ -74,12 +67,11 @@ app.prepare()
        * http://localhost:3000/queue?page=1, else, it checks for ?page parameter.
        * Fetch data for 40 books at once.
        */
-      const ans = book_controller.book_create_get(req.params.id);
+      const ans = book_controller.book_create_get(1);
       let queryParams;
       ans.then(response => {
           queryParams = response.docs;
-          queryParams.page = req.params.id;
-          app.render(req, res, '/queue',queryParams);
+          res.send(queryParams);
         })
       //ans.then(response => res.send(response));
     });
