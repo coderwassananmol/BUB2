@@ -47,7 +47,7 @@ export default class Books extends React.Component {
         this.setState({
             loader: true
         })
-        fetch('http://localhost:3000/volumeinfo', {
+        fetch('/volumeinfo', {
             body: JSON.stringify({
                 "bookid": this.state.bookid,
                 "option": this.state.option,
@@ -85,7 +85,7 @@ export default class Books extends React.Component {
                     this.setState({
                         loader: true
                     })
-                    fetch('http://localhost:3000/download', {
+                    fetch('/download', {
                         body: JSON.stringify({
                             "url": url,
                         }),

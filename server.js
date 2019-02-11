@@ -4,19 +4,16 @@ const bodyParser = require('body-parser');
 const fetch = require('isomorphic-fetch');
 const cors = require('cors');
 const download = require('./utils/download.js');
-const scissors = require('scissors');
-const fs = require('fs');
 const compression = require('compression')  
 require('dotenv').config();
-var Book = require('./models/book');
-
+const os = require("os");
 const dev = process.env.NODE_ENV !== 'production'
 const GB_KEY = process.env.GB_KEY;
 const app = next({ dev })
 const handle = app.getRequestHandler()
 var emailaddr = '';
 const mongoose = require('mongoose');
-const mongoDB = 'mongodb://localhost:27017/BUB';
+const mongoDB = process.env.mongoDBURI;
 mongoose.connect(mongoDB);
 mongoose.Promise = global.Promise;
 const db = mongoose.connection;
@@ -151,9 +148,9 @@ app.prepare()
       const result = await download.downloadFile(req.body.url, details, emailaddr);
     });
 
-    server.listen(3000, (err) => {
+    server.listen(process.env.PORT || 8080, (err) => {
       if (err) throw err
-      console.log('> Ready on http://localhost:3000')
+      console.log(`> Ready on /:8080`);
     })
   })
   .catch((ex) => {
