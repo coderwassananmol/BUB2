@@ -45,6 +45,22 @@ module.exports = {
           });
     },
 
+    createBookMinimal: (id,imageLinks,previewLink,title,uri,statusText,callback) => {
+        Book.create({
+            bookid: id,
+            imageLinks: imageLinks,
+            previewLink: previewLink,
+            title: title,
+            uri: uri,
+            statusText: statusText
+        }, (err, data) => {
+            if (err)
+                throw err;
+            else
+                return callback(data._id);
+          });
+    },
+
     updateBook: async (statusText,id) => {
         try {
             Book.findOneAndUpdate(
