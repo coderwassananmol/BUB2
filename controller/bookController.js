@@ -13,17 +13,11 @@ module.exports = {
             (err,result) => {
             if(err) throw err;
             if(result) {
+                console.log(result.total);
                 allBooks = result;
             }
         });
         return allBooks;
-        /*await Book.find({},function (err, data) {
-            if(err) throw err;
-            if (data) {
-                allBooks = data;
-            }
-          });
-          return allBooks;*/
     },
 
     createBook: (id,publisher,downloadLink,publishedDate,imageLinks,previewLink,title,uri,statusText,callback) => {

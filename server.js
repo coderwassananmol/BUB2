@@ -15,6 +15,7 @@ const dev = process.env.NODE_ENV !== "production";
 const GB_KEY = process.env.GB_KEY;
 const app = next({ dev });
 const handle = app.getRequestHandler();
+const bookController = require("./controller/bookController");
 var emailaddr = "";
 const mongoose = require("mongoose");
 const mongoDB = process.env.mongoDBURI;
@@ -146,10 +147,18 @@ app
                 }
               }
             })
-            .catch(error => console.log(error));
+            .catch(error => {
+              console.log("Error is here")
+              console.log(error);
+              res.send({
+                error: true,
+                message: "There was some error fetching that document from Google Books."
+              })
+            });
           break;
         case "pn":
           let details = {};
+          let documentID = '';
           var options = {
             uri: bookid,
             transform: function(body) {
@@ -158,15 +167,10 @@ app
           };
           await rp(options)
             .then(async function($) {
-              res.send({
-                error: false,
-                message: "You will be mailed with the details soon!"
-              });
               let images = [];
               const no_of_pages = $(
                 "form > table > tbody > tr > td > table > tbody > tr > td:nth-child(2) > table > tbody > tr > td:nth-child(1) > table > tbody > tr > td:nth-child(4) > b"
               ).text();
-              const iframe = $("iframe").attr("src");
               details.pages = no_of_pages;
               let parsedUrl = url.parse(bookid);
               let parsedQs = querystring.parse(parsedUrl.query);
@@ -175,17 +179,19 @@ app
                 "body > table > tbody > tr > td:nth-child(2) > table > tbody > tr:nth-child(7) > td > table > tbody > tr > td:nth-child(2) > table > tbody > tr:nth-child(2) > td > table:nth-child(10) > tbody > tr:nth-child(2) > td"
               ).text();
               details.previewLink = bookid;
+              res.send({
+                error: false,
+                message: "You will be mailed with the details soon!"
+              });
               for (let i = 1; i <= no_of_pages; ++i) {
                 const str = `http://www.panjabdigilib.org/images?ID=${
                   details.id
-                }&page=${i}&pagetype=null`;
-                let error = false;
-                console.log(str);
+                }&page=${i}&pagetype=null&Searched=W3GX`;
                 await rp({
                   method: "GET",
                   uri: str,
                   encoding: null,
-                  transform: function(body, response, resolveWithFullResponse) {
+                  transform: function(body, response) {
                     return { headers: response.headers, data: body };
                   }
                 })
@@ -200,19 +206,31 @@ app
                     }
                   })
                   .catch(function(err) {
-                    error = true;
-                  }).then(function() {
-                    if(error) {
-                      console.log("i increased");
-                    }
-                  });
+                    console.log(err)
+                  })
               }
               details.imageLinks = images;
             })
             .catch(function(err) {
               // Crawling failed or Cheerio choked...
-              throw err;
+              res.send({
+                error: true,
+                message: "Invalid URL."
+              })
+              console.log(err)
             })
+
+            bookController.createBookMinimal(
+              details.id,
+              details.imageLinks[0],
+              details.previewLink,
+              details.title,
+              `http://archive.org/details/bub_pn_${details.id}`,
+              "Uploading",
+              function(id) {
+                documentID = id;
+              }
+            );
 
           let metadataURI = bookid.replace("displayPageContent", "displayPage");
           await rp({
@@ -227,7 +245,7 @@ app
             details.language = $(
               "tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > table:nth-child(22) > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > div > table > tbody > tr:nth-child(4) > td > table > tbody > tr > td:nth-child(2) > a"
             ).text();
-            download.downloadFromPanjabLibrary(details,email);
+            download.downloadFromPanjabLibrary(details,email,documentID);
           });
           break;
       }
