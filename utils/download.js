@@ -67,7 +67,7 @@ module.exports = {
             "X-archive-meta-title": title,
             "X-archive-meta-date": publishedDate,
             "X-archive-meta-language": language,
-            "X-archive-meta-mediatype": "image",
+            "X-archive-meta-mediatype": "text",
             "X-archive-meta-licenseurl":
               "https://creativecommons.org/publicdomain/mark/1.0/",
             "X-archive-meta-publisher": publisher,

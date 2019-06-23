@@ -97,6 +97,7 @@ app
     /**
      * This route is called when the user submits the form with book id, option and email.
      */
+    let GBdetails = {};
     server.post("/volumeinfo", async (req, res) => {
       const { bookid, option, email } = req.body;
       emailaddr = email;
@@ -136,12 +137,12 @@ app
                   //Checking if the book belongs to publicDomain
                   res.send({ error: true, message: "Not in public domain." });
                 } else {
-                  details = response;
+                  GBdetails = response;
                   res.send({
                     error: false,
                     message: "In public domain.",
-                    url: details.accessInfo.pdf.downloadLink,
-                    title: details.volumeInfo.title
+                    url: GBdetails.accessInfo.pdf.downloadLink,
+                    title: GBdetails.volumeInfo.title
                   });
                 }
               }
@@ -149,7 +150,7 @@ app
             .catch(error => console.log(error));
           break;
         case "pn":
-          let details = {};
+        let PNdetails = {};
           var options = {
             uri: bookid,
             transform: function(body) {
@@ -167,17 +168,17 @@ app
                 "form > table > tbody > tr > td > table > tbody > tr > td:nth-child(2) > table > tbody > tr > td:nth-child(1) > table > tbody > tr > td:nth-child(4) > b"
               ).text();
               const iframe = $("iframe").attr("src");
-              details.pages = no_of_pages;
+              PNdetails.pages = no_of_pages;
               let parsedUrl = url.parse(bookid);
               let parsedQs = querystring.parse(parsedUrl.query);
-              details.id = parsedQs.ID;
-              details.title = $(
+              PNdetails.id = parsedQs.ID;
+              PNdetails.title = $(
                 "body > table > tbody > tr > td:nth-child(2) > table > tbody > tr:nth-child(7) > td > table > tbody > tr > td:nth-child(2) > table > tbody > tr:nth-child(2) > td > table:nth-child(10) > tbody > tr:nth-child(2) > td"
               ).text();
-              details.previewLink = bookid;
+              PNdetails.previewLink = bookid;
               for (let i = 1; i <= no_of_pages; ++i) {
                 const str = `http://www.panjabdigilib.org/images?ID=${
-                  details.id
+                  PNdetails.id
                 }&page=${i}&pagetype=null`;
                 let error = false;
                 console.log(str);
@@ -207,7 +208,7 @@ app
                     }
                   });
               }
-              details.imageLinks = images;
+              PNdetails.imageLinks = images;
             })
             .catch(function(err) {
               // Crawling failed or Cheerio choked...
@@ -221,13 +222,13 @@ app
               return cheerio.load(body);
             }
           }).then(function($) {
-            details.script = $(
+            PNdetails.script = $(
               "tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > table:nth-child(22) > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > div > table > tbody > tr:nth-child(3) > td > table > tbody > tr > td:nth-child(2) > a"
             ).text();
-            details.language = $(
+            PNdetails.language = $(
               "tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > table:nth-child(22) > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > div > table > tbody > tr:nth-child(4) > td > table > tbody > tr > td:nth-child(2) > a"
             ).text();
-            download.downloadFromPanjabLibrary(details,email);
+            download.downloadFromPanjabLibrary(PNdetails,email);
           });
           break;
       }
@@ -240,7 +241,7 @@ app
       });
       download.downloadFromGoogleBooks(
         req.body.url,
-        details,
+        GBdetails,
         emailaddr
       );
     });
