@@ -13,17 +13,11 @@ module.exports = {
             (err,result) => {
             if(err) throw err;
             if(result) {
+                console.log(result.total);
                 allBooks = result;
             }
         });
         return allBooks;
-        /*await Book.find({},function (err, data) {
-            if(err) throw err;
-            if (data) {
-                allBooks = data;
-            }
-          });
-          return allBooks;*/
     },
 
     createBook: (id,publisher,downloadLink,publishedDate,imageLinks,previewLink,title,uri,statusText,callback) => {
@@ -45,8 +39,9 @@ module.exports = {
           });
     },
 
-    createBookMinimal: (id,imageLinks,previewLink,title,uri,statusText,callback) => {
-        Book.create({
+    createBookMinimal: async (id,imageLinks,previewLink,title,uri,statusText,callback) => {
+        let documentID
+        await Book.create({
             bookid: id,
             imageLinks: imageLinks,
             previewLink: previewLink,
@@ -57,8 +52,9 @@ module.exports = {
             if (err)
                 throw err;
             else
-                return callback(data._id);
+                documentID = data._id
           });
+          return documentID;
     },
 
     updateBook: async (statusText,id) => {

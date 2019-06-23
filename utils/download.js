@@ -13,7 +13,6 @@ const transporter = nodemailer.createTransport({
     pass: process.env.password
   }
 });
-
 module.exports = {
   downloadFromGoogleBooks: (uri, details, email) => {
     const requestURI = request(uri);
@@ -106,7 +105,6 @@ module.exports = {
                 subject: 'BUB File Upload - "Successful"', // Subject line
                 html: emailtemp.emailtemplate(title, statusText, trueURI) // plain text body
               };
-
               transporter.sendMail(mailOptions, function(err, info) {
                 if (err) throw err;
               });
@@ -116,7 +114,7 @@ module.exports = {
       )
     );
   },
-  downloadFromPanjabLibrary: (details,email) => {
+  downloadFromPanjabLibrary: (details,email, documentID) => {
     const {
       id,
       title,
@@ -129,26 +127,14 @@ module.exports = {
     let statusText = "Uploading";
     const IAuri = `http://s3.us.archive.org/bub_pn_${id}/bub_pn_${id}.pdf`;
     const trueURI = `http://archive.org/details/bub_pn_${id}`;
-    let documentID;
-    bookController.createBookMinimal(
-      id,
-      imageLinks[0],
-      previewLink,
-      title,
-      trueURI,
-      statusText,
-      function(id) {
-        documentID = id;
-      }
-    );
     const doc = new PDFDocument;
+    bar1.start(100, 0);
     for (var i = 0; i < imageLinks.length; i++) {
       doc.image(imageLinks[i], { width:500, height:600, align: "center" });
       i !== imageLinks.length - 1 ? doc.addPage() : null;
     }
     doc.end();
-
-    new Promise((resolve, reject) => {
+    new Promise(async (resolve, reject) => {
       doc.pipe(fs.createWriteStream(`output${id}.pdf`)).on("finish", () => {
         fs.stat(`output${id}.pdf`, (err, stat) => {
           if (err) reject({ error: true });
@@ -156,6 +142,7 @@ module.exports = {
         });
       });
     }).then(value => {
+      
       fs.createReadStream(`output${id}.pdf`).pipe(
         request(
           {
@@ -187,7 +174,8 @@ module.exports = {
             }
           },
           (error, response, body) => {
-            fs.unlink(`output${id}.pdf`, err => console.log(err));
+            //fs.unlink(`output${id}.pdf`, err => console.log(err));
+            bar1.stop()
             if (error) {
               statusText = "Error";
               bookController.updateBook(statusText, documentID);
