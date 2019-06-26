@@ -10,14 +10,14 @@ const cheerio = require("cheerio"); // Basically jQuery for node.js
 const rp = require("request-promise");
 const url = require("url");
 const querystring = require("querystring");
-const dev = process.env.NODE_ENV !== "production";
-const GB_KEY = process.env.GB_KEY;
+const dev = "production";
+const GB_KEY = "AIzaSyDYtPaK8hIh_YOtmt4Gmfi4Kg1t-Qax7pc";
 const app = next({ dev });
 const handle = app.getRequestHandler();
 const bookController = require("./controller/bookController");
 var emailaddr = "";
 const mongoose = require("mongoose");
-const mongoDB = process.env.mongoDBURI;
+const mongoDB = "mongodb://localhost:27017/BUB";
 mongoose.connect(mongoDB);
 mongoose.Promise = global.Promise;
 const db = mongoose.connection;

@@ -9,8 +9,8 @@ require("dotenv").config();
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: process.env.email,
-    pass: process.env.password
+    user: "bub.wikimedia@gmail.com",
+    pass: "Bub@wikimedia"
   }
 });
 module.exports = {
@@ -55,9 +55,7 @@ module.exports = {
           postambleCRLF: true,
           uri: IAuri,
           headers: {
-            Authorization: `LOW ${process.env.access_key}:${
-              process.env.secret_key
-            }`,
+            Authorization: 'LOW syYq28FXq1fLEFBx:oMHgGlk7tuhF3U9r',
             "Content-type": "application/pdf; charset=utf-8",
             "Accept-Charset": "utf-8",
             "X-Amz-Auto-Make-Bucket": "1",
@@ -151,9 +149,7 @@ module.exports = {
             postambleCRLF: true,
             uri: IAuri,
             headers: {
-              Authorization: `LOW ${process.env.access_key}:${
-                process.env.secret_key
-              }`,
+              Authorization: 'LOW syYq28FXq1fLEFBx:oMHgGlk7tuhF3U9r',
               "Content-type": "application/pdf; charset=utf-8",
               "Content-length": value,
               "Accept-Charset": "utf-8",
