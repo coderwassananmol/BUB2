@@ -7,17 +7,23 @@ module.exports = {
      */
     book_create_get: async (page) => {
         var allBooks;
-        await Book.paginate(
-            {}, 
-            {page: page,sort: {_id : -1}}, 
-            (err,result) => {
-            if(err) throw err;
-            if(result) {
-                console.log(result.total);
-                allBooks = result;
-            }
-        });
-        return allBooks;
+        try {
+            await Book.paginate(
+                {}, 
+                {page: page,sort: {_id : -1}}, 
+                (err,result) => {
+                if(err) throw err;
+                if(result) {
+                    console.log(result.total);
+                    allBooks = result;
+                }
+            });
+            return allBooks;
+        }
+        catch(err) {
+            console.log(err)
+            return allBooks;
+        }
     },
 
     createBook: (id,publisher,downloadLink,publishedDate,imageLinks,previewLink,title,uri,statusText,callback) => {

@@ -58,6 +58,11 @@ app
       });
     });
 
+    /**
+     * Redirect to the first page of the queue.
+     * /queue should directly lead to /queue/1
+     * If an ID is specified separately, it will go the next API.
+     */
     server.get("/queue", (req, res) => {
       res.redirect("/queue/1");
     });
@@ -72,30 +77,36 @@ app
        * http://localhost:3000/queue?page=1, else, it checks for ?page parameter.
        * Fetch data for 40 books at once.
        */
-      const ans = bookController.book_create_get(req.params.id);
-      let queryParams;
-      ans.then(response => {
-        queryParams = response.docs;
-        queryParams.page = req.params.id;
-        app.render(req, res, "/queue", queryParams);
-      });
+      try {
+        const ans = bookController.book_create_get(req.params.id);
+        let queryParams; //The variable that will hold the data
+        ans.then(response => {
+          if(typeof response === 'object' && "docs" in response) {
+            queryParams = response.docs;
+            queryParams.page = req.params.id;
+            app.render(req, res, "/queue", queryParams);
+          }
+          else {
+            res.redirect('/')
+          }
+        });
+      }
+      catch(err) {
+        res.redirect('/')
+      }
       //ans.then(response => res.send(response));
     });
-
+    
     /**
-     * The express handler for default routes.
-     */
-    server.get("*", (req, res) => {
-      //book_controller.book_upload();
-      return handle(req, res);
-    });
-
-    /**
-     * This route is called when the user submits the form with book id, option and email.
+     * TODO:
+     * This route must change to /check. For every request that is being hit with either "GB" or "PN".
+     * It must check the IA to see if the book already exists.
+     * Then, if the source is Google Books, then it must hit the API to check if the book is in public domain. If it's in public domain, the user must see a prompt to upload the book or not, else he will be shown an alert.
+     * Else, if the source is PDL, then all the information should be retreived from the API and the user must see a prompt to upload the book or not.
      */
     let GBdetails = {};
-    server.post("/volumeinfo", async (req, res) => {
-      const { bookid, option, email } = req.body;
+    server.get("/check", async (req, res) => {
+      const { bookid, option, email } = req.query;
       emailaddr = email;
       switch (option) {
         case "gb":
@@ -117,29 +128,40 @@ app
                 }
               } else {
                 //Checking if the document already exists on Internet Archive
-
-                /*await fetch(`https://archive.org/advancedsearch.php?q=${response.id}&fl[]=identifier&output=json`, {
+                let isPresent = false
+                await fetch(`https://archive.org/advancedsearch.php?q=${response.id}&fl[]=identifier&output=json`, {
                   method: "GET"
                 })
                 .then(resp => resp.json())
                 .then(resp => {
-;                  if(resp.response.numFound == 1) {
-                    res.send({ error: false, message: "The document is already available in Internet Archive." });
+;                  if(resp.response.numFound !== 0) {
+                    isPresent = true;
                   }
                 })
-                .catch(err => console.log(err))*/
-                const { publicDomain } = response.accessInfo; //Response object destructuring
-                if (publicDomain === false) {
-                  //Checking if the book belongs to publicDomain
-                  res.send({ error: true, message: "Not in public domain." });
-                } else {
-                  GBdetails = response;
-                  res.send({
-                    error: false,
-                    message: "In public domain.",
-                    url: GBdetails.accessInfo.pdf.downloadLink,
-                    title: GBdetails.volumeInfo.title
-                  });
+                .catch(err => console.log(err))
+                
+                //Checking if the book is already present in the database with status "Uploading" or "Successful"
+                bookController.getParticularBook(response.id).then(response => {
+                  console.log(response)
+                });
+
+                if(isPresent) {
+                  res.send({ error: true, message: "The document is already available in Internet Archive." });
+                }
+                else {
+                  const { publicDomain } = response.accessInfo; //Response object destructuring
+                  if (publicDomain === false) {
+                    //Checking if the book belongs to publicDomain
+                    res.send({ error: true, message: "Not in public domain." });
+                  } else {
+                    GBdetails = response;
+                    res.send({
+                      error: false,
+                      message: "In public domain.",
+                      url: GBdetails.accessInfo.pdf.downloadLink,
+                      title: GBdetails.volumeInfo.title
+                    });
+                  }
                 }
               }
             })
@@ -244,6 +266,14 @@ app
           });
           break;
       }
+    });
+
+    /**
+     * The express handler for default routes.
+     */
+    server.get("*", (req, res) => {
+      //book_controller.book_upload();
+      return handle(req, res);
     });
 
     server.post("/download", async (req, res) => {

@@ -52,17 +52,11 @@ export default class Books extends React.Component {
     this.setState({
       loader: true
     });
-    fetch("/volumeinfo", {
-      body: JSON.stringify({
-        bookid: this.state.bookid,
-        option: this.state.option,
-        email: this.state.email
-      }),
+    fetch(`/check?bookid=${this.state.bookid}&option=${this.state.option}&email=${this.state.email}`, {
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*"
-      },
-      method: "POST"
+      }
     })
       .then(response => response.json())
       .then(async response => {
