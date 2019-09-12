@@ -7,14 +7,17 @@ const fs = require("fs");
 require("dotenv").config();
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  service: process.env.service,
   auth: {
     user: process.env.email,
     pass: process.env.password
   }
 });
 module.exports = {
-  downloadFromGoogleBooks: (uri, details, email) => {
+  downloadFromGoogleBooks: async (GoogleBooksQueue, uri, details, email) => {
+    GoogleBooksQueue.add({
+      details
+    })
     const requestURI = request(uri);
     let statusText = "Uploading";
     let documentID;
@@ -33,20 +36,20 @@ module.exports = {
     const { pdf } = accessInfo;
     const IAuri = `http://s3.us.archive.org/bub_gb_${id}/bub_gb_${id}.pdf`;
     const trueURI = `http://archive.org/details/bub_gb_${id}`;
-    bookController.createBook(
-      id,
-      publisher,
-      pdf.downloadLink,
-      publishedDate,
-      imageLinks.thumbnail,
-      previewLink,
-      title,
-      trueURI,
-      statusText,
-      function(id) {
-        documentID = id;
-      }
-    );
+    // bookController.createBook(
+    //   id,
+    //   publisher,
+    //   pdf.downloadLink,
+    //   publishedDate,
+    //   imageLinks.thumbnail,
+    //   previewLink,
+    //   title,
+    //   trueURI,
+    //   statusText,
+    //   function(id) {
+    //     documentID = id;
+    //   }
+    // );
     requestURI.pipe(
       request(
         {
@@ -82,8 +85,8 @@ module.exports = {
             console.error(error);
             console.error(response);
             statusText = "Error";
-            bookController.updateBook(statusText, documentID);
-            if (email != "") {
+            //bookController.updateBook(statusText, documentID);
+            if (email != "") {  
               const mailOptions = {
                 from: "bub.wikimedia@gmail.com", // sender address
                 to: email, // list of receivers
@@ -97,7 +100,7 @@ module.exports = {
             }
           } else {
             statusText = "Successful";
-            bookController.updateBook(statusText, documentID);
+            //bookController.updateBook(statusText, documentID);
             if (email != "") {
               const mailOptions = {
                 from: "bub.wikimedia@gmail.com", // sender address
@@ -128,7 +131,6 @@ module.exports = {
     const IAuri = `http://s3.us.archive.org/bub_pn_${id}/bub_pn_${id}.pdf`;
     const trueURI = `http://archive.org/details/bub_pn_${id}`;
     const doc = new PDFDocument;
-    bar1.start(100, 0);
     for (var i = 0; i < imageLinks.length; i++) {
       doc.image(imageLinks[i], { width:500, height:600, align: "center" });
       i !== imageLinks.length - 1 ? doc.addPage() : null;
@@ -174,11 +176,11 @@ module.exports = {
             }
           },
           (error, response, body) => {
-            //fs.unlink(`output${id}.pdf`, err => console.log(err));
+            fs.unlink(`output${id}.pdf`, err => console.log(err));
             bar1.stop()
             if (error) {
               statusText = "Error";
-              bookController.updateBook(statusText, documentID);
+              //bookController.updateBook(statusText, documentID);
               console.log(error);
               if (email != "") {
                 const mailOptions = {
@@ -194,7 +196,7 @@ module.exports = {
               }
             } else {
               statusText = "Successful";
-              bookController.updateBook(statusText, documentID);
+              //bookController.updateBook(statusText, documentID);
               if (email != "") {
                 const mailOptions = {
                   from: "bub.wikimedia@gmail.com", // sender address

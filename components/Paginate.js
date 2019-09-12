@@ -12,9 +12,9 @@ export default class Paginate extends React.Component {
                 }`
             }
         </style>
-        <Link href={{ pathname: `/queue/${this.props.prev}` }} prefetch><a>← Prev</a></Link>
+        <Link href={{ pathname: `/queue/${this.props.prev}` }}><a>← Prev</a></Link>
         &nbsp;&nbsp;&nbsp;&nbsp;
-        <Link href={{ pathname: `/queue/${this.props.next}` }} prefetch><a>Next →</a></Link>
+        <Link href={{ pathname: `/queue/${this.props.next}` }}><a>Next →</a></Link>
     </div>
         )
     }

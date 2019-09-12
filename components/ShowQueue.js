@@ -55,7 +55,7 @@ export default class ShowQueue extends React.Component {
         return (
             <div key={item._id} className="row itemRow">
             <div className="col-md-3 item">
-              <Link href={`/upload/${item.bookid}`} prefetch><a>{item.bookid}</a></Link>
+              <Link href={`/upload/${item.bookid}`}><a>{item.bookid}</a></Link>
             </div>
             <div className="col-md-6 item">
               <p>{item.title}</p>

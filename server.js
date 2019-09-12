@@ -1,28 +1,25 @@
 const express = require("express");
 const next = require("next");
 const bodyParser = require("body-parser");
-const fetch = require("isomorphic-fetch");
 const cors = require("cors");
 const download = require("./utils/download.js");
 const compression = require("compression");
 require("dotenv").config();
 const cheerio = require("cheerio"); // Basically jQuery for node.js
 const rp = require("request-promise");
-const url = require("url");
-const querystring = require("querystring");
 const dev = process.env.NODE_ENV !== "production";
 const GB_KEY = process.env.GB_KEY;
 const app = next({ dev });
 const handle = app.getRequestHandler();
 const bookController = require("./controller/bookController");
 var emailaddr = "";
-const mongoose = require("mongoose");
-const mongoDB = process.env.mongoDBURI;
-mongoose.connect(mongoDB);
-mongoose.Promise = global.Promise;
-const db = mongoose.connection;
-db.on("error", console.error.bind(console, "MongoDB connection error:"));
+const Queue = require('bull');
+const { customFetch } = require('./utils/helper.js');
+const { checkForDuplicatesFromIA } = require('./utils/helper.js');
+const { checkForPublicDomain } = require('./controller/GB');
+const Arena = require('bull-arena');
 
+require('./controller/processor');
 app
   .prepare()
   .then(() => {
@@ -39,7 +36,42 @@ app
 
     server.use(compression());
 
-    //const ans2 = book_controller.book_create_get();
+    const arenaConfig = Arena({
+      queues: [
+        {
+          // Name of the bull queue, this name must match up exactly with what you've defined in bull.
+          name: "google-books-queue",
+
+          // Redis auth.
+          redis: {
+            port: '6379',
+            host: '127.0.0.1',
+          },
+        },
+      ],
+    },
+      {
+        // Make the arena dashboard become available at {my-site.com}/arena.
+        basePath: '/queue',
+
+        // Let express handle the listening.
+        disableListen: true
+      });
+
+    //server.use(arenaConfig)
+
+    const GoogleBooksQueue = new Queue('google-books-queue'); //Keeping both the queues separate
+
+    GoogleBooksQueue.process(function (job) {
+      setTimeout(function () {
+        return Promise.resolve(500)
+      }, 5000)
+    })
+
+    GoogleBooksQueue.on('completed', (job, result) => {
+      console.log(`Job with id ${job.id} has been completed`);
+      console.log(result)
+    })
 
     /**
      * Every custom route that we build needs to arrive before the * wildcard.
@@ -58,45 +90,29 @@ app
       });
     });
 
-    /**
-     * Redirect to the first page of the queue.
-     * /queue should directly lead to /queue/1
-     * If an ID is specified separately, it will go the next API.
-     */
-    server.get("/queue", (req, res) => {
-      res.redirect("/queue/1");
-    });
+    // /**
+    //  * Redirect to the first page of the queue.
+    //  * /queue should directly lead to /queue/1
+    //  * If an ID is specified separately, it will go the next API.
+    //  */
+    // server.get("/queue", (req, res) => {
+    //   res.redirect("/queue/1");
+    // });
 
-    server.get("/queue/:id", (req, res) => {
-      /**
-       * Slight modification to be done here.
-       * @param {Number} page that contains a number which can be used in pagination.
-       * Suppose page=1, then fetch the latest 20 entries which implies that each page can
-       * get maximum 20 entries.
-       * Whenever a request to http://localhost:3000/queue occurs, it by default checks for
-       * http://localhost:3000/queue?page=1, else, it checks for ?page parameter.
-       * Fetch data for 40 books at once.
-       */
-      try {
-        const ans = bookController.book_create_get(req.params.id);
-        let queryParams; //The variable that will hold the data
-        ans.then(response => {
-          if(typeof response === 'object' && "docs" in response) {
-            queryParams = response.docs;
-            queryParams.page = req.params.id;
-            app.render(req, res, "/queue", queryParams);
-          }
-          else {
-            res.redirect('/')
-          }
-        });
-      }
-      catch(err) {
-        res.redirect('/')
-      }
-      //ans.then(response => res.send(response));
-    });
-    
+    // server.get("/queue/:id", (req, res) => {
+    //   /**
+    //    * Slight modification to be done here.
+    //    * @param {Number} page that contains a number which can be used in pagination.
+    //    * Suppose page=1, then fetch the latest 20 entries which implies that each page can
+    //    * get maximum 20 entries.
+    //    * Whenever a request to http://localhost:3000/queue occurs, it by default checks for
+    //    * http://localhost:3000/queue?page=1, else, it checks for ?page parameter.
+    //    * Fetch data for 40 books at once.
+    //    */
+
+    //   //ans.then(response => res.send(response));
+    // });
+
     /**
      * TODO:
      * This route must change to /check. For every request that is being hit with either "GB" or "PN".
@@ -110,93 +126,49 @@ app
       emailaddr = email;
       switch (option) {
         case "gb":
-          fetch(
-            `https://www.googleapis.com/books/v1/volumes/${bookid}?key=${GB_KEY}`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json"
+          customFetch(`https://www.googleapis.com/books/v1/volumes/${bookid}?key=${GB_KEY}`, 'GET', new Headers({ "Content-Type": "application/json" }))
+            .then(data => {
+              const { error } = checkForPublicDomain(data, res)
+              if (!error) {
+                GBdetails = data
               }
-            }
-          )
-            .then(response => response.json())
-            .then(async response => {
-              if (response.error) {
-                if (response.error.code === 503) {
-                  //Google Books error
-                  res.send({ error: true, message: response.error.message });
-                }
-              } else {
-                //Checking if the document already exists on Internet Archive
-                let isPresent = false
-                await fetch(`https://archive.org/advancedsearch.php?q=${response.id}&fl[]=identifier&output=json`, {
-                  method: "GET"
-                })
-                .then(resp => resp.json())
-                .then(resp => {
-;                  if(resp.response.numFound !== 0) {
-                    isPresent = true;
-                  }
-                })
-                .catch(err => console.log(err))
-                
-                //Checking if the book is already present in the database with status "Uploading" or "Successful"
-                bookController.getParticularBook(response.id).then(response => {
-                  console.log(response)
-                });
-
-                if(isPresent) {
-                  res.send({ error: true, message: "The document is already available in Internet Archive." });
-                }
-                else {
-                  const { publicDomain } = response.accessInfo; //Response object destructuring
-                  if (publicDomain === false) {
-                    //Checking if the book belongs to publicDomain
-                    res.send({ error: true, message: "Not in public domain." });
-                  } else {
-                    GBdetails = response;
-                    res.send({
-                      error: false,
-                      message: "In public domain.",
-                      url: GBdetails.accessInfo.pdf.downloadLink,
-                      title: GBdetails.volumeInfo.title
-                    });
-                  }
-                }
-              }
-            })
-            .catch(error => {
-              console.log("Error is here")
-              console.log(error);
-              res.send({
-                error: true,
-                message: "There was some error fetching that document from Google Books."
-              })
             });
           break;
+
         case "pn":
+          //Check for duplicates
+          const isDuplicate = checkForDuplicatesFromIA(`bub_pn_${bookid}`);
+          isDuplicate.then(resp => {
+            if (resp.response.numFound != 0) {
+              res.send({
+                error: true,
+                message: "The document already exists on Internet Archive."
+              })
+            }
+          })
+          const { categoryID } = req.query;
           let PNdetails = {};
           let documentID = '';
+          const uri = `http://www.panjabdigilib.org/webuser/searches/displayPageContent.jsp?ID=${bookid}&page=1&CategoryID=${categoryID}&Searched=W3GX`;
           var options = {
-            uri: bookid,
-            transform: function(body) {
+            uri,
+            transform: function (body) {
               return cheerio.load(body);
             }
           };
           await rp(options)
-            .then(async function($) {
+            .then(async function ($) {
+              console.log(bookid);
               let images = [];
               const no_of_pages = $(
                 "form > table > tbody > tr > td > table > tbody > tr > td:nth-child(2) > table > tbody > tr > td:nth-child(1) > table > tbody > tr > td:nth-child(4) > b"
               ).text();
               PNdetails.pages = no_of_pages;
-              let parsedUrl = url.parse(bookid);
-              let parsedQs = querystring.parse(parsedUrl.query);
-              PNdetails.id = parsedQs.ID;
+              PNdetails.id = bookid;
               PNdetails.title = $(
                 "body > table > tbody > tr > td:nth-child(2) > table > tbody > tr:nth-child(7) > td > table > tbody > tr > td:nth-child(2) > table > tbody > tr:nth-child(2) > td > table:nth-child(10) > tbody > tr:nth-child(2) > td"
               ).text();
-              PNdetails.previewLink = bookid;
+              PNdetails.previewLink = uri;
               res.send({
                 error: false,
                 message: "You will be mailed with the details soon!"
@@ -204,16 +176,17 @@ app
               for (let i = 1; i <= no_of_pages; ++i) {
                 const str = `http://www.panjabdigilib.org/images?ID=${
                   PNdetails.id
-                }&page=${i}&pagetype=null&Searched=W3GX`;
+                  }&page=${i}&pagetype=null&Searched=W3GX`;
+                console.log(str);
                 await rp({
                   method: "GET",
                   uri: str,
                   encoding: null,
-                  transform: function(body, response) {
+                  transform: function (body, response) {
                     return { headers: response.headers, data: body };
                   }
                 })
-                  .then(async function(body) {
+                  .then(async function (body) {
                     if (/image/.test(body.headers["content-type"])) {
                       var data =
                         "data:" +
@@ -223,13 +196,13 @@ app
                       images.push(data);
                     }
                   })
-                  .catch(function(err) {
+                  .catch(function (err) {
                     console.log(err)
                   })
               }
               PNdetails.imageLinks = images;
             })
-            .catch(function(err) {
+            .catch(function (err) {
               // Crawling failed or Cheerio choked...
               res.send({
                 error: true,
@@ -238,31 +211,20 @@ app
               console.log(err)
             })
 
-            bookController.createBookMinimal(
-              PNdetails.id,
-              PNdetails.imageLinks[0],
-              PNdetails.previewLink,
-              PNdetails.title,
-              `http://archive.org/details/bub_pn_${PNdetails.id}`,
-              "Uploading",
-            ).then(id => {
-              documentID = id
-            });
-
-          let metadataURI = bookid.replace("displayPageContent", "displayPage");
+          let metadataURI = uri.replace("displayPageContent", "displayPage");
           await rp({
             uri: metadataURI,
-            transform: function(body) {
+            transform: function (body) {
               return cheerio.load(body);
             }
-          }).then(function($) {
+          }).then(function ($) {
             PNdetails.script = $(
               "tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > table:nth-child(22) > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > div > table > tbody > tr:nth-child(3) > td > table > tbody > tr > td:nth-child(2) > a"
             ).text();
             PNdetails.language = $(
               "tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > table:nth-child(22) > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > div > table > tbody > tr:nth-child(4) > td > table > tbody > tr > td:nth-child(2) > a"
             ).text();
-            download.downloadFromPanjabLibrary(PNdetails,email,documentID);
+            download.downloadFromPanjabLibrary(PNdetails, email, documentID);
           });
           break;
       }
@@ -282,6 +244,7 @@ app
         message: "You will be mailed with the details soon!"
       });
       download.downloadFromGoogleBooks(
+        GoogleBooksQueue,
         req.body.url,
         GBdetails,
         emailaddr

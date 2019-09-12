@@ -52,64 +52,77 @@ export default class Books extends React.Component {
     this.setState({
       loader: true
     });
-    fetch(`/check?bookid=${this.state.bookid}&option=${this.state.option}&email=${this.state.email}`, {
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*"
-      }
-    })
-      .then(response => response.json())
-      .then(async response => {
-        this.setState({
-          loader: false
-        });
-        if (response.error) {
-          Swal("Error!", response.message, "error");
-        } else {
-          if (this.state.option === "gb") {
-            const { value: url } = await Swal({
-              input: "url",
-              backdrop: true,
-              width: "50%",
-              title:
-                '<strong style="font-size: 22px;">Just a few more steps...</strong>',
-              html:
-                `<ol style="text-align: left; font-size: 16px; line-height: 1.5">` +
-                `<li>Go to this link: <a href = "${response.url}">${
-                  response.title
-                }</a></li>` +
-                `<li>Enter the captcha.</li>` +
-                `<li>Enter the URL below (<i>https://books.googleusercontent.com/books/content?req=xxx</i>)</li>`
-            });
+
+    switch (this.state.option) {
+      case 'gb':
+        fetch(`/check?bookid=${this.state.bookid}&option=${this.state.option}&email=${this.state.email}`)
+          .then(response => response.json())
+          .then(async response => {
             this.setState({
-              loader: true
+              loader: false
             });
-            fetch("/download", {
-              body: JSON.stringify({
-                url: url
-              }),
-              headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*"
-              },
-              method: "POST"
-            })
-              .then(response => response.json())
-              .then(response => {
-                this.setState({
-                  loader: false
-                });
-                Swal("Voila!", response.message, "success");
+            if (response.error) {
+              Swal("Error!", response.message, "error");
+            } else {
+              const { value: url } = await Swal({
+                input: "url",
+                backdrop: true,
+                width: "50%",
+                title:
+                  '<strong style="font-size: 22px;">Just a few more steps...</strong>',
+                html:
+                  `<ol style="text-align: left; font-size: 16px; line-height: 1.5">` +
+                  `<li>Go to this link: <a href = "${response.url}">${
+                  response.title
+                  }</a></li>` +
+                  `<li>Enter the captcha.</li>` +
+                  `<li>Enter the URL below (<i>https://books.googleusercontent.com/books/content?req=xxx</i>)</li>`
               });
-          }
-          else if(this.state.option === 'pn') {
-              if(response.error)
-                Swal("Error!", response.message, "error");
-              else
-                Swal("Voila!", response.message, "success");
-          }
-        }
-      });
+
+              this.setState({
+                loader: true
+              });
+
+              fetch("/download", {
+                body: JSON.stringify({
+                  url: url
+                }),
+                headers: {
+                  "Content-Type": "application/json",
+                  "Access-Control-Allow-Origin": "*"
+                },
+                method: "POST"
+              })
+                .then(response => response.json())
+                .then(response => {
+                  this.setState({
+                    loader: false
+                  });
+                  if (response.error)
+                    Swal("Error!", response.message, "error");
+                  else
+                    Swal("Voila!", response.message, "success");
+                });
+            }
+          });
+          break;
+
+      case 'pn':
+        const searchParams = new URL(this.state.bookid).searchParams;
+        const ID = searchParams.get('ID');
+        const categoryID = searchParams.get('CategoryID');
+        fetch(`/check?bookid=${ID}&option=${this.state.option}&email=${this.state.email}&categoryID=${categoryID}`)
+          .then(res => res.json())
+          .then(response => {
+            this.setState({
+              loader: false
+            });
+            if (response.error)
+              Swal("Error!", response.message, "error");
+            else
+              Swal("Voila!", response.message, "success");
+          })
+    }
   };
 
   render() {
@@ -202,23 +215,23 @@ export default class Books extends React.Component {
             2. Enter the {this.state.option === 'gb' ? 'ID' : 'URI'} ({this.showExample()}) <span> *</span>
           </h3>
           <div className="input-group full-width">
-          <style jsx>
-            {
-              `
+            <style jsx>
+              {
+                `
               .full-width {
                 width: 100%
               }
               `
-            }
-          </style>
-          {
-            this.state.option === 'gb' ?
-            <span className="input-group-addon" id="bid">
-              https://books.google.co.in/books?id=
+              }
+            </style>
+            {
+              this.state.option === 'gb' ?
+                <span className="input-group-addon" id="bid">
+                  https://books.google.co.in/books?id=
             </span>
-            :null
-          }
-            
+                : null
+            }
+
             <input
               id="bookid"
               name="bookid"
@@ -238,6 +251,7 @@ export default class Books extends React.Component {
               name="email"
               className="form-control"
               id="email"
+              required
               onChange={event => this.setState({ email: event.target.value })}
             />
             <div className="input-group-btn">
