@@ -1,5 +1,5 @@
 module.exports = {
-  emailtemplate: (title, statusText, uri) => {
+  emailtemplate: (title, success, uri) => {
     const email_success = `<!doctype html>
 <html>
 	<head>
@@ -1236,7 +1236,7 @@ BUB v2.0</p>
     </body>
 </html>`;
 
-    if (statusText === "Successful") {
+    if (success) {
       return email_success;
     } else {
       return email_failure;

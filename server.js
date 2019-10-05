@@ -2,55 +2,62 @@ const express = require("express");
 const next = require("next");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const download = require("./utils/download.js");
 const compression = require("compression");
 require("dotenv").config();
-const cheerio = require("cheerio"); // Basically jQuery for node.js
-const rp = require("request-promise");
 const dev = process.env.NODE_ENV !== "production";
 const GB_KEY = process.env.GB_KEY;
-const app = next({ dev });
+const app = next({
+  dev
+});
 const handle = app.getRequestHandler();
 const bookController = require("./controller/bookController");
 var emailaddr = "";
-const Queue = require('bull');
-const { customFetch } = require('./utils/helper.js');
-const { checkForDuplicatesFromIA } = require('./utils/helper.js');
-const { checkForPublicDomain } = require('./controller/GB');
+const {
+  customFetch
+} = require('./utils/helper.js');
+const {
+  checkForDuplicatesFromIA
+} = require('./utils/helper.js');
+const {
+  checkForPublicDomain
+} = require('./controller/GB');
 const Arena = require('bull-arena');
+const GoogleBooksProducer = require('./bull/google-books-queue/producer');
+const PDLProducer = require('./bull/pdl-queue/producer')
 
-require('./controller/processor');
 app
   .prepare()
   .then(() => {
     const server = express();
 
     //Parse application/x-www-form-urlencoded
-    server.use(bodyParser.urlencoded({ extended: true }));
+    server.use(bodyParser.urlencoded({
+      extended: true
+    }));
 
     //Parse application/json
     server.use(bodyParser.json());
 
     //Enable and use CORS
-    server.use(cors({ credentials: true, origin: true }));
+    server.use(cors({
+      credentials: true,
+      origin: true
+    }));
 
     server.use(compression());
 
     const arenaConfig = Arena({
-      queues: [
-        {
-          // Name of the bull queue, this name must match up exactly with what you've defined in bull.
-          name: "google-books-queue",
+      queues: [{
+        // Name of the bull queue, this name must match up exactly with what you've defined in bull.
+        name: "google-books-queue",
 
-          // Redis auth.
-          redis: {
-            port: '6379',
-            host: '127.0.0.1',
-          },
+        // Redis auth.
+        redis: {
+          port: '6379',
+          host: '127.0.0.1',
         },
-      ],
-    },
-      {
+      }]
+    }, {
         // Make the arena dashboard become available at {my-site.com}/arena.
         basePath: '/queue',
 
@@ -58,20 +65,8 @@ app
         disableListen: true
       });
 
-    //server.use(arenaConfig)
+    server.use(arenaConfig)
 
-    const GoogleBooksQueue = new Queue('google-books-queue'); //Keeping both the queues separate
-
-    GoogleBooksQueue.process(function (job) {
-      setTimeout(function () {
-        return Promise.resolve(500)
-      }, 5000)
-    })
-
-    GoogleBooksQueue.on('completed', (job, result) => {
-      console.log(`Job with id ${job.id} has been completed`);
-      console.log(result)
-    })
 
     /**
      * Every custom route that we build needs to arrive before the * wildcard.
@@ -122,13 +117,21 @@ app
      */
     let GBdetails = {};
     server.get("/check", async (req, res) => {
-      const { bookid, option, email } = req.query;
+      const {
+        bookid,
+        option,
+        email
+      } = req.query;
       emailaddr = email;
       switch (option) {
         case "gb":
-          customFetch(`https://www.googleapis.com/books/v1/volumes/${bookid}?key=${GB_KEY}`, 'GET', new Headers({ "Content-Type": "application/json" }))
+          customFetch(`https://www.googleapis.com/books/v1/volumes/${bookid}?key=${GB_KEY}`, 'GET', new Headers({
+            "Content-Type": "application/json"
+          }))
             .then(data => {
-              const { error } = checkForPublicDomain(data, res)
+              const {
+                error
+              } = checkForPublicDomain(data, res)
               if (!error) {
                 GBdetails = data
               }
@@ -139,93 +142,23 @@ app
           //Check for duplicates
           const isDuplicate = checkForDuplicatesFromIA(`bub_pn_${bookid}`);
           isDuplicate.then(resp => {
-            if (resp.response.numFound != 0) {
+            if (resp.response.numFound == 0) {
               res.send({
                 error: true,
                 message: "The document already exists on Internet Archive."
               })
             }
-          })
-          const { categoryID } = req.query;
-          let PNdetails = {};
-          let documentID = '';
-          const uri = `http://www.panjabdigilib.org/webuser/searches/displayPageContent.jsp?ID=${bookid}&page=1&CategoryID=${categoryID}&Searched=W3GX`;
-          var options = {
-            uri,
-            transform: function (body) {
-              return cheerio.load(body);
-            }
-          };
-          await rp(options)
-            .then(async function ($) {
-              console.log(bookid);
-              let images = [];
-              const no_of_pages = $(
-                "form > table > tbody > tr > td > table > tbody > tr > td:nth-child(2) > table > tbody > tr > td:nth-child(1) > table > tbody > tr > td:nth-child(4) > b"
-              ).text();
-              PNdetails.pages = no_of_pages;
-              PNdetails.id = bookid;
-              PNdetails.title = $(
-                "body > table > tbody > tr > td:nth-child(2) > table > tbody > tr:nth-child(7) > td > table > tbody > tr > td:nth-child(2) > table > tbody > tr:nth-child(2) > td > table:nth-child(10) > tbody > tr:nth-child(2) > td"
-              ).text();
-              PNdetails.previewLink = uri;
+            else {
+              const {
+                categoryID
+              } = req.query;
               res.send({
                 error: false,
                 message: "You will be mailed with the details soon!"
               });
-              for (let i = 1; i <= no_of_pages; ++i) {
-                const str = `http://www.panjabdigilib.org/images?ID=${
-                  PNdetails.id
-                  }&page=${i}&pagetype=null&Searched=W3GX`;
-                console.log(str);
-                await rp({
-                  method: "GET",
-                  uri: str,
-                  encoding: null,
-                  transform: function (body, response) {
-                    return { headers: response.headers, data: body };
-                  }
-                })
-                  .then(async function (body) {
-                    if (/image/.test(body.headers["content-type"])) {
-                      var data =
-                        "data:" +
-                        body.headers["content-type"] +
-                        ";base64," +
-                        new Buffer(body.data).toString("base64");
-                      images.push(data);
-                    }
-                  })
-                  .catch(function (err) {
-                    console.log(err)
-                  })
-              }
-              PNdetails.imageLinks = images;
-            })
-            .catch(function (err) {
-              // Crawling failed or Cheerio choked...
-              res.send({
-                error: true,
-                message: "Invalid URL."
-              })
-              console.log(err)
-            })
-
-          let metadataURI = uri.replace("displayPageContent", "displayPage");
-          await rp({
-            uri: metadataURI,
-            transform: function (body) {
-              return cheerio.load(body);
+              PDLProducer(bookid, categoryID)
             }
-          }).then(function ($) {
-            PNdetails.script = $(
-              "tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > table:nth-child(22) > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > div > table > tbody > tr:nth-child(3) > td > table > tbody > tr > td:nth-child(2) > a"
-            ).text();
-            PNdetails.language = $(
-              "tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > table:nth-child(22) > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > div > table > tbody > tr:nth-child(4) > td > table > tbody > tr > td:nth-child(2) > a"
-            ).text();
-            download.downloadFromPanjabLibrary(PNdetails, email, documentID);
-          });
+          })
           break;
       }
     });
@@ -234,7 +167,6 @@ app
      * The express handler for default routes.
      */
     server.get("*", (req, res) => {
-      //book_controller.book_upload();
       return handle(req, res);
     });
 
@@ -243,12 +175,13 @@ app
         error: false,
         message: "You will be mailed with the details soon!"
       });
-      download.downloadFromGoogleBooks(
-        GoogleBooksQueue,
-        req.body.url,
-        GBdetails,
-        emailaddr
-      );
+
+      GoogleBooksProducer(req.body.url, GBdetails, emailaddr);
+      // download.downloadFromGoogleBooks(
+      //   req.body.url,
+      //   GBdetails,
+      //   emailaddr
+      // );
     });
 
     server.listen(process.env.PORT || 3000, err => {
