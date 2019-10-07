@@ -3,13 +3,13 @@ A book uploader bot that transfers documents from public libraries such as Googl
 
 ## Local Setup instructions
 1. Install [Node.js](https://nodejs.org/en/download/)
-2. Install [MongoDB Community Edition](https://docs.mongodb.com/manual/installation/#mongodb-community-edition-installation-tutorials)
+2. Install and setup Redis server on your machine.
 3. Clone the repository
 <br />`git clone https://github.com/coderwassananmol/BUB2`
 4. Change the directory:
 <br />`cd BUB2`
 5. Run <br /> `npm install`
-6. Start Mongo DB service in background.
+6. Start redis service in background.
 7. Open `.env.example` in your editor and add the information and rename it to .env.
 8. Run <br /> `npm run dev` for development and `npm run start` for production
 9. Open your browser and run your local server: [http://localhost:3000](http://localhost:3000)
