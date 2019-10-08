@@ -65,7 +65,7 @@ async function getZipAndBytelength(no_of_pages, id, title) {
         await download_image(str, `${title}_${i}.jpeg`)
     }
     let { byteLength } = await zip.generateAsync({ type: 'nodebuffer' })
-    byteLength = Number(byteLength + 128) //Difference of 128 bytes on disk
+    byteLength = Number(byteLength + no_of_pages*16) //No. of pages * 16
     return [zip,byteLength]
 }
 
@@ -107,7 +107,6 @@ async function uploadToIA(zip, metadata, byteLength, email) {
                     EmailProducer(email,metadata.title,trueURI,true)
                 }
                 else {
-                    console.log(response);
                     EmailProducer(email,metadata.title,trueURI,false)
                 }
             }));
@@ -124,4 +123,5 @@ PDLQueue.process(async (job, done) => {
     const metaData = await getMetaData(options, job.data.bookid);
     const [zip,byteLength] = await getZipAndBytelength(metaData.no_of_pages, job.data.bookid, metaData.title)
     await uploadToIA(zip, metaData, byteLength, job.data.email)
+    done(null,true)
 });
