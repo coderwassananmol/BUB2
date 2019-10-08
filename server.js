@@ -142,7 +142,7 @@ app
           //Check for duplicates
           const isDuplicate = checkForDuplicatesFromIA(`bub_pn_${bookid}`);
           isDuplicate.then(resp => {
-            if (resp.response.numFound == 0) {
+            if (resp.response.numFound != 0) {
               res.send({
                 error: true,
                 message: "The document already exists on Internet Archive."
