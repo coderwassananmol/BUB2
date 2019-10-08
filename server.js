@@ -156,7 +156,7 @@ app
                 error: false,
                 message: "You will be mailed with the details soon!"
               });
-              PDLProducer(bookid, categoryID)
+              PDLProducer(bookid, categoryID, email)
             }
           })
           break;

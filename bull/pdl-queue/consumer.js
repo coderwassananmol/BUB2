@@ -3,8 +3,6 @@ const EmailProducer = require('../email-queue/producer')
 const PDLQueue = new Queue('pdl-queue');
 const rp = require("request-promise");
 const cheerio = require("cheerio"); // Basically jQuery for node.js
-const PDFDocument = require("pdfkit");
-const fs = require("fs");
 const request = require("request");
 var JSZip = require("jszip");
 PDLQueue.on('active', (job, jobPromise) => {
@@ -41,8 +39,8 @@ async function getMetaData(options, bookid) {
 
 async function getZipAndBytelength(no_of_pages, id, title) {
     var zip = new JSZip();
-    var img = zip.folder(`${title}_images`);
     title = title.replace(/ /g, "_")
+    var img = zip.folder(`${title}_images`);
     var download_image = async function (uri, filename) {
         await rp({
             method: "GET",
@@ -71,9 +69,10 @@ async function getZipAndBytelength(no_of_pages, id, title) {
     return [zip,byteLength]
 }
 
-async function uploadToIA(zip, metadata, byteLength) {
-    const IAuri = `http://s3.us.archive.org/${metadata.title}/${metadata.title}.zip`;
-    const trueURI = `http://archive.org/details/${metadata.title}`;
+async function uploadToIA(zip, metadata, byteLength, email) {
+    let title = metadata.title.replace(/ /g, "_")
+    const IAuri = `http://s3.us.archive.org/${title}/${title}.zip`;
+    const trueURI = `http://archive.org/details/${title}`;
     zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true })
         .pipe(request(
             {
@@ -105,10 +104,11 @@ async function uploadToIA(zip, metadata, byteLength) {
                 }
             }, (error, response, body) => {
                 if (response.statusCode === 200) {
-                    console.log("Book Uploaded")
+                    EmailProducer(email,metadata.title,trueURI,true)
                 }
                 else {
                     console.log(response);
+                    EmailProducer(email,metadata.title,trueURI,false)
                 }
             }));
 }
@@ -123,6 +123,5 @@ PDLQueue.process(async (job, done) => {
     };
     const metaData = await getMetaData(options, job.data.bookid);
     const [zip,byteLength] = await getZipAndBytelength(metaData.no_of_pages, job.data.bookid, metaData.title)
-    await uploadToIA(zip, metaData, byteLength)
-    done(null, true);
+    await uploadToIA(zip, metaData, byteLength, job.data.email)
 });
