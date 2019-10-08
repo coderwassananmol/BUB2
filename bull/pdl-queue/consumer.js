@@ -39,11 +39,10 @@ async function getMetaData(options, bookid) {
     return PNdetails;
 }
 
-async function getImages(no_of_pages, id, title) {
+async function getZipAndBytelength(no_of_pages, id, title) {
     var zip = new JSZip();
     var img = zip.folder(`${title}_images`);
-    var length = 0;
-    title = title.replace(/ /g,"_")
+    title = title.replace(/ /g, "_")
     var download_image = async function (uri, filename) {
         await rp({
             method: "GET",
@@ -57,7 +56,6 @@ async function getImages(no_of_pages, id, title) {
                 if (/image/.test(body.headers["content-type"])) {
                     var data = new Buffer(body.data)
                     img.file(filename, data.toString("base64"), { base64: true });
-                    length += data.byteLength
                 }
             })
             .catch(function (err) {
@@ -68,20 +66,21 @@ async function getImages(no_of_pages, id, title) {
         const str = `http://www.panjabdigilib.org/images?ID=${id}&page=${i}&pagetype=null&Searched=W3GX`;
         await download_image(str, `${title}_${i}.jpeg`)
     }
+    let { byteLength } = await zip.generateAsync({ type: 'nodebuffer' })
+    byteLength = Number(byteLength + 128) //Difference of 128 bytes on disk
+    return [zip,byteLength]
+}
 
-    var stream = zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true })
-
-    let {byteLength} = await zip.generateAsync({type: 'nodebuffer'})
-
-    byteLength = Number(byteLength + 128)
-
+async function uploadToIA(zip, metadata, byteLength) {
+    const IAuri = `http://s3.us.archive.org/${metadata.title}/${metadata.title}.zip`;
+    const trueURI = `http://archive.org/details/${metadata.title}`;
     zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true })
         .pipe(request(
             {
                 method: "PUT",
                 preambleCRLF: true,
                 postambleCRLF: true,
-                uri: `http://s3.us.archive.org/${title}/${title}.zip`,
+                uri: IAuri,
                 headers: {
                     Authorization: `LOW ${process.env.access_key}:${
                         process.env.secret_key
@@ -92,20 +91,19 @@ async function getImages(no_of_pages, id, title) {
                     "X-Amz-Auto-Make-Bucket": "1",
                     "X-Archive-Meta-Collection": "opensource",
                     "X-Archive-Ignore-Preexisting-Bucket": 1,
-                    "X-archive-meta-title": "Kissa Laila Majnu",
-                    "X-archive-meta-language": "Urdu",
+                    "X-archive-meta-title": metadata.title,
+                    "X-archive-meta-language": metadata.language,
                     "X-archive-meta-mediatype": "image",
                     "X-archive-meta-licenseurl":
                         "https://creativecommons.org/publicdomain/mark/1.0/",
                     "X-archive-meta-publisher": "Punjab Digital Library",
                     "X-archive-meta-rights": "public",
-                    "X-archive-meta-identifier": `bub_pn_${id}`,
-                    "X-archive-meta-pages": "8",
-                    "X-archive-meta-script": "Persian",
+                    "X-archive-meta-identifier": `bub_pn_${metadata.id}`,
+                    "X-archive-meta-pages": metadata.no_of_pages,
+                    "X-archive-meta-script": metadata.script,
                     "X-archive-meta-source": "Punjab Digital Library"
                 }
             }, (error, response, body) => {
-                //fs.unlink(`output${id}.pdf`, err => console.log(err));
                 if (response.statusCode === 200) {
                     console.log("Book Uploaded")
                 }
@@ -113,29 +111,6 @@ async function getImages(no_of_pages, id, title) {
                     console.log(response);
                 }
             }));
-}
-
-async function uploadToIA(image, metadata) {
-    console.log("Uploading to Internet Archive")
-    const IAuri = `http://s3.us.archive.org/${metadata.title}/${metadata.title}.zip`;
-    const trueURI = `http://archive.org/details/${metadata.title}`;
-    const doc = new PDFDocument;
-    for (var i = 0; i < image.length; i++) {
-        doc.image(image[i], { width: 500, height: 600, align: "center" });
-        i !== image.length - 1 ? doc.addPage() : null;
-    }
-    doc.end();
-    new Promise(async (resolve, reject) => {
-        doc.pipe(fs.createWriteStream(`output${metadata.id}.pdf`)).on("finish", () => {
-            fs.stat(`output${metadata.id}.pdf`, (err, stat) => {
-                if (err) reject({ error: true });
-                resolve(stat.size);
-            });
-        });
-    }).then(size => {
-        fs.createReadStream(`output${metadata.id}.pdf`).pipe(
-            )
-    })
 }
 
 PDLQueue.process(async (job, done) => {
@@ -147,8 +122,7 @@ PDLQueue.process(async (job, done) => {
         }
     };
     const metaData = await getMetaData(options, job.data.bookid);
-    console.log(metaData);
-    await getImages(metaData.no_of_pages, job.data.bookid, metaData.title)
-    //await uploadToIA(images, metaData)
+    const [zip,byteLength] = await getZipAndBytelength(metaData.no_of_pages, job.data.bookid, metaData.title)
+    await uploadToIA(zip, metaData, byteLength)
     done(null, true);
 });
