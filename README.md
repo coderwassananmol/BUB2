@@ -20,4 +20,4 @@ A book uploader bot that transfers documents from public libraries such as Googl
 There was no Node.js wrapper available for Internet Archive, so I decided to write the Node implementation to upload books to Internet Archive. If you like this repository, show your support by starring the project. Cheers!
 
 ## License
-[MIT](../master/LICENSE.md)
+This project is licensed under the terms of the [MIT license](../master/LICENSE.md).
