@@ -21,3 +21,6 @@ We actively welcome pull requests. Learn how to [contribute.](https://github.com
 
 ## Keep Supporting
 There was no Node.js wrapper available for Internet Archive, so I decided to write the Node implementation to upload books to Internet Archive. If you like this repository, show your support by starring the project. Cheers!
+
+## License
+See the [LICENSE](LICENSE.md) file for license rights and limitations (MIT).
