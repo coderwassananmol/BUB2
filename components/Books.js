@@ -71,6 +71,7 @@ export default class Books extends React.Component {
                 title:
                   '<strong style="font-size: 22px;">Just a few more steps...</strong>',
                 html:
+                  `<img src=${response.data.volumeInfo.imageLinks.thumbnail}>` +
                   `<ol style="text-align: left; font-size: 16px; line-height: 1.5">` +
                   `<li>Go to this link: <a href = "${response.url}">${
                   response.title

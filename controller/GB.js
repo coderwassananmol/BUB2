@@ -21,6 +21,7 @@ module.exports = {
                 res.send({
                     error: false,
                     message: "In public domain.",
+                    data: data,
                     url: data.accessInfo.pdf.downloadLink,
                     title: data.volumeInfo.title
                 });
