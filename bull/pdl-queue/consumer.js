@@ -41,6 +41,7 @@ async function getZipAndBytelength(no_of_pages, id, title) {
     var zip = new JSZip();
     title = title.replace(/ /g, "_")
     var img = zip.folder(`${title}_images`);
+    let temp_pages = no_of_pages;
     var download_image = async function (uri, filename) {
         await rp({
             method: "GET",
@@ -57,23 +58,26 @@ async function getZipAndBytelength(no_of_pages, id, title) {
                 }
             })
             .catch(function (err) {
-                console.log(err)
+                --no_of_pages;
             })
     }
-    for (let i = 1; i <= no_of_pages; ++i) {
+    for (let i = 1; i <= temp_pages; ++i) {
         const str = `http://www.panjabdigilib.org/images?ID=${id}&page=${i}&pagetype=null&Searched=W3GX`;
         await download_image(str, `${title}_${i}.jpeg`)
+        console.log("Image " + i + " zipped.");
     }
     let { byteLength } = await zip.generateAsync({ type: 'nodebuffer' })
+    console.log("Bytelength before= " + byteLength + " bytes.");
     byteLength = Number(byteLength + no_of_pages*16) //No. of pages * 16
     return [zip,byteLength]
 }
 
 async function uploadToIA(zip, metadata, byteLength, email) {
+    console.log("Bytelength after= " + byteLength + " bytes.");
     let title = metadata.title.replace(/ /g, "_")
     const IAuri = `http://s3.us.archive.org/${title}/${title}.zip`;
     const trueURI = `http://archive.org/details/${title}`;
-    zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true })
+    await zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true })
         .pipe(request(
             {
                 method: "PUT",
