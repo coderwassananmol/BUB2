@@ -129,7 +129,8 @@ function setHeaders(metadata, byteLength, title) {
     headers["X-archive-meta-betterpdf"] = true //To be added
     headers["X-archive-meta-external-identifier"] = `urn:pdl:${metadata['bookID']}:${metadata['categoryID']}` //To be added
     for (var key in metadata) {
-        headers[`X-archive-meta-${key.toLowerCase()}`] = metadata[key];
+        let meta_key = key.trim().replace(/ /g, "-").toLowerCase()
+        headers[`X-archive-meta-${meta_key}`] = metadata[key];
     }
     headers['X-archive-meta-title'] = metadata['title'];
     return headers;
