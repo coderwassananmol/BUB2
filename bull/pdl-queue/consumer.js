@@ -13,27 +13,70 @@ PDLQueue.on('completed', (job, result) => {
     console.log(`Consumer(next): Job ${job.id} completed! Result: ${result}`);
 });
 
-async function getMetaData(options, bookid) {
+async function getMetaData(options, bookid, categoryID) {
     const $ = await rp(options);
     let PNdetails = {};
-    const no_of_pages = $(
-        "font.dhypers"
-    ).text();
-    const title = $(
-        "tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > table:nth-child(22) > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > div > table > tbody > tr:nth-child(1) > td > a"
-    ).text();
-    const script = $(
-        "tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > table:nth-child(22) > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > div > table > tbody > tr:nth-child(5) > td > table > tbody > tr > td:nth-child(2) > a"
-    ).text();
-    const language = $(
-        "tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > table:nth-child(22) > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > div > table > tbody > tr:nth-child(6) > td > table > tbody > tr > td:nth-child(2) > a"
-    ).text();
-    PNdetails.no_of_pages = no_of_pages;
-    PNdetails.title = title;
-    PNdetails.id = bookid;
-    PNdetails.previewLink = options.uri;
-    PNdetails.script = script;
-    PNdetails.language = language;
+    const keys = $('.ubhypers');
+    const values = $('.dhypers');
+
+    function addOtherMetaData(limit, keys, values, PNdetails) {
+        let value;
+        for (let i = 0; i < values.length; i++) {
+            if ($(values[i]).attr('href')) {
+                if (!$(values[i]).attr('href').includes("Keywords")) {
+                    value = i
+                    break;
+                }
+            }
+        }
+
+        if (value <= limit) {
+            const add = limit - value;
+            for (let i = value; i < values.length; i++) {
+                PNdetails[[$(keys[i + add]).text()]] = $(values[i]).text().trim();
+            }
+        }
+
+        else {
+            const sub = value - limit;
+            for (let i = value; i < values.length; i++) {
+                PNdetails[[$(keys[i - sub]).text()]] = $(values[i]).text().trim();
+            }
+        }
+    }
+
+    if ($(values[0]).text().trim() === 'Click here to add description') {
+        if ($(values[1]).text().trim() === 'Click here to suggest keywords') {
+            for (let i = 2; i < values.length; i++) {
+                PNdetails[[$(keys[i + 1]).text()]] = $(values[i]).text().trim();
+            }
+        }
+        else {
+            addOtherMetaData(4,keys,values,PNdetails)
+        }
+    }
+
+    else if ($(values[0]).text().trim() === 'Click here to suggest keywords') {
+        for (let i = 1; i < values.length; i++) {
+            PNdetails[[$(keys[i + 2]).text()]] = $(values[i]).text().trim();
+        }
+        PNdetails.description = $('#Nanakshahi > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > table:nth-child(22) > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > div > table > tbody > tr:nth-child(2) > td > table > tbody > tr:nth-child(1) > td:nth-child(2)').text().trim()
+    }
+
+    else {
+        addOtherMetaData(5,keys,values,PNdetails)
+        PNdetails.description = $('#Nanakshahi > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > table:nth-child(22) > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > div > table > tbody > tr:nth-child(2) > td > table > tbody > tr:nth-child(1) > td:nth-child(2)').text().trim()
+        PNdetails.description = PNdetails.description.replace(/\n/g,'')
+        PNdetails.description = PNdetails.description.replace(/\[edit]/g,'')
+    }                                                      
+
+    PNdetails.title = $('#Nanakshahi > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > table:nth-child(22) > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > div > table > tbody > tr:nth-child(1) > td > a').text().trim()
+
+    PNdetails.bookID = bookid
+    PNdetails.categoryID = categoryID;
+
+    delete PNdetails['']
+
     return PNdetails;
 }
 
@@ -67,16 +110,36 @@ async function getZipAndBytelength(no_of_pages, id, title) {
         console.log("Image " + i + " zipped.");
     }
     let { byteLength } = await zip.generateAsync({ type: 'nodebuffer' })
-    console.log("Bytelength before= " + byteLength + " bytes.");
-    byteLength = Number(byteLength + no_of_pages*16) //No. of pages * 16
-    return [zip,byteLength]
+    byteLength = Number(byteLength + no_of_pages * 16) //No. of pages * 16
+    return [zip, byteLength]
+}
+
+function setHeaders(metadata, byteLength, title) {
+    let headers = {};
+    headers["Authorization"] = `LOW ${process.env.access_key}:${process.env.secret_key}`
+    headers["Content-type"] = "application/zip"
+    headers["Content-length"] = byteLength
+    headers["X-Amz-Auto-Make-Bucket"] = 1
+    headers["X-Archive-meta-collection"] = "opensource"
+    headers["X-Archive-Ignore-Preexisting-Bucket"] = 1
+    headers["X-archive-meta-identifier"] = title
+    headers["X-archive-meta-mediatype"] = "image"
+    headers["X-archive-meta-uploader"] = "bub.wikimedia@gmail.com" //To be added
+    headers["X-archive-meta-contributor"] = "Panjab Digital Library" //To be added
+    headers["X-archive-meta-betterpdf"] = true //To be added
+    headers["X-archive-meta-external-identifier"] = `urn:pdl:${metadata['bookID']}:${metadata['categoryID']}` //To be added
+    for (var key in metadata) {
+        headers[`X-archive-meta-${key.toLowerCase()}`] = metadata[key];
+    }
+    headers['X-archive-meta-title'] = metadata['title'];
+    return headers;
 }
 
 async function uploadToIA(zip, metadata, byteLength, email) {
-    console.log("Bytelength after= " + byteLength + " bytes.");
     let title = metadata.title.replace(/ /g, "_")
-    const IAuri = `http://s3.us.archive.org/${title}/${title}.zip`;
+    const IAuri = `http://s3.us.archive.org/${title}/${title}_images.zip`;
     const trueURI = `http://archive.org/details/${title}`;
+    let headers = setHeaders(metadata,byteLength,title)
     await zip.generateNodeStream({ type: 'nodebuffer', streamFiles: true })
         .pipe(request(
             {
@@ -84,33 +147,13 @@ async function uploadToIA(zip, metadata, byteLength, email) {
                 preambleCRLF: true,
                 postambleCRLF: true,
                 uri: IAuri,
-                headers: {
-                    Authorization: `LOW ${process.env.access_key}:${
-                        process.env.secret_key
-                        }`,
-                    "Content-type": "application/pdf; charset=utf-8",
-                    "Content-length": byteLength,
-                    "Accept-Charset": "utf-8",
-                    "X-Amz-Auto-Make-Bucket": "1",
-                    "X-Archive-Meta-Collection": "opensource",
-                    "X-Archive-Ignore-Preexisting-Bucket": 1,
-                    "X-archive-meta-title": metadata.title,
-                    "X-archive-meta-language": metadata.language,
-                    "X-archive-meta-mediatype": "image",
-                    "X-archive-meta-licenseurl":
-                        "https://creativecommons.org/publicdomain/mark/1.0/",
-                    "X-archive-meta-publisher": "Punjab Digital Library",
-                    "X-archive-meta-rights": "public",
-                    "X-archive-meta-identifier": `bub_pn_${metadata.id}`,
-                    "X-archive-meta-pages": metadata.no_of_pages,
-                    "X-archive-meta-script": metadata.script,
-                    "X-archive-meta-source": "Punjab Digital Library"
-                }
+                headers: headers
             }, (error, response, body) => {
                 if (response.statusCode === 200) {
                     EmailProducer(email,metadata.title,trueURI,true)
                 }
                 else {
+                    console.log(error,response,body)
                     EmailProducer(email,metadata.title,trueURI,false)
                 }
             }));
@@ -124,8 +167,8 @@ PDLQueue.process(async (job, done) => {
             return cheerio.load(body);
         }
     };
-    const metaData = await getMetaData(options, job.data.bookid);
-    const [zip,byteLength] = await getZipAndBytelength(metaData.no_of_pages, job.data.bookid, metaData.title)
+    const metaData = await getMetaData(options, job.data.bookid, job.data.categoryID);
+    const [zip,byteLength] = await getZipAndBytelength(metaData['Pages'], job.data.bookid, metaData.title)
     await uploadToIA(zip, metaData, byteLength, job.data.email)
-    done(null,true)
+    done(null, true)
 });
