@@ -16,7 +16,7 @@ const status = ({data}=props) => (
                     downloadLink={data.downloadLink}
                     title={data.title}
                     uri={data.uri}
-                    status={data.status}
+                    statusText={data.statusText}
                 />
             </div>
         </div>

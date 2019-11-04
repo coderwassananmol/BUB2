@@ -9,7 +9,15 @@ export default class ParticularBook extends React.Component {
     return (
       <div>
         <div className="col-md-3">
-          <img src={this.props.image} />
+          <style jsx>
+            {`
+              .bookimg {
+                max-width: 200px;
+                max-height: 400px;
+              }
+            `}
+          </style>
+          <img src={this.props.image} className="bookimg" />
         </div>
         <div className="col-md-9">
           <style jsx>
@@ -40,48 +48,87 @@ export default class ParticularBook extends React.Component {
           <table>
             <tbody>
               <tr>
-                <td className="property">Book ID</td>
-                <td>{this.props.bookid}</td>
+                <td className="property">Book ID:</td>
+                {
+                  this.props.bookid !== undefined ? 
+                  <td>
+                    {this.props.bookid}
+                  </td>
+                  : <td>Not available</td>
+                }
               </tr>
               <tr>
-                <td className="property">Book Title</td>
-                <td>{this.props.title}</td>
+                <td className="property">Book Title:</td>
+                {
+                  this.props.title !== undefined ? 
+                  <td>
+                    {this.props.title}
+                  </td>
+                  : <td>Not available</td>
+                }
               </tr>
               <tr>
-                <td className="property">Publisher</td>
-                <td>{this.props.publisher}</td>
+                <td className="property">Publisher:</td>
+                {
+                  this.props.publisher !== undefined ? 
+                  <td>
+                    {this.props.publisher}
+                  </td>
+                  : <td>Not available</td>
+                }
               </tr>
               <tr>
                 <td className="property">Published Date:</td>
-                <td>{this.props.publishedDate}</td>
+                {
+                  this.props.publishedDate !== undefined ? 
+                  <td>
+                    {this.props.publishedDate}
+                  </td>
+                  : <td>Not available</td>
+                }
               </tr>
               <tr>
                 <td className="property">Preview Link:</td>
                 <td>
+                {
+                  this.props.previewLink !== undefined ? 
                   <Link href={this.props.previewLink} prefetch>
-                    <a>Preview Link</a>
-                  </Link>
+                    <a target="_blank">Preview Link</a>
+                  </Link> : <td>Not available</td>
+                }
                 </td>
               </tr>
               <tr>
                 <td className="property">Download Link:</td>
                 <td>
+                {
+                  this.props.downloadLink !== undefined ? 
                   <Link href={this.props.downloadLink} prefetch>
-                    <a>Download Link</a>
-                  </Link>
+                    <a target="_blank">Download Link</a>
+                  </Link> : <p>Not available</p>
+                }
                 </td>
               </tr>
               <tr>
                 <td className="property">Internet Archive URI</td>
                 <td>
+                {
+                  this.props.uri !== undefined ? 
                   <Link href={this.props.uri} prefetch>
-                    <a>IA Link</a>
-                  </Link>
+                    <a target="_blank">IA Link</a>
+                  </Link> : <td>Not available</td>
+                }
                 </td>
               </tr>
               <tr>
                 <td className="property">Status</td>
-                <td>{this.props.statusText}</td>
+                {
+                  this.props.statusText !== undefined ? 
+                  <td>
+                    {this.props.statusText}
+                  </td>
+                  : <td>Not available</td>
+                }
               </tr>
             </tbody>
           </table>

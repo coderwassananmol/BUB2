@@ -7,23 +7,23 @@ module.exports = {
      */
     book_create_get: async (page) => {
         var allBooks;
-        await Book.paginate(
-            {}, 
-            {page: page,sort: {_id : -1}}, 
-            (err,result) => {
-            if(err) throw err;
-            if(result) {
-                allBooks = result;
-            }
-        });
-        return allBooks;
-        /*await Book.find({},function (err, data) {
-            if(err) throw err;
-            if (data) {
-                allBooks = data;
-            }
-          });
-          return allBooks;*/
+        try {
+            await Book.paginate(
+                {}, 
+                {page: page,sort: {_id : -1}}, 
+                (err,result) => {
+                if(err) throw err;
+                if(result) {
+                    console.log(result.total);
+                    allBooks = result;
+                }
+            });
+            return allBooks;
+        }
+        catch(err) {
+            console.log(err)
+            return allBooks;
+        }
     },
 
     createBook: (id,publisher,downloadLink,publishedDate,imageLinks,previewLink,title,uri,statusText,callback) => {
@@ -43,6 +43,24 @@ module.exports = {
             else
                 return callback(data._id);
           });
+    },
+
+    createBookMinimal: async (id,imageLinks,previewLink,title,uri,statusText,callback) => {
+        let documentID
+        await Book.create({
+            bookid: id,
+            imageLinks: imageLinks,
+            previewLink: previewLink,
+            title: title,
+            uri: uri,
+            statusText: statusText
+        }, (err, data) => {
+            if (err)
+                throw err;
+            else
+                documentID = data._id
+          });
+          return documentID;
     },
 
     updateBook: async (statusText,id) => {
