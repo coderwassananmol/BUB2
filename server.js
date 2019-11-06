@@ -141,25 +141,26 @@ app
 
         case "pn":
           //Check for duplicates
-          const isDuplicate = checkForDuplicatesFromIA(`bub_pn_${bookid}`);
-          isDuplicate.then(resp => {
-            if (resp.response.numFound != 0) {
-              res.send({
-                error: true,
-                message: "The document already exists on Internet Archive."
-              })
-            }
-            else {
-              const {
-                categoryID
-              } = req.query;
-              res.send({
-                error: false,
-                message: "You will be mailed with the details soon!"
-              });
-              PDLProducer(bookid, categoryID, email)
-            }
-          })
+          const {
+            categoryID
+          } = req.query;
+          res.send({
+            error: false,
+            message: "You will be mailed with the details soon!"
+          });
+          PDLProducer(bookid, categoryID, email)
+          // const isDuplicate = checkForDuplicatesFromIA(`bub_pn_${bookid}`);
+          // isDuplicate.then(resp => {
+          //   if (resp.response.numFound != 0) {
+          //     res.send({
+          //       error: true,
+          //       message: "The document already exists on Internet Archive."
+          //     })
+          //   }
+          //   else {
+              
+          //   }
+          // })
           break;
       }
     });
