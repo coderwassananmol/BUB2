@@ -16,5 +16,7 @@ A book uploader bot that transfers documents from public libraries such as Googl
 9. Run <br /> `npm run dev` for development and `npm run start` for production
 10. Open your browser and run your local server: [http://localhost:3000](http://localhost:3000)
 
+Note: In order to send email through gmail, you may need to allow less secure app access. To turn it on, go to https://myaccount.google.com/lesssecureapps?pli=1
+
 ## Keep Supporting
 There was no Node.js wrapper available for Internet Archive, so I decided to write the Node implementation to upload books to Internet Archive. If you like this repository, show your support by starring the project. Cheers!
