@@ -19,7 +19,7 @@ const Header = (props) => (
                 integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
                 crossOrigin="anonymous" />
             <link 
-                href="https://fonts.googleapis.com/css?family=Montserrat:300|Open+Sans:300|Raleway:300" 
+                href="https://fonts.googleapis.com/css?family=Montserrat:300|Open+Sans:300|Raleway:300|Lato:700" 
                 rel="stylesheet" />
 
         </Head>
@@ -37,7 +37,7 @@ const Header = (props) => (
                 <div className="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                     <ul className="nav navbar-nav">
                         <li className={props.page === 'index' ? 'active' : null}><Link href="/"><a>Upload<span className="sr-only">(current)</span></a></Link></li>
-                        {/* <li className={props.page === 'queue' ? 'active' : null}><Link href="/queue/1"><a>Queue</a></Link></li> */}
+                        <li className={props.page === 'queue' ? 'active' : null}><Link href="/queue"><a>Queue</a></Link></li>
                     </ul>
                     <ul className="nav navbar-nav navbar-right">
                         <li className="dropdown">

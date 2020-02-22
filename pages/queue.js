@@ -1,9 +1,3 @@
-/**
- * I don't know but a script has to be written that runs in background and keeps on adding books
- * to IA. This needs to be done and then it's done. Only WB will be left then.
- * Let's finish this goddamn thing tonight itself.
- */
-
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ShowQueue from '../components/ShowQueue';
@@ -13,14 +7,49 @@ import Link from 'next/link';
 const Queue = (props) => (
     <div>
         <Header page="queue"/>
-            <Paginate prev={props.prev != 0 ? props.prev : ''} next={props.next}/>
-            <ShowQueue data = {props.data} />
+            <style jsx>
+            {`
+                .card-container {
+                    width: 100%;
+                    display: flex;
+                    text-align: center;
+                    justify-content: space-around
+                }
+                .particular-card {
+                    display: block;
+                    width: 30%;
+                }
+                .card-title {
+                    font-size: 24px;
+                    color: #000;
+                    font-family: "Lato", sans-serif;
+                }
+            `}
+            </style>
+            <div className="card-container">
+                <div className="particular-card">
+                    <div className="card-title">
+                        <p>Panjab Digital Library</p>
+                    </div>
+                    <ShowQueue data={props.data.pdl_queue}/>
+                </div>
+                <div className="particular-card">
+                    <div className="card-title">
+                        <p>Google Books</p>
+                    </div>
+                    <ShowQueue data={props.data.google_books_queue}/>
+                </div>
+            </div>
         <Footer />
     </div>
 )
 
-Queue.getInitialProps = ({query},res) => {
-    return {data: query, prev: query.page-1, next: Number(query.page)+1}
+Queue.getInitialProps = async ({query},res) => {
+    console.log(query,"::query")
+    console.log(res,"::res")
+    const resp = await fetch('http://localhost:3000/queuedata')
+    const data = await resp.json()
+    return {data}
 }
 
 export default Queue;
