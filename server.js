@@ -25,6 +25,7 @@ const Arena = require('bull-arena');
 const GoogleBooksProducer = require('./bull/google-books-queue/producer');
 const PDLProducer = require('./bull/pdl-queue/producer')
 const Queue = require('bull');
+const { exec } = require("child_process");
 
 app
   .prepare()
@@ -54,9 +55,9 @@ app
 
         // Redis auth.
         redis: {
-          port: '6379',
-          host: '127.0.0.1',
-        },
+          port: process.env.redisport,
+          host: process.env.redishost
+        }
       }]
     }, {
       // Make the arena dashboard become available at {my-site.com}/arena.
@@ -129,6 +130,20 @@ app
           break;
       }
     });
+
+    server.post("/webhook",async (req,res) => {
+      exec("git pull; webservice --backend kubernetes node10 restart",(err,stdout,stderr) {
+        if(err) {
+          console.log("::err::" , err)
+        }
+        else if(stderr) {
+          console.log("::stderr::" , stderr)
+        }
+        else {
+          console.log("::stdout::". stdout)
+        }
+      })
+    })
 
     server.post("/download", async (req, res) => {
       res.send({
