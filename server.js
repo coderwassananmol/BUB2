@@ -132,7 +132,7 @@ app
     });
 
     server.post("/webhook",async (req,res) => {
-      exec("git pull; webservice --backend kubernetes node10 restart",(err,stdout,stderr) {
+      exec("git pull; webservice --backend kubernetes node10 restart",(err,stdout,stderr) => {
         if(err) {
           console.log("::err::" , err)
         }
@@ -143,6 +143,7 @@ app
           console.log("::stdout::". stdout)
         }
       })
+      res.send()
     })
 
     server.post("/download", async (req, res) => {
