@@ -167,9 +167,9 @@ app
       return handle(req, res);
     });
 
-    server.listen(process.env.PORT || 3000, err => {
+    server.listen(process.env.PORT || 5000, err => {
       if (err) throw err;
-      console.log(`> Ready on /:8080`);
+      console.log(`> Ready on /:5000`);
     });
   })
   .catch(ex => {
