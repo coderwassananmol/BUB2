@@ -1,7 +1,7 @@
 const emailtemp = require("../../utils/email");
-const Queue = require('bull');
+const config = require("../../utils/bullconfig")
 const nodemailer = require('nodemailer');
-const EmailQueue = new Queue('email-queue');
+const EmailQueue = config.getNewQueue('email-queue')
 
 require("dotenv").config();
 

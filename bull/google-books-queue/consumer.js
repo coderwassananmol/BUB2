@@ -1,7 +1,7 @@
-const Queue = require('bull');
 const request = require("request");
 const EmailProducer = require('../email-queue/producer')
-const GoogleBooksQueue = new Queue('google-books-queue');
+const config = require('../../utils/bullconfig')
+const GoogleBooksQueue = config.getNewQueue('google-books-queue')
 
 GoogleBooksQueue.on('active', (job, jobPromise) => {
     console.log(`Consumer(next): Job ${job.id} is active!`);

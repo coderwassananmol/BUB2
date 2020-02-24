@@ -24,8 +24,8 @@ const {
 const Arena = require('bull-arena');
 const GoogleBooksProducer = require('./bull/google-books-queue/producer');
 const PDLProducer = require('./bull/pdl-queue/producer')
-const Queue = require('bull');
 const { exec } = require("child_process");
+const config = require('./utils/bullconfig')
 
 app
   .prepare()
@@ -76,8 +76,8 @@ app
      */
 
     server.get('/queuedata',async (req,res) => {
-      const pdl_queue = await new Queue('pdl-queue').getJobCounts()
-      const google_books_queue = await new Queue('google-books-queue').getJobCounts()
+      const pdl_queue = await config.getNewQueue('pdl-queue').getJobCounts()
+      const google_books_queue = await config.getNewQueue('google-books-queue').getJobCounts()
       const queryParams = {pdl_queue,google_books_queue}
       res.send(queryParams);
     })

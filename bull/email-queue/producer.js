@@ -1,7 +1,7 @@
-const Queue = require('bull');
+const config = require('../../utils/bullconfig')
 require('./consumer')
 
-const EmailQueue = new Queue('email-queue');
+const EmailQueue = config.getNewQueue('email-queue')
 
 module.exports = async (email,title,trueURI,success) => {
     EmailQueue.add({

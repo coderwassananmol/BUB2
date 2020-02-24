@@ -1,6 +1,6 @@
-const Queue = require('bull');
 const EmailProducer = require('../email-queue/producer')
-const PDLQueue = new Queue('pdl-queue');
+const config = require('../../utils/bullconfig')
+const PDLQueue = config.getNewQueue('pdl-queue');
 const rp = require("request-promise");
 const cheerio = require("cheerio"); // Basically jQuery for node.js
 const request = require("request");

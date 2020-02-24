@@ -1,5 +1,5 @@
-const Queue = require('bull');
-const GoogleBooksQueue = new Queue('google-books-queue');
+const config = require('../../utils/bullconfig')
+const GoogleBooksQueue = config.getNewQueue('google-books-queue')
 require('./consumer')
 module.exports = async (uri, details, email) => {
     GoogleBooksQueue.add({
