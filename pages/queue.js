@@ -47,7 +47,8 @@ const Queue = (props) => (
 Queue.getInitialProps = async ({query},res) => {
     console.log(query,"::query")
     console.log(res,"::res")
-    const resp = await fetch('http://localhost:3000/queuedata')
+    const port = process.env.PORT || 5000;
+    const resp = await fetch(`http://localhost:${port}/queuedata`);
     const data = await resp.json()
     return {data}
 }
