@@ -3,6 +3,15 @@ import Footer from '../components/Footer';
 import ShowQueue from '../components/ShowQueue';
 import Paginate from '../components/Paginate';
 import Link from 'next/link';
+import fetch from 'isomorphic-fetch';
+
+const emptyObject = {
+    waiting: 0,
+    active: 0,
+    failed: 0,
+    completed: 0,
+    delayed: 0
+}
 
 const Queue = (props) => (
     <div>
@@ -31,13 +40,13 @@ const Queue = (props) => (
                     <div className="card-title">
                         <p>Panjab Digital Library</p>
                     </div>
-                    <ShowQueue data={props.data.pdl_queue}/>
+                    <ShowQueue data={!props.data ? emptyObject : props.data.pdl_queue}/>
                 </div>
                 <div className="particular-card">
                     <div className="card-title">
                         <p>Google Books</p>
                     </div>
-                    <ShowQueue data={props.data.google_books_queue}/>
+                    <ShowQueue data={!props.data ? emptyObject : props.data.pdl_queue}/>
                 </div>
             </div>
         <Footer />
@@ -45,9 +54,11 @@ const Queue = (props) => (
 )
 
 Queue.getInitialProps = async ({query},res) => {
-    console.log(query,"::query")
-    console.log(res,"::res")
-    const resp = await fetch('http://localhost:3000/queuedata')
+    const host = process.env.NODE_ENV === 'production' ? 'https://tools.wmflabs.org/bub2' : 'http://localhost:5000' //If you have port set in env file, replace 5000 with "process.env.PORT"
+    const resp = await fetch(`${host}/queuedata`);
+    if(resp.status !== 200) {
+        return {}
+    }
     const data = await resp.json()
     return {data}
 }
