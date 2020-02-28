@@ -54,7 +54,7 @@ const Queue = (props) => (
 )
 
 Queue.getInitialProps = async ({query},res) => {
-    const host = process.env.NODE_ENV === 'production' ? 'https://tools.wmflabs.org/bub2' : 'http://localhost:5000' //If you have port set in env file, replace 5000 with "process.env.PORT"
+    const host = process.env.NODE_ENV === 'production' ? 'https://bub2.toolforge.org' : 'http://localhost:5000' //If you have port set in env file, replace 5000 with "process.env.PORT"
     const resp = await fetch(`${host}/queuedata`);
     if(resp.status !== 200) {
         return {}
