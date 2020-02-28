@@ -46,7 +46,7 @@ const Queue = (props) => (
                     <div className="card-title">
                         <p>Google Books</p>
                     </div>
-                    <ShowQueue data={!props.data ? emptyObject : props.data.google_books_queueF}/>
+                    <ShowQueue data={!props.data ? emptyObject : props.data.google_books_queue}/>
                 </div>
             </div>
         <Footer />
