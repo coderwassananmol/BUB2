@@ -1,5 +1,5 @@
 ## BUB2
-A book uploader bot that transfers documents from public libraries such as Google Books, and Panjab Digital Library etc to Internet Archive. Built for Wikimedia Tool Labs.
+A book uploader bot that transfers documents from public libraries such as Google Books, and Panjab Digital Library etc to Internet Archive. Built for Wikimedia Tool Labs. Check out [BUB2 on Toolforge](https://bub2.toolforge.org)!
 
 ## Getting Started
 1. Install [Node](https://nodejs.org/en/download/). Check for Node and NPM correct install using `node -v` and `npm -v` on the terminal.
