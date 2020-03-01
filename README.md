@@ -4,7 +4,12 @@ A book uploader bot that transfers documents from public libraries such as Googl
 ## Getting Started
 1. Install [Node](https://nodejs.org/en/download/). Check for Node and NPM correct install using `node -v` and `npm -v` on the terminal.
 2. Install [Docker toolbox](https://docs.docker.com/toolbox/toolbox_install_windows/).
-3. Start redis service in the background using : `docker run --name redis -p 6379:6379 redis` and `docker start redis` . Note that redis server can also be run in other different possible ways, apart from the one mentioned in this point.
+3. Start redis service in the background 
+* Using Docker :
+`docker run --name redis -p 6379:6379 redis` and `docker start redis` . 
+
+* Using `docker-compose` : 
+`docker-compose up`
 4. Note: In order to send email through gmail, you may need to allow less secure app access. To turn it on, go to https://myaccount.google.com/lesssecureapps?pli=1
 5. Clone the repository `git clone https://github.com/coderwassananmol/BUB2`
 6. Navigate to the project directory on the terminal: `cd BUB2`.
