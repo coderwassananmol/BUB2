@@ -1,5 +1,5 @@
 ## BUB2
-A book uploader bot that transfers documents from public libraries such as Google Books, and Panjab Digital Library etc to Internet Archive. Built for Wikimedia Tool Labs.
+A book uploader bot that transfers documents from public libraries such as Google Books, and Panjab Digital Library etc to Internet Archive. Built for Wikimedia Tool Labs. Check out [BUB2 on Toolforge](https://bub2.toolforge.org)!
 
 ## Getting Started
 1. Install [Node](https://nodejs.org/en/download/). Check for Node and NPM correct install using `node -v` and `npm -v` on the terminal.
@@ -9,7 +9,7 @@ A book uploader bot that transfers documents from public libraries such as Googl
 `docker run --name redis -p 6379:6379 redis` and `docker start redis` . 
 
 * Using `docker-compose` : 
-`docker-compose up`
+`docker-compose up -d` and `docker-compose start`
 4. Note: In order to send email through gmail, you may need to allow less secure app access. To turn it on, go to https://myaccount.google.com/lesssecureapps?pli=1
 5. Clone the repository `git clone https://github.com/coderwassananmol/BUB2`
 6. Navigate to the project directory on the terminal: `cd BUB2`.
