@@ -51,6 +51,10 @@ const Header = (props) => (
                 </div>
             </div>
         </nav>
+        <div>
+            <iframe src="https://ghbtns.com/github-btn.html?user=coderwassananmol&repo=BUB2&type=star&count=true&size=large" frameborder="0" scrolling="0" width="160px" height="30px"></iframe>
+            <iframe src="https://ghbtns.com/github-btn.html?user=coderwassananmol&repo=BUB2&type=fork&count=true&size=large" frameborder="0" scrolling="0" width="158px" height="30px"></iframe>
+        </div>
         <div className="panel panel-primary">
             <div className="panel-heading">
                 <p className="panel-title">Book Uploader Bot (BUB) v2.0</p>
