@@ -40,6 +40,12 @@ const Header = (props) => (
                         <li className={props.page === 'queue' ? 'active' : null}><Link href="/queue"><a>Queue</a></Link></li>
                     </ul>
                     <ul className="nav navbar-nav navbar-right">
+                        <li>
+                            <a><iframe src="https://ghbtns.com/github-btn.html?user=coderwassananmol&repo=BUB2&type=star&count=true&size=large" frameborder="0" scrolling="0" width="120px" height="30px"></iframe></a>                            
+                        </li>
+                        <li>
+                            <a><iframe src="https://ghbtns.com/github-btn.html?user=coderwassananmol&repo=BUB2&type=fork&count=true&size=large" frameborder="0" scrolling="0" width="123px" height="30px"></iframe></a>
+                        </li>                        
                         <li className="dropdown">
                             <a href="#" className="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Help<span className="caret"></span></a>
                             <ul className="dropdown-menu">
@@ -51,10 +57,6 @@ const Header = (props) => (
                 </div>
             </div>
         </nav>
-        <div>
-            <iframe src="https://ghbtns.com/github-btn.html?user=coderwassananmol&repo=BUB2&type=star&count=true&size=large" frameborder="0" scrolling="0" width="160px" height="30px"></iframe>
-            <iframe src="https://ghbtns.com/github-btn.html?user=coderwassananmol&repo=BUB2&type=fork&count=true&size=large" frameborder="0" scrolling="0" width="158px" height="30px"></iframe>
-        </div>
         <div className="panel panel-primary">
             <div className="panel-heading">
                 <p className="panel-title">Book Uploader Bot (BUB) v2.0</p>
