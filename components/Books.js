@@ -53,9 +53,11 @@ export default class Books extends React.Component {
       loader: true
     });
 
+    let url = "";
     switch (this.state.option) {
       case 'gb':
-        fetch(`/check?bookid=${this.state.bookid}&option=${this.state.option}&email=${this.state.email}`)
+        url = `/check?bookid=${this.state.bookid}&option=${this.state.option + (this.state.email ? '&email=' + this.state.email : '')}`;
+        fetch(url)
           .then(response => response.json())
           .then(async response => {
             this.setState({
@@ -111,7 +113,8 @@ export default class Books extends React.Component {
         const searchParams = new URL(this.state.bookid).searchParams;
         const ID = searchParams.get('ID');
         const categoryID = searchParams.get('CategoryID');
-        fetch(`/check?bookid=${ID}&option=${this.state.option}&email=${this.state.email}&categoryID=${categoryID}`)
+        url = `/check?bookid=${ID}&option=${this.state.option + (this.state.email ? '&email=' + this.state.email : '')}&categoryID=${categoryID}`;
+        fetch(url)
           .then(res => res.json())
           .then(response => {
             this.setState({
@@ -251,7 +254,7 @@ export default class Books extends React.Component {
               name="email"
               className="form-control"
               id="email"
-              required
+              placeholder={"example@domain.com"}
               onChange={event => this.setState({ email: event.target.value })}
             />
             <div className="input-group-btn">
