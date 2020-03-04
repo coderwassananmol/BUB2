@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import Octicon, { Star, RepoForked } from '@primer/octicons-react';
 
 const Header = (props) => (
     <div>
@@ -41,10 +42,10 @@ const Header = (props) => (
                     </ul>
                     <ul className="nav navbar-nav navbar-right">
                         <li>
-                            <a><iframe src="https://ghbtns.com/github-btn.html?user=coderwassananmol&repo=BUB2&type=star&count=true&size=large" frameborder="0" scrolling="0" width="120px" height="30px"></iframe></a>                            
+                            <a href="https://github.com/coderwassananmol/BUB2/"><button type="button" className="btn btn-primary"><Octicon icon={Star} /> <b>Star</b></button></a>
                         </li>
                         <li>
-                            <a><iframe src="https://ghbtns.com/github-btn.html?user=coderwassananmol&repo=BUB2&type=fork&count=true&size=large" frameborder="0" scrolling="0" width="123px" height="30px"></iframe></a>
+                            <a href="https://github.com/coderwassananmol/BUB2/fork"><button type="button" className="btn btn-primary"><Octicon icon={RepoForked} /> <b>Fork</b></button></a>
                         </li>                        
                         <li className="dropdown">
                             <a href="#" className="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Help<span className="caret"></span></a>
