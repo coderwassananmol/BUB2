@@ -10,7 +10,7 @@ To read more about this workflow, you can visit [this link](http://guides.beanst
 <b>It is strictly for the participants. Please read it carefully.</b><br />
 Every participant(s) is required to fork this repository and make changes on the forked repository on a new branch other than *develop* and after making all the changes, make a Pull Request to <b>devlop branch</b>.
 
-- After you have the project working on your local maching (refer [README.md](https://github.com/coderwassananmol/BUB2/blob/develop/README.md)), in order to make sure you keep your fork up to date by tracking the original "upstream" repo that you forked. To do this, you'll need to add a remote:
+- After you have the project working on your local machine (refer [README.md](https://github.com/coderwassananmol/BUB2/blob/develop/README.md)), in order to make sure you keep your fork up to date by tracking the original "upstream" repo that you forked. To do this, you'll need to add a remote:
     ```
     # Add 'upstream' repo to list of remotes
     $ git remote add upstream https://github.com/coderwassananmol/BUB2.git
@@ -32,11 +32,12 @@ Every participant(s) is required to fork this repository and make changes on the
     # To add all new files to branch Branch_Name
     $ git add .
     ```
-To commit give a descriptive message for the convenience of reveiwer by:
+- Commit messages should follow a [certain guideline](https://udacity.github.io/git-styleguide/).To commit give a descriptive message for the convenience of reveiwer by:
     ```
     # This message get associated with all files you have changed
     $ git commit -m 'message'
     ```
+    **NOTE**: A PR should have only one commit. Multiple commits should be squashed.
 - Now you are ready to your work to the remote repository
     ```
     # To push your work to your remote repository
