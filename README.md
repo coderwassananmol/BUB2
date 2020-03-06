@@ -33,13 +33,13 @@ Note: In order to send email through gmail, you may need to allow less secure ap
 ### Run Redis server
  * Refer to [Redis](https://redis.io/download) for download and setup documentation ,or
 
-### Running Redis using Docker
+#### Running Redis using Docker
 ```
 docker run --name redis -p 6379:6379 redis
 docker start redis
 ```
 
-### Running Redis using Docker Compose
+#### Running Redis using Docker Compose
 ```
 docker-compose up -d
 docker-compose start
