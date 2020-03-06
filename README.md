@@ -12,23 +12,14 @@ These instructions will get you a copy of the project up and running on your loc
 * [Docker toolbox](https://docs.docker.com/toolbox/toolbox_install_windows/) ( Optional )
 * [Redis](https://redis.io/)
 
-#### Without Docker
-
-* Refer to [Redis](https://redis.io/download) for download and setup documentation
-
-#### Using Docker
-
-* `docker run --name redis -p 6379:6379 redis` and `docker start redis` or
-* **docker-compose** : `docker-compose up -d` and `docker-compose start`
-
-### Installing
+### Local setup
 #### Clone the repo
 
 * Clone the repository `git clone https://github.com/coderwassananmol/BUB2`
 * Navigate to the project directory on the terminal: `cd BUB2`.
 * For developers, checkout to develop branch: `git checkout develop`
 * Run `npm install`
-#### Enter credentials
+#### Set environment variables
 Rename `.env.example` to `.env`. Then, to fill the credentials,
   * Make an account on [archive.org](https://archive.org) and note down the sign-in credentials. Using these details, fill 'email' and 'password' fields in the `.env` file.
   * Go to https://archive.org/account/s3.php . Generate the **access** and **secret** keys and fill 
@@ -38,6 +29,21 @@ Rename `.env.example` to `.env`. Then, to fill the credentials,
   * Fill the `redisport` field with **6379**, which is the default port number for redis.
   * Fill `service` field with your mail service provider (Ex. gmail, outlook)
 Note: In order to send email through gmail, you may need to allow less secure app access. To turn it on, go to https://myaccount.google.com/lesssecureapps?pli=1
+
+### Run Redis server
+ * Refer to [Redis](https://redis.io/download) for download and setup documentation ,or
+
+### Running Redis using Docker
+```
+docker run --name redis -p 6379:6379 redis
+docker start redis
+```
+
+### Running Redis using Docker Compose
+```
+docker-compose up -d
+docker-compose start
+```
 #### Start the server
 
 * Run `npm run dev` for development and `npm run start` for production.
