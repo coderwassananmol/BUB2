@@ -10,7 +10,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-* [Node.JS](https://nodejs.org/en/download/) ( check for installation with ```npm -v``` and ```node -v``` on terminal ) ![](https://img.shields.io/npm/v/npm)
+* [Node.JS](https://nodejs.org/en/download/) ( check for installation with ```npm -v``` and ```node -v``` on terminal )
 * [Docker toolbox](https://docs.docker.com/toolbox/toolbox_install_windows/) ( Optional )
 * [Redis](https://redis.io/)
 
