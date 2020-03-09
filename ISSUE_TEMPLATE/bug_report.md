@@ -10,5 +10,8 @@ State what you expected to see at the place of the Bug.
 ### Proposed Solution
 State your proposed solution for the Bug and add additional information on the context if applicable. 
 
+## Screenshots/GIFs
+Add Screenshots or GIFs if possible for the issue stated above.
+
 ### Are you working on this issue? 
 YES/NO
