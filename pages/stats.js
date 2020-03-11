@@ -4,6 +4,7 @@ import ShowQueue from '../components/ShowQueue';
 import Paginate from '../components/Paginate';
 import Link from 'next/link';
 import fetch from 'isomorphic-fetch';
+import UploadedItems from '../components/UploadedItems';
 
 const emptyObject = {
     waiting: 0,
@@ -49,6 +50,7 @@ const Queue = (props) => (
                     <ShowQueue data={!props.data ? emptyObject : props.data.google_books_queue}/>
                 </div>
             </div>
+            <UploadedItems />
         <Footer />
     </div>
 )
