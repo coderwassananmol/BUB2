@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 
-var items = 50;
-var finalURL = `https://archive.org/advancedsearch.php?q=bub.wikimedia+&fl%5B%5D=identifier&fl%5B%5D=publicdate&fl%5B%5D=title&sort%5B%5D=publicdate+desc&sort%5B%5D=&sort%5B%5D=&rows=${items}&page=1&output=json`;
+var finalURL = `https://archive.org/advancedsearch.php?q=bub.wikimedia+&rows=0&output=json`;
 
 class UploadedItems extends Component {
   constructor(props) {
@@ -30,8 +29,16 @@ class UploadedItems extends Component {
 
   render() {
     return (
-      <div className="container my-2">
-        <div className="h4">Books Uploaded: <span className="text-primary h4">{this.state.result}</span> </div>
+      <div className="container">
+        <div 
+          style={{ 
+            fontFamily: 'verdana,"Helvetica Neue",Helvetica,Arial,sans-serif',
+            fontSize: '25px',
+            fontWeight: 500
+          }}
+          className="my-2 text-center text-primary">
+          {this.state.result} books uploaded to Internet Archive using BUB2!
+        </div>
       </div>
     );
   }
