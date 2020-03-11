@@ -2,6 +2,9 @@
 - Introduce yourself on the Slack Channel.
 - Get in touch with Mentors(M) on Slack, if you are new to Git and Github and wish to contribute.
 - Review the Issues which are tagged with GSSOC. 
+- Before writing code do follow the CONTRIBUTING.md to follow the certain guidelines that must be adhered while contributing to the Project.
+- Also follow the README.md File to know about the project in depth.
+- Make sure that you are choosing issues which have not be assigned the **taken** label. The **taken** label signifies that the issue has already been assigned to someone else.
 - If you wish to log a Bug Report or a Feature Request, follow the template followed for the same to help Mentors better understand your
 issue.
 - If you wish to work on an existing issue, check if the issue has already been assigned to someone else. 
