@@ -26,15 +26,15 @@ A book uploader bot that transfers documents from public libraries such as Googl
 11. Open your browser and run your local server: http://localhost:5000
 
 ## Request to Contribute
-1. Fork the repository
-2. Clone the repository to your local system by using the command : `git clone "Forked repository link` 
-3. To work on an issue, go through the issues section in the main repository 
+1. Fork the repository.
+2. Clone the repository to your local system by using the command : `git clone "https://github.com/<YOUR_USERNAME>/BUB2"`. 
+3. To work on an issue, go through the issues section in the main repository.
 4. Select an issue you would like to work on and comment expressing your interest.
 5. Start working on the issue once it is assigned to you.
 6. Create a new branch and start working on the issue locally.
 7. Create a PULL REQUEST to merge your branch to the main branch.
 8. The issue will be considered closed and resolved once the PR is accepted. 
-Please read CONTRIBUTING.md for information on how to contribute to BUB2.
+Please read [CONTRIBUTING.md](https://github.com/coderwassananmol/BUB2/blob/develop/CONTRIBUTING.md) for information on how to contribute to BUB2.
 
 
 ## Keep Supporting
