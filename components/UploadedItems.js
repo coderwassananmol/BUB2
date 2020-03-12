@@ -1,6 +1,7 @@
 import React, { Component } from "react";
+import Link from "next/link";
 
-var finalURL = `https://archive.org/advancedsearch.php?q=bub.wikimedia+&rows=0&output=json`;
+const finalURL = `https://archive.org/advancedsearch.php?q=bub.wikimedia+&rows=0&output=json`;
 
 class UploadedItems extends Component {
   constructor(props) {
@@ -16,7 +17,7 @@ class UploadedItems extends Component {
       .then((response) => response.json())
       .then((responseJson) => {
         const resultyt = responseJson.response.numFound;
-        this.setState({ result: (resultyt-1) });
+        this.setState({ result: resultyt });
       })
       .catch((error) => {
         console.error(error);
@@ -30,14 +31,20 @@ class UploadedItems extends Component {
   render() {
     return (
       <div className="container">
-        <div 
-          style={{ 
-            fontFamily: 'verdana,"Helvetica Neue",Helvetica,Arial,sans-serif',
-            fontSize: '25px',
-            fontWeight: 500
-          }}
-          className="my-2 text-center text-primary">
-          {this.state.result} books uploaded to Internet Archive using BUB2!
+        <style jsx>
+          {`
+            .books-uploaded {
+              font-family: verdana, "Helvetica Neue", Helvetica, Arial,
+                sans-serif;
+              font-size: 25px;
+              font-weight: 500;
+            }
+          `}
+        </style>
+        <div className="my-2 text-center text-primary books-uploaded">
+          <Link href={" https://archive.org/details/@bub_wikimedia"}>
+            <a target="_blank">{this.state.result} books uploaded to Internet Archive using BUB2!</a>
+          </Link>
         </div>
       </div>
     );
