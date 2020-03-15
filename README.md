@@ -1,4 +1,4 @@
-<img src="public/assets/bub2logo.png" height="400px">
+<img src="public/assets/bub2.png" height="400px">
 
 # BUB2 ![](https://img.shields.io/github/forks/coderwassananmol/BUB2?style=social) ![](https://img.shields.io/github/stars/coderwassananmol/BUB2?style=social) ![](https://img.shields.io/github/watchers/coderwassananmol/BUB2?style=social) <br>
 
