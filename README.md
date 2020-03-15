@@ -63,6 +63,18 @@ docker-compose start
 
 Please read [CONTRIBUTING.md](https://github.com/coderwassananmol/BUB2/blob/develop/CONTRIBUTING.md) for information on how to contribute to BUB2.
 
+## Request to Contribute
+1. Fork the repository.
+2. Clone the repository to your local system by using the command : `git clone "https://github.com/<YOUR_USERNAME>/BUB2"`. 
+3. To work on an issue, go through the issues section in the main repository.
+4. Select an issue you would like to work on and comment expressing your interest.
+5. Start working on the issue once it is assigned to you.
+6. Create a new branch and start working on the issue locally.
+7. Create a PULL REQUEST to merge your branch to the main branch.
+8. The issue will be considered closed and resolved once the PR is accepted. 
+Please read [CONTRIBUTING.md](https://github.com/coderwassananmol/BUB2/blob/develop/CONTRIBUTING.md) for information on how to contribute to BUB2.
+
+
 ## Keep Supporting
 
 There was no Node.js wrapper available for Internet Archive, so I decided to write the Node implementation to upload books to Internet Archive. If you like this repository, show your support by starring the project. Cheers!
