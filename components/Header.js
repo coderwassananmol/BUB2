@@ -41,6 +41,12 @@ class Header extends Component{
                         href="https://fonts.googleapis.com/css?family=Montserrat:300|Open+Sans:300|Raleway:300|Lato:700" 
                         rel="stylesheet" />
 
+                    {/* Favicons */}
+                    <meta name="msapplication-TileImage" content="assets/mstile-150x150.png"/>
+                    <link rel="shortcut icon" href="assets/favicon.ico"/>
+                    <link rel="icon" type="image/png" href="assets/favicon.ico"/>
+                    <link rel="icon" sizes="196x196" href="assets/apple-touch-icon.png"></link>
+
                 </Head>
                 <nav className="navbar navbar-default">
                     <div className="container-fluid">
