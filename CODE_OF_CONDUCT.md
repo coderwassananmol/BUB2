@@ -1,4 +1,4 @@
-# Book Uploader Code of Conduct
+# Book Uploader Bot Code of Conduct
 In order to promote an open and welcoming atmosphere, we as contributors and maintainers commit ourselves to make involvement in our project and in our group a harassment-free experience for all irrespective of age, body size, disability, ethnicity, gender identity and expression, level of experience, nationality, personal appearance, race, religion, or sexual identity and orientation.
 
 ## Our Standards
