@@ -61,24 +61,28 @@ docker-compose start
 - Run `npm run dev` for development and `npm run start` for production.
 - Open your browser and navigate to http://localhost:5000
 
-### Example
+## Example
   This is the simple Example how BUB2(Book Uploader Bot) works.
 1. Open the Website [here](https://bub2.toolforge.org/)
  <img src="public/assets/web.png" height="500px">
 
 2. Choose the Library option.
- <video src="public/assets/choose.mp4" height="500px">
+ <video  height="500px" controls preload autoplay>
+  <source src="public/assets/choose.mp4" type="video/mp4"></source>
+ </video>
 
 3. Then enter the ID or URI.
- <video src="public/assets/id.m4" height="500px">
+ <video height="500px" controls preload autoplay>
+  <source src="public/assets/id.m4" type="video/mp4"></source>
+ </video>
 
-4. In this We use the example for the [Panjab digital Library](http://www.panjabdigilib.org/webuser/searches/mainpage.jsp)
+4. In this We use the example for the [Panjab digital Library](http://www.panjabdigilib.org/webuser/searches/mainpage.jsp) and link of the book is [here](http://www.panjabdigilib.org/webuser/searches/displayPage.jsp?ID=11567&page=1&CategoryID=1&Searched=#.XnMWhz0r4jA.gmail).
 
-`Link:- http://www.panjabdigilib.org/webuser/searches/displayPage.jsp?ID=11567&page=1&CategoryID=1&Searched=#.XnMWhz0r4jA.gmail`
+<video height="500px" controls preload autoplay>
+  <source src="public/assets/uri.mp4" type="video/mp4"></source>
+</video>
 
-<video src="public/assets/uri.mp4" height="500px">
-
-5. Then Enter your Email address which will be used to notify that your upload has been completed and click the submit button.
+5. Then Enter your `Email address` which will be used to notify that your upload has been completed and click the `submit` button.
 
 ## Contributing
 
