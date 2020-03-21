@@ -1,10 +1,9 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ShowQueue from '../components/ShowQueue';
-import Paginate from '../components/Paginate';
-import Link from 'next/link';
 import fetch from 'isomorphic-fetch';
 import UploadedItems from '../components/UploadedItems';
+import {stats_data_endpoint} from '../utils/constants'
 
 const emptyObject = {
     waiting: 0,
@@ -14,9 +13,9 @@ const emptyObject = {
     delayed: 0
 }
 
-const Queue = (props) => (
+const Stats = (props) => (
     <div>
-        <Header page="queue"/>
+        <Header page="stats"/>
             <style jsx>
             {`
                 .card-container {
@@ -55,9 +54,8 @@ const Queue = (props) => (
     </div>
 )
 
-Queue.getInitialProps = async ({query},res) => {
-    const host = process.env.NODE_ENV === 'production' ? 'https://bub2.toolforge.org' : 'http://localhost:5000' //If you have port set in env file, replace 5000 with "process.env.PORT"
-    const resp = await fetch(`${host}/queuedata`);
+Stats.getInitialProps = async ({query},res) => {
+    const resp = await fetch(stats_data_endpoint);
     if(resp.status !== 200) {
         return {}
     }
@@ -65,4 +63,4 @@ Queue.getInitialProps = async ({query},res) => {
     return {data}
 }
 
-export default Queue;
+export default Stats;

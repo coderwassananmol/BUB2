@@ -71,7 +71,6 @@ async function getMetaData(options, bookid, categoryID) {
     }                                                      
 
     PNdetails.title = $('#Nanakshahi > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > table:nth-child(22) > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > div > table > tbody > tr:nth-child(1) > td > a').text().trim()
-
     PNdetails.bookID = bookid
     PNdetails.categoryID = categoryID;
 
@@ -169,6 +168,7 @@ PDLQueue.process(async (job, done) => {
         }
     };
     const metaData = await getMetaData(options, job.data.bookid, job.data.categoryID);
+    job.log(JSON.stringify(metaData))
     const [zip,byteLength] = await getZipAndBytelength(metaData['Pages'], job.data.bookid, metaData.title)
     await uploadToIA(zip, metaData, byteLength, job.data.email)
     done(null, true)

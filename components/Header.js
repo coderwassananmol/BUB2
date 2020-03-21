@@ -57,6 +57,7 @@ class Header extends Component{
                             <ul className="nav navbar-nav">
                                 <li className={this.props.page === 'index' ? 'active' : null}><Link href="/"><a>Upload<span className="sr-only">(current)</span></a></Link></li>
                                 <li className={this.props.page === 'queue' ? 'active' : null}><Link href="/queue"><a>Queue</a></Link></li>
+                                <li className={this.props.page === 'stats' ? 'active' : null}><Link href="/stats"><a>Stats</a></Link></li>
                             </ul>
                             <ul className="nav navbar-nav navbar-right">
                                 <li>
@@ -81,7 +82,8 @@ class Header extends Component{
                         <p className="panel-title">Book Uploader Bot (BUB) v2.0</p>
                     </div>
                     <div className="panel-body">
-                    <p>A bot that helps you transfer books that belong to <b>public domain</b> to Internet Archive from libraries like Google Books, West Bengal State Library etc.</p>
+                    <p>A bot that helps you transfer books that belong to <b>public domain</b> to Internet Archive from public libraries.</p>
+                    <p>Supported Libraries: Google Books, Panjab Digital Library. More to come soon!</p>
                     <p>Using IA Upload Tool, you can then transfer these books to Wikimedia Commons.</p>
                     </div>
                 </div>
