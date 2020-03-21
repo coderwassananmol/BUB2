@@ -61,6 +61,29 @@ docker-compose start
 - Run `npm run dev` for development and `npm run start` for production.
 - Open your browser and navigate to http://localhost:5000
 
+## Example
+  This is the simple example how BUB2(Book Uploader Bot) works.
+1. Open the Website [here](https://bub2.toolforge.org/)
+ <img src="public/assets/web.png" height="500px">
+
+2. Choose the `Library` option.
+ <video  height="500px" controls preload autoplay>
+  <source src="public/assets/choose.mp4" type="video/mp4"></source>
+ </video>
+
+3. Then enter the ID or URI.
+ <video height="500px" controls preload autoplay>
+  <source src="public/assets/id.m4" type="video/mp4"></source>
+ </video>
+
+4. In this we use the example for the [Panjab digital Library](http://www.panjabdigilib.org/webuser/searches/mainpage.jsp) and link of the book is [here](http://www.panjabdigilib.org/webuser/searches/displayPage.jsp?ID=11567&page=1&CategoryID=1&Searched=#.XnMWhz0r4jA.gmail).
+
+<video height="500px" controls preload autoplay>
+  <source src="public/assets/uri.mp4" type="video/mp4"></source>
+</video>
+
+5. Then enter your `email address` which will be used to notify that your upload has been completed and click the `submit` button.
+
 ## Contributing
 
 Please read [CONTRIBUTING.md](https://github.com/coderwassananmol/BUB2/blob/develop/CONTRIBUTING.md) for information on how to contribute to BUB2.
