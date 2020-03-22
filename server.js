@@ -99,7 +99,7 @@ app
       const pdlqueue_waiting_job = await pdl_queue.getWaiting(0);
 
       const gbqueue_active_job = await google_books_queue.getActive(0);
-      const gbqueue_waiting_job = await google_books_queue.getActive(0);
+      const gbqueue_waiting_job = await google_books_queue.getWaiting(0);
 
       queryParams['pdl-queue']['active'] = await queueData(pdlqueue_active_job, pdl_queue)
       queryParams['pdl-queue']['waiting'] = await queueData(pdlqueue_waiting_job, pdl_queue)

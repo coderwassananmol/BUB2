@@ -17,8 +17,8 @@ const QueueSection = ({ name,active,waiting }) => (
      `}
     </style>
     <h3>{name}</h3>
-    <p>Current Active: {active && active.title}</p>
-    <p>Next: {waiting && waiting.title}</p>
+    <p>Current Active: {(active && active.title) || "No active job"}</p>
+    <p>Next: {(waiting && waiting.title) || "No waiting job"}</p>
     <button className="btn btn-primary">Show Queue</button>
   </div>
 );
