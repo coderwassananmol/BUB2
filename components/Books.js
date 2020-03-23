@@ -1,6 +1,6 @@
 import React from "react";
 import Swal from "sweetalert2";
-import ReactDOM from 'react-dom';
+import ReactDOM from "react-dom";
 export default class Books extends React.Component {
   /**
    * @param {Object} props
@@ -41,7 +41,8 @@ export default class Books extends React.Component {
         break;
 
       case "pn":
-        url = "http://www.panjabdigilib.org/webuser/searches/displayPageContent.jsp?ID=xxxx&page=x&CategoryID=x&Searched=xxxx";
+        url =
+          "http://www.panjabdigilib.org/webuser/searches/displayPageContent.jsp?ID=xxxx&page=x&CategoryID=x&Searched=xxxx";
         break;
     }
     return url;
@@ -55,8 +56,9 @@ export default class Books extends React.Component {
 
     let url = "";
     switch (this.state.option) {
-      case 'gb':
-        url = `/check?bookid=${this.state.bookid}&option=${this.state.option + (this.state.email ? '&email=' + this.state.email : '')}`;
+      case "gb":
+        url = `/check?bookid=${this.state.bookid}&option=${this.state.option +
+          (this.state.email ? "&email=" + this.state.email : "")}`;
         fetch(url)
           .then(response => response.json())
           .then(async response => {
@@ -70,13 +72,10 @@ export default class Books extends React.Component {
                 input: "url",
                 backdrop: true,
                 width: "50%",
-                title:
-                  '<strong style="font-size: 22px;">Just a few more steps...</strong>',
+                title: '<strong style="font-size: 22px;">Just a few more steps...</strong>',
                 html:
                   `<ol style="text-align: left; font-size: 16px; line-height: 1.5">` +
-                  `<li>Go to this link: <a href = "${response.url}">${
-                  response.title
-                  }</a></li>` +
+                  `<li>Go to this link: <a href = "${response.url}">${response.title}</a></li>` +
                   `<li>Enter the captcha.</li>` +
                   `<li>Enter the URL below (<i>https://books.googleusercontent.com/books/content?req=xxx</i>)</li>`
               });
@@ -100,31 +99,28 @@ export default class Books extends React.Component {
                   this.setState({
                     loader: false
                   });
-                  if (response.error)
-                    Swal("Error!", response.message, "error");
-                  else
-                    Swal("Voila!", response.message, "success");
+                  if (response.error) Swal("Error!", response.message, "error");
+                  else Swal("Voila!", response.message, "success");
                 });
             }
           });
-          break;
+        break;
 
-      case 'pn':
+      case "pn":
         const searchParams = new URL(this.state.bookid).searchParams;
-        const ID = searchParams.get('ID');
-        const categoryID = searchParams.get('CategoryID');
-        url = `/check?bookid=${ID}&option=${this.state.option + (this.state.email ? '&email=' + this.state.email : '')}&categoryID=${categoryID}`;
+        const ID = searchParams.get("ID");
+        const categoryID = searchParams.get("CategoryID");
+        url = `/check?bookid=${ID}&option=${this.state.option +
+          (this.state.email ? "&email=" + this.state.email : "")}&categoryID=${categoryID}`;
         fetch(url)
           .then(res => res.json())
           .then(response => {
             this.setState({
               loader: false
             });
-            if (response.error)
-              Swal("Error!", response.message, "error");
-            else
-              Swal("Voila!", response.message, "success");
-          })
+            if (response.error) Swal("Error!", response.message, "error");
+            else Swal("Voila!", response.message, "success");
+          });
     }
   };
 
@@ -215,31 +211,32 @@ export default class Books extends React.Component {
             <option value="pn">Punjab Digital Library</option>
           </select>
           <h3>
-            2. Enter the {this.state.option === 'gb' ? 'ID' : 'URI'} ({this.showExample()}) <span> *</span>
+            2. Enter the {this.state.option === "gb" ? "ID" : "URI"} ({this.showExample()}){" "}
+            <span> *</span>
           </h3>
           <div className="input-group full-width">
             <style jsx>
-              {
-                `
-              .full-width {
-                width: 100%
-              }
-              `
-              }
+              {`
+                .full-width {
+                  width: 100%;
+                }
+              `}
             </style>
-            {
-              this.state.option === 'gb' ?
-                <span className="input-group-addon" id="bid">
-                  https://books.google.co.in/books?id=
-            </span>
-                : null
-            }
+            {this.state.option === "gb" ? (
+              <span className="input-group-addon" id="bid">
+                https://books.google.co.in/books?id=
+              </span>
+            ) : null}
 
             <input
               id="bookid"
               name="bookid"
-              type={this.state.option === 'gb' ? 'text' : 'url'}
-              placeholder={this.state.option === 'gb' ? "At46AQAAMAAJ" : 'http://www.panjabdigilib.org/webuser/searches/displayPageContent.jsp?ID=2833&page=1&CategoryID=3&Searched=W3GX'}
+              type={this.state.option === "gb" ? "text" : "url"}
+              placeholder={
+                this.state.option === "gb"
+                  ? "At46AQAAMAAJ"
+                  : "http://www.panjabdigilib.org/webuser/searches/displayPageContent.jsp?ID=2833&page=1&CategoryID=3&Searched=W3GX"
+              }
               onChange={event => this.setState({ bookid: event.target.value })}
               required
               className="form-control"
@@ -268,26 +265,25 @@ export default class Books extends React.Component {
                 <span className="glyphicon glyphicon-question-sign" />
               </button>
               <div className="dropdown-menu well well-sm">
-                <p>
-                  It will be used to notify that your upload has been completed.
-                </p>
+                <p>It will be used to notify that your upload has been completed.</p>
               </div>
             </div>
           </div>
           <div>
-          <style jsx>
-              {
-                `
-              padding-top: 3vh;
-              padding-bottom: 3vh;
-              `
-              }
+            <style jsx>
+              {`
+                padding-top: 3vh;
+                padding-bottom: 3vh;
+              `}
             </style>
-          <button className="btn btn-primary" type="submit" style={{height: 'fit-content', padding: '1.2vh 2vh'}}>
-            Submit
-          </button>
+            <button
+              className="btn btn-primary"
+              type="submit"
+              style={{ height: "fit-content", padding: "1.2vh 2vh" }}
+            >
+              Submit
+            </button>
           </div>
-
         </form>
       </div>
     );

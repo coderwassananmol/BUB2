@@ -23,6 +23,7 @@ const Stats = props => (
           display: flex;
           text-align: center;
           justify-content: space-around;
+          margin-bottom: 4vh;
         }
         .particular-card {
           display: block;
