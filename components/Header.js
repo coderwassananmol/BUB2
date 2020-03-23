@@ -48,7 +48,7 @@ class Header extends Component{
                     <link rel="icon" sizes="196x196" href="assets/apple-touch-icon.png"></link>
 
                 </Head>
-                <nav className="navbar navbar-default">
+                <nav className="navbar navbar-default" style={{marginBottom: '15px'}}>
                     <div className="container-fluid">
                         <div className="navbar-header">
                             <button type="button" className="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
@@ -83,7 +83,7 @@ class Header extends Component{
                         </div>
                     </div>
                 </nav>
-                <div className="panel panel-primary">
+                <div className="panel panel-primary" style={{margin: '0 15px 15px 15px'}}>
                     <div className="panel-heading">
                         <p className="panel-title">Book Uploader Bot (BUB) v2.0</p>
                     </div>

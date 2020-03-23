@@ -274,9 +274,20 @@ export default class Books extends React.Component {
               </div>
             </div>
           </div>
-          <button className="btn btn-primary" type="submit">
+          <div>
+          <style jsx>
+              {
+                `
+              padding-top: 3vh;
+              padding-bottom: 3vh;
+              `
+              }
+            </style>
+          <button className="btn btn-primary" type="submit" style={{height: 'fit-content', padding: '1.2vh 2vh'}}>
             Submit
           </button>
+          </div>
+
         </form>
       </div>
     );
