@@ -10,4 +10,4 @@ Bulk upload future, MediaWiki OAuth integration, Direct uploading to Commons
 <b>Can I upload my own book?</b>
 If an appropriate license is attached to the book which allows it to be archived(which doesn't allow copyright infringement suits, etc.), then book can be uploaded.
 <b>Can I delete or undo an upload?</b>
-Archives are supposed to be read-only, and deleting is a 'write' operation.So it doesnot support.
+Archives are supposed to be read-only, and deleting is a 'write' operation. So it does not support.
