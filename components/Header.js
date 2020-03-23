@@ -1,16 +1,16 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import Head from 'next/head';
 import Link from 'next/link';
 import Octicon, { Star, RepoForked } from '@primer/octicons-react';
 
-class Header extends Component{
-    constructor(){
+class Header extends Component {
+    constructor() {
         super()
         this.state = {
             gitstats: {}
         }
     }
-    componentDidMount(){
+    componentDidMount() {
         fetch("https://api.github.com/repos/coderwassananmol/BUB2")
             .then(response => response.json())
             .then(data => {
@@ -19,8 +19,8 @@ class Header extends Component{
                 })
             })
     }
-    render(){
-        return(
+    render() {
+        return (
             <div>
                 <Head>
                     <meta
@@ -37,8 +37,8 @@ class Header extends Component{
                         href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
                         integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
                         crossOrigin="anonymous" />
-                    <link 
-                        href="https://fonts.googleapis.com/css?family=Montserrat:300|Open+Sans:300|Raleway:300|Lato:700" 
+                    <link
+                        href="https://fonts.googleapis.com/css?family=Montserrat:300|Open+Sans:300|Raleway:300|Lato:700"
                         rel="stylesheet" />
 
                 </Head>
@@ -64,11 +64,11 @@ class Header extends Component{
                                 </li>
                                 <li>
                                     <a href="https://github.com/coderwassananmol/BUB2/fork"><button type="button" className="btn btn-primary"><Octicon icon={RepoForked} /><b> Fork </b><span className="badge badge-light">{this.state.gitstats.forks_count}</span></button></a>
-                                </li>                        
+                                </li>
                                 <li className="dropdown">
                                     <a href="#" className="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Help<span className="caret"></span></a>
                                     <ul className="dropdown-menu">
-                                        <li><a href="#">FAQ</a></li>
+                                        <li><a href="https://github.com/coderwassananmol/BUB2/FAQ.md">FAQ</a></li>
                                         <li><a href="#">About</a></li>
                                     </ul>
                                 </li>
@@ -81,8 +81,8 @@ class Header extends Component{
                         <p className="panel-title">Book Uploader Bot (BUB) v2.0</p>
                     </div>
                     <div className="panel-body">
-                    <p>A bot that helps you transfer books that belong to <b>public domain</b> to Internet Archive from libraries like Google Books, West Bengal State Library etc.</p>
-                    <p>Using IA Upload Tool, you can then transfer these books to Wikimedia Commons.</p>
+                        <p>A bot that helps you transfer books that belong to <b>public domain</b> to Internet Archive from libraries like Google Books, West Bengal State Library etc.</p>
+                        <p>Using IA Upload Tool, you can then transfer these books to Wikimedia Commons.</p>
                     </div>
                 </div>
             </div>
