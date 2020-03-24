@@ -82,6 +82,25 @@ app
       res.send(queryParams);
     })
 
+    server.get('/queue/list',async (req,res) => {
+      let types = ['waiting', 'active', 'delayed', 'completed', 'failed'];
+      let data = {};
+      (() => {
+        var promises = []
+        types.map(type => {
+          promises.push(new Promise(async(resolve, reject)=> {
+            let pdl_queue = await config.getNewQueue('pdl-queue').getJobs(type)
+            let google_books_queue = await config.getNewQueue('google-books-queue').getJobs(type)
+            resolve(data[type] = pdl_queue.concat(google_books_queue));
+          }));
+        })
+        return Promise.all(promises);
+      })().then(() => {
+        res.send(data);
+      });
+    })
+
+      
     let GBdetails = {};
     server.get("/check", async (req, res) => {
       const {
