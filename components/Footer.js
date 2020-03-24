@@ -1,10 +1,9 @@
 export default () => (
   <div
     style={{
+    marginTop: '15px',
       paddingTop: "15px",
       paddingBottom: "15px",
-      position: "absolute",
-      bottom: 0,
       width: "100%",
       backgroundColor: "#d7d6d6",
       fontFamily: 'verdana,"Helvetica Neue",Helvetica,Arial,sans-serif'

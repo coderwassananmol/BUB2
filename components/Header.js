@@ -41,8 +41,14 @@ class Header extends Component {
                         href="https://fonts.googleapis.com/css?family=Montserrat:300|Open+Sans:300|Raleway:300|Lato:700"
                         rel="stylesheet" />
 
+                    {/* Favicons */}
+                    <meta name="msapplication-TileImage" content="assets/mstile-150x150.png"/>
+                    <link rel="shortcut icon" href="assets/favicon.ico"/>
+                    <link rel="icon" type="image/png" href="assets/favicon.ico"/>
+                    <link rel="icon" sizes="196x196" href="assets/apple-touch-icon.png"></link>
+
                 </Head>
-                <nav className="navbar navbar-default">
+                <nav className="navbar navbar-default" style={{marginBottom: '15px'}}>
                     <div className="container-fluid">
                         <div className="navbar-header">
                             <button type="button" className="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
@@ -57,6 +63,7 @@ class Header extends Component {
                             <ul className="nav navbar-nav">
                                 <li className={this.props.page === 'index' ? 'active' : null}><Link href="/"><a>Upload<span className="sr-only">(current)</span></a></Link></li>
                                 <li className={this.props.page === 'queue' ? 'active' : null}><Link href="/queue"><a>Queue</a></Link></li>
+                                <li className={this.props.page === 'stats' ? 'active' : null}><Link href="/stats"><a>Stats</a></Link></li>
                             </ul>
                             <ul className="nav navbar-nav navbar-right">
                                 <li>
@@ -76,7 +83,7 @@ class Header extends Component {
                         </div>
                     </div>
                 </nav>
-                <div className="panel panel-primary">
+                <div className="panel panel-primary" style={{margin: '0 15px 15px 15px'}}>
                     <div className="panel-heading">
                         <p className="panel-title">Book Uploader Bot (BUB) v2.0</p>
                     </div>
