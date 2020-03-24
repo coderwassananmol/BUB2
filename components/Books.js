@@ -43,6 +43,10 @@ export default class Books extends React.Component {
       case "pn":
         url = "http://www.panjabdigilib.org/webuser/searches/displayPageContent.jsp?ID=xxxx&page=x&CategoryID=x&Searched=xxxx";
         break;
+      
+      case "ob":
+        url = "#";
+        break;
     }
     return url;
   };
@@ -213,6 +217,7 @@ export default class Books extends React.Component {
           >
             <option value="gb">Google Books</option>
             <option value="pn">Punjab Digital Library</option>
+            <option value="ob">Open Book Publishers</option>
           </select>
           <h3>
             2. Enter the {this.state.option === 'gb' ? 'ID' : 'URI'} ({this.showExample()}) <span> *</span>
