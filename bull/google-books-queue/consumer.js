@@ -14,6 +14,7 @@ GoogleBooksQueue.on('completed', (job, result) => {
 GoogleBooksQueue.process((job,done) => {
     const requestURI = request(job.data.uri);
     const { id, volumeInfo, accessInfo } = job.data.details;
+    job.log(JSON.stringify(volumeInfo));
     const {
         publisher,
         publishedDate,
