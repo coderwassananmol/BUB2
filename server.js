@@ -16,7 +16,7 @@ const {
   customFetch
 } = require('./utils/helper.js');
 const {
-  checkForDuplicatesFromIA
+  queueData
 } = require('./utils/helper.js');
 const {
   checkForPublicDomain
@@ -75,7 +75,7 @@ app
      * This is necessary because otherwise the server won't recognise the route.
      */
 
-    server.get('/queuedata',async (req,res) => {
+    server.get('/getstats',async (req,res) => {
       const pdl_queue = await config.getNewQueue('pdl-queue').getJobCounts()
       const google_books_queue = await config.getNewQueue('google-books-queue').getJobCounts()
       const queryParams = {pdl_queue,google_books_queue}
@@ -101,6 +101,34 @@ app
     })
 
       
+    server.get('/getqueue',async (req,res) => {
+      const pdl_queue = await config.getNewQueue('pdl-queue');
+      const google_books_queue = await config.getNewQueue('google-books-queue')
+      const queryParams = {
+        'gb-queue': {
+          'active': {},
+          'waiting': {}
+        },
+        'pdl-queue': {
+          'active': {},
+          'waiting': {}
+        }
+      }
+      const pdlqueue_active_job = await pdl_queue.getActive(0);
+      const pdlqueue_waiting_job = await pdl_queue.getWaiting(0);
+
+      const gbqueue_active_job = await google_books_queue.getActive(0);
+      const gbqueue_waiting_job = await google_books_queue.getWaiting(0);
+
+      queryParams['pdl-queue']['active'] = await queueData(pdlqueue_active_job, pdl_queue)
+      queryParams['pdl-queue']['waiting'] = await queueData(pdlqueue_waiting_job, pdl_queue)
+
+      queryParams['gb-queue']['active'] = await queueData(gbqueue_active_job, google_books_queue)
+      queryParams['gb-queue']['waiting'] = await queueData(gbqueue_waiting_job, google_books_queue)
+
+      res.send(queryParams);
+    })
+
     let GBdetails = {};
     server.get("/check", async (req, res) => {
       const {
@@ -151,7 +179,7 @@ app
     });
 
     server.post("/webhook",async (req,res) => {
-      exec("git pull; webservice --backend kubernetes node10 restart",(err,stdout,stderr) => {
+      exec("git pull; yes | npm install; webservice --backend kubernetes node10 restart",(err,stdout,stderr) => {
         if(err) {
           console.log("::err::" , err)
         }
