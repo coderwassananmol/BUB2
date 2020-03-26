@@ -43,13 +43,6 @@ export default class Books extends React.Component {
       case "pn":
         url =
           "http://www.panjabdigilib.org/webuser/searches/displayPageContent.jsp?ID=xxxx&page=x&CategoryID=x&Searched=xxxx";
-<<<<<<< HEAD
-=======
-        break;
-      
-      case "ob":
-        url = "#";
->>>>>>> 77ca2dd6e0abc17074f2949d10f660384f3c19f3
         break;
     }
     return url;
@@ -242,7 +235,6 @@ export default class Books extends React.Component {
       );
     }
     return (
-<<<<<<< HEAD
       <div className="main-content col-md-6" style={styling.mainContent}>
         <div style={styling.card}>
           <div style={styling.image}>
@@ -447,69 +439,6 @@ export default class Books extends React.Component {
                   padding-bottom: 3vh;
                 `}
               </style>
-=======
-      <div className="col-md-6">
-        <form onSubmit={this.onSubmit}>
-          <h3>
-            1. Choose the library:<span> *</span>
-          </h3>
-          <select
-            value={this.state.option}
-            id="option"
-            name="option"
-            required
-            onChange={this.handleChange}
-          >
-            <option value="gb">Google Books</option>
-            <option value="pn">Punjab Digital Library</option>
-            <option value="ob">Open Book Publishers</option>
-          </select>
-          <h3>
-            2. Enter the {this.state.option === "gb" ? "ID" : "URI"} ({this.showExample()}){" "}
-            <span> *</span>
-          </h3>
-          <div className="input-group full-width">
-            <style jsx>
-              {`
-                .full-width {
-                  width: 100%;
-                }
-              `}
-            </style>
-            {this.state.option === "gb" ? (
-              <span className="input-group-addon" id="bid">
-                https://books.google.co.in/books?id=
-              </span>
-            ) : null}
-
-            <input
-              id="bookid"
-              name="bookid"
-              type={this.state.option === "gb" ? "text" : "url"}
-              placeholder={
-                this.state.option === "gb"
-                  ? "At46AQAAMAAJ"
-                  : "http://www.panjabdigilib.org/webuser/searches/displayPageContent.jsp?ID=2833&page=1&CategoryID=3&Searched=W3GX"
-              }
-              onChange={event => this.setState({ bookid: event.target.value })}
-              required
-              className="form-control"
-              id="bookid"
-              aria-describedby="bid"
-            />
-          </div>
-          <h3>3. Enter E-Mail</h3>
-          <div className="input-group">
-            <input
-              type="email"
-              name="email"
-              className="form-control"
-              id="email"
-              placeholder={"example@domain.com"}
-              onChange={event => this.setState({ email: event.target.value })}
-            />
-            <div className="input-group-btn">
->>>>>>> 77ca2dd6e0abc17074f2949d10f660384f3c19f3
               <button
                 className="btn btn-primary"
                 type="submit"
@@ -517,33 +446,9 @@ export default class Books extends React.Component {
               >
                 Submit
               </button>
-<<<<<<< HEAD
             </div>
           </form>
         </div>
-=======
-              <div className="dropdown-menu well well-sm">
-                <p>It will be used to notify that your upload has been completed.</p>
-              </div>
-            </div>
-          </div>
-          <div>
-            <style jsx>
-              {`
-                padding-top: 3vh;
-                padding-bottom: 3vh;
-              `}
-            </style>
-            <button
-              className="btn btn-primary"
-              type="submit"
-              style={{ height: "fit-content", padding: "1.2vh 2vh" }}
-            >
-              Submit
-            </button>
-          </div>
-        </form>
->>>>>>> 77ca2dd6e0abc17074f2949d10f660384f3c19f3
       </div>
     );
   }
