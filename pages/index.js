@@ -5,15 +5,25 @@ import BUBInfo from "../components/BUBInfo";
 const init = () => (
   <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
     <Header page="index" />
-    <div
-      className="container"
-      style={{ margin: 0, width: "100%", minHeight: "70vh", background: "#3EC6FF" }}
-    >
-      <div className="row " style={{ alignItems: "center" }}>
-        <div className="col-md-6" style={{ height: "100%" }}>
+    <div className="container p-0">
+      <style jsx>
+        {`
+          display: flex;
+          margin: 0;
+          width: 100%;
+          min-height: 70vh;
+          background-color: #3ec6ff;
+          padding: 0 !important;
+          @media only screen and (min-width: 320px) and (max-width: 480px) {
+            display: unset;
+          }
+        `}
+      </style>
+      <div className="row">
+        <div className="col-md-6">
           <Books />
         </div>
-        <div className="col-md-6 my-auto">
+        <div className="col-md-6">
           <BUBInfo />
         </div>
       </div>
