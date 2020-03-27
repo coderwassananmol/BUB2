@@ -165,7 +165,7 @@ export default class Books extends React.Component {
               background: transparent;
               border: 0.3vh solid black;
               border-radius: 0.5vh;
-              padding: 1vh;
+              padding: 0.5vh;
               font-size: 1.3rem;
               margin-bottom: 4vh;
               height: fit-content;
@@ -260,13 +260,13 @@ export default class Books extends React.Component {
               }
             }
             @media only screen and (min-width: 1440px) and (max-width: 1445px) {
-              .selector{
-                top: 1.3rem;
+              .selector {
+                top: 1.1rem;
                 right: 15px;
               }
             }
             @media only screen and (min-width: 1920px) and (max-width: 1925px) {
-              .selector{
+              .selector {
                 top: 1.3rem;
                 right: 15px;
               }
@@ -341,7 +341,7 @@ export default class Books extends React.Component {
             <div className="card-container">
               <div className="image">{bookIcon}</div>
               <form onSubmit={this.onSubmit}>
-                <div style={{ position: "relative", width: "fit-content" }}>
+                <div style={{ position: "relative", width: "fit-content", maxWidth: "-moz-fit-content" }}>
                   <div className="left-floating-label">Choose Library</div>
                   <div className="selector">{">"}</div>
                   <select
@@ -408,7 +408,7 @@ export default class Books extends React.Component {
                 <div className="input-group input-group-container">
                   <div className="left-floating-label">Enter E-Mail</div>
                   <input
-                    style={{ background: "transparent"}}
+                    style={{ background: "transparent" }}
                     type="email"
                     name="email"
                     className="form-control"
