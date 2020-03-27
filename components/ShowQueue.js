@@ -25,23 +25,34 @@ const ShowQueue = ({ data }) => (
           font-size: 24px;
           line-height: 28px;
         }
-        @media only screen and (min-width: 536px) and (max-width: 767.98px) {
+        @media only screen and (max-width: 575.98px) {
+          .card {
+            padding: 20px 15px;
+            border-radius: 1rem;
+          }
+          .card > p {
+            padding: 18px;
+            font-size: 20px;
+            line-height: 24px;
+          }
+        }
+        @media only screen and (min-width: 576px) and (max-width: 767.98px) {
           .card {
             padding: 24px 18px;
             border-radius: 1rem;
           }
-          .card-title {
+          .card > p {
             padding: 20px;
             font-size: 22px;
             line-height: 26px;
           }
         }
-        @media only screen and (min-width: 768px) and (max-width: 991.98px) {
+        @media only screen and (min-width: 768px) and (max-width: 1200px) {
           .card {
             padding: 22px 16px;
             border-radius: 1rem;
           }
-          .card-title {
+          .card > p {
             padding: 18px 16px;
             font-size: 22px;
             line-height: 26px;

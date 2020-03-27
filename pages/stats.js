@@ -28,6 +28,7 @@ const Stats = props => (
           display: flex;
           text-align: center;
           justify-content: space-around;
+          align-items: flex-end;
           margin-bottom: 4vh;
         }
         .particular-card {
@@ -42,7 +43,24 @@ const Stats = props => (
           font-size: 32px;
           line-height: 40px;
         }
-        @media only screen and (min-width: 536px) and (max-width: 767.98px) {
+        @media only screen and (max-width: 575.98px) {
+          .card-container {
+            flex-direction: column;
+            margin-bottom: 2vh;
+          }
+          .particular-card {
+            width: 98%;
+            margin-bottom: 30px;
+          }
+          .stats-page {
+            padding: 24px 16px;
+          }
+          .card-title {
+            font-size: 26px;
+            line-height: 32px;
+          }
+        }
+        @media only screen and (min-width: 576px) and (max-width: 767.98px) {
           .card-container {
             flex-direction: column;
           }
@@ -57,7 +75,7 @@ const Stats = props => (
             font-size: 26px;
           }
         }
-        @media only screen and (min-width: 768px) and (max-width: 991.98px) {
+        @media only screen and (min-width: 768px) and (max-width: 1200px) {
           .particular-card {
             width: 45%;
           }
