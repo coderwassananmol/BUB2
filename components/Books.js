@@ -201,9 +201,44 @@ export default class Books extends React.Component {
             }
             .helper {
               padding: 1vh;
-              font-size: 1.3rem;s
-              background: transparent;
+              font-size: 1.3rem;
+              sbackground: transparent;
               border: none;
+            }
+            select {
+              -webkit-appearance: none;
+              -moz-appearance: none;
+              appearance: none;
+              /* Add some styling */
+
+              display: block;
+              width: 100%;
+              max-width: 320px;
+              height: 50px;
+              margin: 5px 0px;
+              padding: 0px 24px;
+              font-size: 16px;
+              line-height: 1.75;
+              background-image: none;
+              border: 1px solid #cccccc;
+              -ms-word-break: normal;
+              word-break: normal;
+            }
+            .selector {
+              font: 1.5vw "Consolas", monospace;
+              color: black;
+              -webkit-transform: rotate(90deg);
+              -moz-transform: rotate(90deg);
+              -ms-transform: rotate(90deg);
+              transform: rotate(90deg);
+              right: 10px;
+              /*Adjust for position however you want*/
+
+              top: 0.9vw;
+              padding: 0 0 2px;
+
+              position: absolute;
+              pointer-events: none;
             }
             @media only screen and (min-width: 320px) and (max-width: 480px) {
               .image {
@@ -219,7 +254,12 @@ export default class Books extends React.Component {
               .main-content {
                 padding: 5vw;
               }
+              .selector {
+                font: 4vw "Consolas", monospace;
+                top: 3vw;
+              }
             }
+
             .lds-ellipsis {
               display: inline-block;
               position: relative;
@@ -288,10 +328,10 @@ export default class Books extends React.Component {
           <div className="col-md-6 main-content">
             <div className="card-container">
               <div className="image">{bookIcon}</div>
-
               <form onSubmit={this.onSubmit}>
-                <div style={{ position: "relative" }}>
+                <div style={{ position: "relative", width: "fit-content" }}>
                   <div className="left-floating-label">Choose Library</div>
+                  <div className="selector">{">"}</div>
                   <select
                     className="input-block"
                     value={this.state.option}
