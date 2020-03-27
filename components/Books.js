@@ -225,7 +225,7 @@ export default class Books extends React.Component {
               word-break: normal;
             }
             .selector {
-              font: 1.5vw "Consolas", monospace;
+              font: 1.6rem "Consolas", monospace;
               color: black;
               -webkit-transform: rotate(90deg);
               -moz-transform: rotate(90deg);
@@ -234,7 +234,7 @@ export default class Books extends React.Component {
               right: 10px;
               /*Adjust for position however you want*/
 
-              top: 0.9vw;
+              top: 0.9rem;
               padding: 0 0 2px;
 
               position: absolute;
@@ -257,6 +257,12 @@ export default class Books extends React.Component {
               .selector {
                 font: 4vw "Consolas", monospace;
                 top: 3vw;
+              }
+            }
+            @media only screen and (min-width: 1440px) and (max-width: 1445px) {
+              .selector{
+                top: 1.3rem;
+                right: 15px;
               }
             }
 
