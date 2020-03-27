@@ -265,6 +265,12 @@ export default class Books extends React.Component {
                 right: 15px;
               }
             }
+            @media only screen and (min-width: 1920px) and (max-width: 1925px) {
+              .selector{
+                top: 1.3rem;
+                right: 15px;
+              }
+            }
 
             .lds-ellipsis {
               display: inline-block;
