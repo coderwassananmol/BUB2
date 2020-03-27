@@ -154,7 +154,7 @@ export default class Books extends React.Component {
             }
             .input-group-container {
               background: transparent;
-              border: 1.5px solid black;
+              border: 0.35vh solid black;
               border-radius: 0.5vh;
               font-size: 1.8rem;
               margin-bottom: 4vh;
@@ -163,9 +163,9 @@ export default class Books extends React.Component {
             }
             .input-block {
               background: transparent;
-              border: 1.5px solid black;
+              border: 0.3vh solid black;
               border-radius: 0.5vh;
-              padding: 1.5vh;
+              padding: 1vh;
               font-size: 1.3rem;
               margin-bottom: 4vh;
               height: fit-content;
@@ -181,7 +181,7 @@ export default class Books extends React.Component {
             .dynamic-input {
               padding: 0;
               background: #c4c4c4;
-              minwidth: 32vw;
+              min-width: 32vw;
             }
             .left-floating-label {
               position: absolute;
@@ -396,7 +396,7 @@ export default class Books extends React.Component {
                 <div className="input-group input-group-container">
                   <div className="left-floating-label">Enter E-Mail</div>
                   <input
-                    style={{ background: "transparent", border: "none" }}
+                    style={{ background: "transparent"}}
                     type="email"
                     name="email"
                     className="form-control"
