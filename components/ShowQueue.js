@@ -5,27 +5,67 @@ const ShowQueue = ({ data }) => (
   <div>
     <style jsx>
       {`
-      .card {
-          background: #337ab7;
-          color: #fff;
+        .card {
+          background: #ededed;
+          padding: 32px 24px;
+          border-radius: 1.5rem;
+          color: #000000;
           font-family: "Open Sans", sans-serif;
-          font-size: 18px;
-          line-height: 2em;
           margin: 0 10px 0 19px;
           text-align: left;
-          box-shadow: 20px 18px 6px 1px #b9b9b9;
-      }
-      .card > p {
-          margin-left: 30px;
-      }
-  `}
+          box-shadow: 2px 2px 2px 1px #00000029;
+        }
+        .card > p {
+          margin: 15px;
+          padding: 24px;
+          background: #6deb58;
+          border-radius: 1rem;
+          font-style: normal;
+          font-weight: bold;
+          font-size: 24px;
+          line-height: 28px;
+        }
+        @media only screen and (max-width: 575.98px) {
+          .card {
+            padding: 20px 15px;
+            border-radius: 1rem;
+          }
+          .card > p {
+            padding: 18px;
+            font-size: 20px;
+            line-height: 24px;
+          }
+        }
+        @media only screen and (min-width: 576px) and (max-width: 767.98px) {
+          .card {
+            padding: 24px 18px;
+            border-radius: 1rem;
+          }
+          .card > p {
+            padding: 20px;
+            font-size: 22px;
+            line-height: 26px;
+          }
+        }
+        @media only screen and (min-width: 768px) and (max-width: 1200px) {
+          .card {
+            padding: 22px 16px;
+            border-radius: 1rem;
+          }
+          .card > p {
+            padding: 18px 16px;
+            font-size: 22px;
+            line-height: 26px;
+          }
+        }
+      `}
     </style>
     <div className="card">
-      <p>Waiting: {data.waiting} jobs</p>
-      <p>Active: {data.active} jobs</p>
-      <p>Completed: {data.completed} jobs</p>
-      <p>Failed: {data.failed} jobs</p>
-      <p>Delayed: {data.delayed} jobs</p>
+      <p>Waiting - {data.waiting} jobs</p>
+      <p>Active - {data.active} jobs</p>
+      <p>Completed - {data.completed} jobs</p>
+      <p>Failed - {data.failed} jobs</p>
+      <p>Delayed - {data.delayed} jobs</p>
     </div>
   </div>
 );
