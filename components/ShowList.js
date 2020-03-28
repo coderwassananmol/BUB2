@@ -2,7 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { useTable } from "react-table";
 
-export default function ShowList({ columns, data }) {
+export default function ShowList({ columns, data, queue }) {
   const {
     getTableProps,
     getTableBodyProps,
@@ -13,6 +13,7 @@ export default function ShowList({ columns, data }) {
     columns,
     data
   });
+  const que = queue == "pdlQueue" ? "pdl" : "gb";
   
   return (
     <div className="table">
@@ -58,12 +59,12 @@ export default function ShowList({ columns, data }) {
               <tr {...row.getRowProps()}>
                 <td>{row.original.id}</td>
                 <td>
-                  <Link href="#">
-                    <a>{
-                        row.original.data.details
+                  <Link href={`/queue/list/${que}/${row.original.id}`}>
+                    <a>
+                      {row.original.data.details
                         ? row.original.data.details.volumeInfo.title
-                        : "NOT AVAILABLE"
-                    }</a>
+                        : "NOT AVAILABLE"}
+                    </a>
                   </Link>
                 </td>
               </tr>

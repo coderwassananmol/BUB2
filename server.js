@@ -82,22 +82,19 @@ app
       res.send(queryParams);
     })
 
-    server.get('/queue/list',async (req,res) => {
-      let types = ['waiting', 'active', 'delayed', 'completed', 'failed'];
-      let data = {};
-      (() => {
-        var promises = []
-        types.map(type => {
-          promises.push(new Promise(async(resolve, reject)=> {
-            let pdl_queue = await config.getNewQueue('pdl-queue').getJobs(type)
-            let google_books_queue = await config.getNewQueue('google-books-queue').getJobs(type)
-            resolve(data[type] = pdl_queue.concat(google_books_queue));
-          }));
-        })
-        return Promise.all(promises);
-      })().then(() => {
-        res.send(data);
-      });
+    server.get('/getqueuelist',async (req,res) => {
+      let type = req.query.type;
+      let pdlqueue = req.query.pdlqueue;
+      let gbqueue = req.query.gbqueue;
+      let pdl_queue = [], google_books_queue = [];
+      
+      if(pdlqueue)
+      pdl_queue = await config.getNewQueue('pdl-queue').getJobs(type);
+      if(gbqueue)
+      google_books_queue = await config.getNewQueue('google-books-queue').getJobs(type);
+
+      const queryParams = { pdl_queue, google_books_queue }
+      res.send(queryParams);
     })
 
       
