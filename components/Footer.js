@@ -1,6 +1,7 @@
 export default () => (
   <div
     style={{
+      marginTop: '0px',
       paddingTop: "15px",
       paddingBottom: "15px",
       width: "100%",
