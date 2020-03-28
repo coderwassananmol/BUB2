@@ -27,7 +27,6 @@ app
     const server = express();
 
     //Parse application/x-www-form-urlencoded
-    //TO test pre-commit hooks
     server.use(
       bodyParser.urlencoded({
         extended: true,
