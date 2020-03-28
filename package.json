@@ -14,7 +14,10 @@
     }
   },
   "lint-staged": {
-    "*.js": ["prettier --write", "git add"]
+    "*.js": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "keywords": [],
   "author": "",
@@ -62,6 +65,7 @@
   },
   "devDependencies": {
     "husky": "^4.2.3",
-    "lint-staged": "^10.0.9"
+    "lint-staged": "^10.0.9",
+    "prettier": "2.0.2"
   }
 }
