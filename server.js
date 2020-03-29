@@ -82,6 +82,22 @@ app
       res.send(queryParams);
     })
 
+    server.get('/getqueuelist',async (req,res) => {
+      let type = req.query.type;
+      let pdlqueue = req.query.pdlqueue;
+      let gbqueue = req.query.gbqueue;
+      let pdl_queue = [], google_books_queue = [];
+      
+      if(pdlqueue)
+      pdl_queue = await config.getNewQueue('pdl-queue').getJobs(type);
+      if(gbqueue)
+      google_books_queue = await config.getNewQueue('google-books-queue').getJobs(type);
+
+      const queryParams = { pdl_queue, google_books_queue }
+      res.send(queryParams);
+    })
+
+      
     server.get('/getqueue',async (req,res) => {
       const pdl_queue = await config.getNewQueue('pdl-queue');
       const google_books_queue = await config.getNewQueue('google-books-queue')
