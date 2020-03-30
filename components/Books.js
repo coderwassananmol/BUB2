@@ -41,6 +41,10 @@ export default class Books extends React.Component {
         url = "http://westbengal.com";
         break;
 
+      case "obp":
+        url = "https://www.openbookpublishers.com/product/xxx";
+        break;
+
       case "pn":
         url =
           "http://www.panjabdigilib.org/webuser/searches/displayPageContent.jsp?ID=xxxx&page=x&CategoryID=x&Searched=xxxx";
@@ -106,6 +110,26 @@ export default class Books extends React.Component {
             }
           });
         break;
+      
+        case "obp":
+        const queryParams = this.state.bookid.split('/');
+        const IDobp = queryParams[4];
+        console.log(queryParams.length);
+        const categoryObp = '';
+        url = `/check?bookid=${IDobp}&option=${this.state.option +
+          (this.state.email
+            ? "&email=" + this.state.email
+            : "")}&categoryID=${categoryObp}`;
+        fetch(url)
+          .then(res => res.json())
+          .then(response => {
+            this.setState({
+              loader: false
+            });
+            if (response.error) Swal("Error!", response.message, "error");
+            else Swal("Voila!", response.message, "success");
+          });
+        break;
 
       case "pn":
         const searchParams = new URL(this.state.bookid).searchParams;
@@ -166,6 +190,7 @@ export default class Books extends React.Component {
               border: 0.3vh solid black;
               border-radius: 0.5vh;
               padding: 0.5vh;
+              min-width: 16rem;
               font-size: 1.3rem;
               margin-bottom: 4vh;
               height: fit-content;
@@ -353,6 +378,7 @@ export default class Books extends React.Component {
                     onChange={this.handleChange}
                   >
                     <option value="gb">Google Books</option>
+                    <option value="obp">Open Book Publishers</option>
                     <option value="pn">Punjab Digital Library</option>
                   </select>
                 </div>
@@ -381,6 +407,8 @@ export default class Books extends React.Component {
                     placeholder={
                       this.state.option === "gb"
                         ? "At46AQAAMAAJ"
+                        : this.state.option === "obp" 
+                        ? "https://www.openbookpublishers.com/product/xxx"
                         : "http://www.panjabdigilib.org/webuser/searches/displayPageContent.jsp?ID=2833&page=1&CategoryID=3&Searched=W3GX"
                     }
                     onChange={event => this.setState({ bookid: event.target.value })}
