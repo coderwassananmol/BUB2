@@ -8,6 +8,17 @@
     "build": "next build;",
     "start": "npm run build; NODE_ENV=production node server.js"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "prettier --write",
+      "git add"
+    ]
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -51,5 +62,10 @@
     "styled-jsx": "^3.2.1",
     "sweetalert2": "^7.33.1",
     "url": "^0.11.0"
+  },
+  "devDependencies": {
+    "husky": "^4.2.3",
+    "lint-staged": "^10.0.9",
+    "prettier": "2.0.2"
   }
 }
