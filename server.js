@@ -85,10 +85,11 @@ app
       const queryParams = { pdl_queue, google_books_queue };
       res.send(queryParams);
     });
+      
+    server.get('/getqueue',async (req,res) => {
+      const pdl_queue = await config.getNewQueue('pdl-queue');
+      const google_books_queue = await config.getNewQueue('google-books-queue')
 
-    server.get("/getqueue", async (req, res) => {
-      const pdl_queue = await config.getNewQueue("pdl-queue");
-      const google_books_queue = await config.getNewQueue("google-books-queue");
       const queryParams = {
         "gb-queue": {
           active: {},

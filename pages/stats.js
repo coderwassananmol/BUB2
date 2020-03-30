@@ -18,47 +18,95 @@ const Stats = props => (
     <Header page="stats" />
     <style jsx>
       {`
+        .stats-page {
+          background-color: #1da6e0;
+          margin: 0;
+          padding: 40px;
+        }
         .card-container {
           width: 100%;
           display: flex;
           text-align: center;
           justify-content: space-around;
+          align-items: flex-end;
           margin-bottom: 4vh;
         }
         .particular-card {
           display: block;
-          width: 30%;
+          width: 35%;
         }
         .card-title {
-          font-size: 24px;
-          color: #000;
-          font-family: "Lato", sans-serif;
+          color: #ffffff;
+          font-family: Montserrat;
+          font-style: normal;
+          font-weight: bold;
+          font-size: 32px;
+          line-height: 40px;
         }
-        @media only screen and (min-width: 320px) and (max-width: 480px) {
+        @media only screen and (max-width: 575.98px) {
+          .card-container {
+            flex-direction: column;
+            margin-bottom: 2vh;
+          }
+          .particular-card {
+            width: 98%;
+            margin-bottom: 30px;
+          }
+          .stats-page {
+            padding: 24px 16px;
+          }
+          .card-title {
+            font-size: 26px;
+            line-height: 32px;
+          }
+        }
+        @media only screen and (min-width: 576px) and (max-width: 767.98px) {
           .card-container {
             flex-direction: column;
           }
           .particular-card {
-            width: 98%;
+            width: 95%;
+            margin-bottom: 30px;
+          }
+          .stats-page {
+            padding: 35px 25px;
+          }
+          .card-title {
+            font-size: 26px;
+          }
+        }
+        @media only screen and (min-width: 768px) and (max-width: 1200px) {
+          .particular-card {
+            width: 45%;
+          }
+          .stats-page {
+            padding: 35px 25px;
+          }
+          .card-title {
+            font-size: 26px;
           }
         }
       `}
     </style>
-    <div className="card-container">
-      <div className="particular-card">
-        <div className="card-title">
-          <p>Panjab Digital Library</p>
+    <div className="stats-page">
+      <div className="card-container">
+        <div className="particular-card">
+          <div className="card-title">
+            <p>Panjab Digital Library Queue</p>
+          </div>
+          <ShowQueue data={!props.data ? emptyObject : props.data.pdl_queue} />
         </div>
-        <ShowQueue data={!props.data ? emptyObject : props.data.pdl_queue} />
-      </div>
-      <div className="particular-card">
-        <div className="card-title">
-          <p>Google Books</p>
+        <div className="particular-card">
+          <div className="card-title">
+            <p>Google Books Queue</p>
+          </div>
+          <ShowQueue
+            data={!props.data ? emptyObject : props.data.google_books_queue}
+          />
         </div>
-        <ShowQueue data={!props.data ? emptyObject : props.data.google_books_queue} />
       </div>
+      <UploadedItems />
     </div>
-    <UploadedItems />
     <Footer />
   </div>
 );
