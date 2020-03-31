@@ -3,6 +3,7 @@ const express = require("express");
 const next = require("next");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const open = require("open");
 const compression = require("compression");
 require("dotenv").config();
 const dev = process.env.NODE_ENV !== "production";
@@ -198,6 +199,10 @@ app
     server.listen(process.env.PORT || 5000, err => {
       if (err) throw err;
       console.log(`> Ready on /:5000`);
+      (async () => {
+        console.log("opening into browser: http://localhost:5000/");
+        await open("http://localhost:5000/");
+      })();
     });
   })
   .catch(ex => {
