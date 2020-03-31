@@ -6,18 +6,39 @@
 ![](https://img.shields.io/github/issues/coderwassananmol/BUB2?color=green) ![](https://img.shields.io/github/issues-pr/coderwassananmol/BUB2?color=green) ![](https://img.shields.io/github/downloads/coderwassananmol/BUB2/total) ![](https://img.shields.io/github/last-commit/coderwassananmol/BUB2) ![](https://img.shields.io/github/contributors/coderwassananmol/BUB2)<br>
 A book uploader bot that transfers documents from public libraries such as Google Books, and Punjab Digital Library etc to Internet Archive. Built for Wikimedia Tool Labs. Check out [BUB2 on Toolforge](https://bub2.toolforge.org)!
 
+# Table of Contents
+
+- [Getting Started](#gettingStarted)
+  -  [Prerequisites](#prerequisites)
+  - [Local setup](#localSetup)
+    - [Clone the repo](#cloneTheRepo)
+    - [Set environment variables](#setEnvironmentVariables)
+  - [Run Redis server](#runRedisServer)
+    - [Running Redis using Docker](#runningRedisUsingDocker)
+    - [Running Redis using Docker Compose](#runningRedisUsingDockerCompose)
+    - [Start the server](#startTheServer)
+- [Example](#example)
+- [Contributing](#contributing)
+- [Request to Contribute](#requestToContribute)
+- [Keep Supporting](#keepSupporting)
+- [Licence](#licence)
+
+<a id="gettingStarted"></a>
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
+<a id="prerequisites"></a>
 ### Prerequisites
 
 - [Node.JS](https://nodejs.org/en/download/) ( check for installation with `npm -v` and `node -v` on terminal )
 - [Docker toolbox](https://docs.docker.com/toolbox/toolbox_install_windows/) ( Optional )
 - [Redis](https://redis.io/)
 
+<a id="localSetup"></a>
 ### Local setup
 
+<a id="cloneTheRepo"></a>
 #### Clone the repo
 
 - Clone the repository `git clone https://github.com/coderwassananmol/BUB2`
@@ -25,6 +46,7 @@ These instructions will get you a copy of the project up and running on your loc
 - For developers, checkout to develop branch: `git checkout develop`
 - Run `npm install`
 
+<a id="setEnvironmentVariables"></a>
 #### Set environment variables
 
 Rename `.env.example` to `.env`. Then, to fill the credentials,
@@ -38,10 +60,12 @@ Rename `.env.example` to `.env`. Then, to fill the credentials,
 - Fill `service` field with your mail service provider (Ex. gmail, outlook)
   Note: In order to send email through gmail, you may need to allow less secure app access. To turn it on, go to https://myaccount.google.com/lesssecureapps?pli=1
 
+<a id="runRedisServer"></a>
 ### Run Redis server
 
 - Refer to [Redis](https://redis.io/download) for download and setup documentation ,or
 
+<a id="runningRedisUsingDocker"></a>
 #### Running Redis using Docker
 
 ```
@@ -49,6 +73,7 @@ docker run --name redis -p 6379:6379 redis
 docker start redis
 ```
 
+<a id="runningRedisUsingDockerCompose"></a>
 #### Running Redis using Docker Compose
 
 ```
@@ -56,11 +81,13 @@ docker-compose up -d
 docker-compose start
 ```
 
+<a id="startTheServer"></a>
 #### Start the server
 
 - Run `npm run dev` for development and `npm run start` for production.
 - Open your browser and navigate to http://localhost:5000
 
+<a id="example"></a>
 ## Example
   This is the simple example how BUB2(Book Uploader Bot) works.
 1. Open the Website [here](https://bub2.toolforge.org/)
@@ -84,10 +111,12 @@ docker-compose start
 
 5. Then enter your `email address` which will be used to notify that your upload has been completed and click the `submit` button.
 
+<a id="contributing"></a>
 ## Contributing
 
 Please read [CONTRIBUTING.md](https://github.com/coderwassananmol/BUB2/blob/develop/CONTRIBUTING.md) for information on how to contribute to BUB2.
 
+<a id="requestToContribute"></a>
 ## Request to Contribute
 1. Fork the repository.
 2. Clone the repository to your local system by using the command : `git clone "https://github.com/<YOUR_USERNAME>/BUB2"`. 
@@ -99,11 +128,12 @@ Please read [CONTRIBUTING.md](https://github.com/coderwassananmol/BUB2/blob/deve
 8. The issue will be considered closed and resolved once the PR is accepted. 
 Please read [CONTRIBUTING.md](https://github.com/coderwassananmol/BUB2/blob/develop/CONTRIBUTING.md) for information on how to contribute to BUB2.
 
-
+<a id="keepSupporting"></a>
 ## Keep Supporting
 
 There was no Node.js wrapper available for Internet Archive, so I decided to write the Node implementation to upload books to Internet Archive. If you like this repository, show your support by starring the project. Cheers!
 
+<a id="licence"></a>
 ## Licence
 [![license](https://img.shields.io/github/license/DAVFoundation/captain-n3m0.svg?style=flat-square)](https://github.com/coderwassananmol/BUB2/blob/develop/LICENSE.md)
  
