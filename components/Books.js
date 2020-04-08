@@ -42,7 +42,7 @@ export default class Books extends React.Component {
         break;
 
       case "obp":
-        url = "https://www.openbookpublishers.com/product/xxx";
+        url = "https://www.openbookpublishers.com/product/1171";
         break;
 
       case "pn":
@@ -112,9 +112,7 @@ export default class Books extends React.Component {
         break;
       
         case "obp":
-        const queryParams = this.state.bookid.split('/');
-        const IDobp = queryParams[4];
-        console.log(queryParams.length);
+        const IDobp = this.state.bookid;
         const categoryObp = '';
         url = `/check?bookid=${IDobp}&option=${this.state.option +
           (this.state.email
@@ -397,18 +395,21 @@ export default class Books extends React.Component {
                     <span className="input-group-addon helper" id="bid">
                       https://books.google.co.in/books?id=
                     </span>
-                  ) : null}
-
+                    ) : this.state.option === "obp"
+                        ? (<span className="input-group-addon helper" id="bid">
+                            https://www.openbookpublishers.com/product/
+                          </span>)
+                        : null}
                   <input
                     style={{ background: "#EFEFEF", border: "none" }}
                     id="bookid"
                     name="bookid"
-                    type={this.state.option === "gb" ? "text" : "url"}
+                    type={(this.state.option === "gb") || (this.state.option === "obp") ? "text" : "url"}
                     placeholder={
                       this.state.option === "gb"
                         ? "At46AQAAMAAJ"
                         : this.state.option === "obp" 
-                        ? "https://www.openbookpublishers.com/product/xxx"
+                        ? "1171"
                         : "http://www.panjabdigilib.org/webuser/searches/displayPageContent.jsp?ID=2833&page=1&CategoryID=3&Searched=W3GX"
                     }
                     onChange={event => this.setState({ bookid: event.target.value })}
