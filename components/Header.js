@@ -135,7 +135,7 @@ class Header extends Component {
                   </a>
                   <ul className="dropdown-menu">
                     <li>
-                      <a href="#"></a>FAQ
+                      <a href="#">FAQ</a>
                     </li>
                     <li>
                       <a href="#">About</a>
