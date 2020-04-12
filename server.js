@@ -147,6 +147,12 @@ app
           });
           break;
 
+        case "obp":
+          res.send({
+            error: false,
+            message: "You will be mailed with the details soon!"
+          });
+
         case "pn":
           //Check for duplicates
           const { categoryID } = req.query;
