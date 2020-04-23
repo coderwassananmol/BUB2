@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import Octicon, { Star, RepoForked } from "@primer/octicons-react";
-import Faq from "../pages/faq.js";
 
 class Header extends Component {
   constructor() {
