@@ -1,26 +1,8 @@
 import React, { Component } from "react";
 import { render } from "react-dom";
+import { faq_data } from "../utils/constants.js";
 
 export default class Faq extends Component {
-  constructor() {
-    super();
-    this.state = {
-      que_ans: [
-        "-What is Book Uploader Bot?",
-        "A Book Uploader Bot transfers documents from public libraries such as Google Books and Punjab Digital Library etc to Internet Archive.",
-        "-What does this tool do?",
-        "The tool is built to help the community with free books that are available in the online public libraries. It makes the integration of books easier.",
-        "- Who can benefit from this tool?",
-        "The tool, under the hood, compiles all the book images/pdf and its meta data at one place where it can be accessed by anyone in the world.",
-        "- What are the future enhancements?",
-        "Bulk upload future, MediaWiki OAuth integration, Direct uploading to Commons",
-        "- Can I upload my own book?",
-        "If an appropriate license is attached to the book which allows it to be archived(which does not allow copyright infringement suits, etc.),then book can be uploaded.",
-        "- Can I delete or undo an upload?",
-        "Archives are supposed to be read-only, and deleting is a 'write' operation. So it does not support.",
-      ],
-    };
-  }
   render() {
     return (
       <div className="faq">
@@ -30,9 +12,9 @@ export default class Faq extends Component {
               display: flex;
               justify-content: center;
               flex-direction: column;
-              height: 100%;
               background-color: #3ec6ff;
               font-family: "arial";
+              padding-bottom: 50px;
             }
             .heading {
               display: flex;
@@ -43,14 +25,26 @@ export default class Faq extends Component {
               font-size: 2rem;
               color: black;
               font-weight: 600;
+              padding-top: 50px;
             }
-            .que_ans {
+            .question {
               display: flex;
               justify-content: center;
               align-items: left;
               flex-direction: column;
               height: 100%;
-              font-size: 1.4rem;
+              font-size: 1.6rem;
+              color: black;
+              font-weight: 500;
+              padding-left: 50px;
+            }
+            .answer {
+              display: flex;
+              justify-content: center;
+              align-items: left;
+              flex-direction: column;
+              height: 100%;
+              font-size: 1.2rem;
               color: white;
               font-weight: 400;
               padding-left: 100px;
@@ -58,10 +52,29 @@ export default class Faq extends Component {
           `}
         </style>
         <p className="heading">FREQUENTLY ASKED QUESTIONS</p>
-        <div className="que_ans">
-          {this.state.que_ans.map((value, index) => (
-            <p>{value}</p>
-          ))}
+        <div className="data-1">
+          <p className="question">{faq_data[0].que}</p>
+          <p className="answer">{faq_data[0].ans}</p>
+        </div>
+        <div className="data-2">
+          <p className="question">{faq_data[1].que}</p>
+          <p className="answer">{faq_data[1].ans}</p>
+        </div>
+        <div className="data-3">
+          <p className="question">{faq_data[2].que}</p>
+          <p className="answer">{faq_data[2].ans}</p>
+        </div>
+        <div className="data-4">
+          <p className="question">{faq_data[3].que}</p>
+          <p className="answer">{faq_data[3].ans}</p>
+        </div>
+        <div className="data-5">
+          <p className="question">{faq_data[4].que}</p>
+          <p className="answer">{faq_data[4].ans}</p>
+        </div>
+        <div className="data-6">
+          <p className="question">{faq_data[5].que}</p>
+          <p className="answer">{faq_data[5].ans}</p>
         </div>
       </div>
     );
