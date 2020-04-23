@@ -136,17 +136,17 @@ class Header extends Component {
                     <li>
                       <Link href="/faq">
                         <a>FAQ</a>
-                      </Link>
-                    </li>
-                    <li>
-                      <a href="#">About</a>
-                    </li>
-                  </ul>
-                </li>
-              </ul>
+                      </li>
+                      <li>
+                        <a href="#">About</a>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
             </div>
-          </div>
-        </nav>
+          </nav>
+        </div>
       </div>
     );
   }

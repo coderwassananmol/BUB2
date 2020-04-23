@@ -34,6 +34,6 @@ export const faq_data = [
   {
     que: "Can I delete or undo an upload?",
     ans:
-      "Archives are supposed to be read-only and deleting is a 'write' operation. So it does not support.",
+      "Archives are supposed to be read-only and deleting is a 'write' operation. So it doesn't support.",
   },
 ];
