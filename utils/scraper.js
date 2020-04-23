@@ -45,7 +45,7 @@ export const PdlDetails = async (id, categoryId) => {
   const details = {
     title: title,
     author: authorLabel != "Author" ? "" : author,
-    desctiption:
+    description:
       description == "Click here to add description"
         ? "No description available"
         : description,
