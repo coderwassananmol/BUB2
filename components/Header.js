@@ -75,7 +75,7 @@ class Header extends Component {
                                 <li className="dropdown">
                                     <a href="#" className="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Help<span className="caret"></span></a>
                                     <ul className="dropdown-menu">
-                                        <li><Link href = "/faq"><a>FAQ</a></li>
+                                        <li><Link href = "/faq"><a>FAQ</a></Link></li>
                                         <li><a href="#">About</a></li>
                                     </ul>
                                 </li>
@@ -84,7 +84,6 @@ class Header extends Component {
                     </div>
                 </nav>
             </div>
-          </div>
         );
     }
 }
