@@ -24,7 +24,7 @@ export const faq_data = [
   {
     que: "What are the future enhancements?",
     ans:
-      "Bulk upload future, MediaWiki OAuth integration, Direct uploading to Commons.",
+      "Bulk upload future, MediaWiki OAuth integration and Direct uploading to Commons.",
   },
   {
     que: "Can I upload my own book?",
@@ -34,6 +34,6 @@ export const faq_data = [
   {
     que: "Can I delete or undo an upload?",
     ans:
-      "Archives are supposed to be read-only, and deleting is a 'write' operation. So it does not support.",
+      "Archives are supposed to be read-only and deleting is a 'write' operation. So it does not support.",
   },
 ];
