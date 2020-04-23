@@ -72,11 +72,11 @@ export default class Books extends React.Component {
           alert("Please give a valid volume ID.");
         } else {
           this.setState({
-            bookid: bookDetails.id,
-            bookTitle: bookDetails.volumeInfo.title,
-            bookAuthors: bookDetails.volumeInfo.authors,
-            bookDescription: bookDetails.volumeInfo.description,
-            bookCover: bookDetails.volumeInfo.imageLinks.thumbnail,
+            bookid: details.id,
+            bookTitle: details.volumeInfo.title,
+            bookAuthors: details.volumeInfo.authors,
+            bookDescription: details.volumeInfo.description,
+            bookCover: details.volumeInfo.imageLinks.thumbnail,
           });
         }
       })
