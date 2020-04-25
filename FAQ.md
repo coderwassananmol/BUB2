@@ -14,7 +14,7 @@ The tool, under the hood, compiles all the book images/pdf and its meta data at 
 
 <b>What are the future enhancements?</b>
 
-Bulk upload future, MediaWiki OAuth integration, Direct uploading to Commons
+Bulk upload future, MediaWiki OAuth integration, Direct uploading to Commons.
 
 <b>Can I upload my own book?</b>
 
