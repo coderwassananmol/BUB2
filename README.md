@@ -6,6 +6,9 @@
 ![](https://img.shields.io/github/issues/coderwassananmol/BUB2?color=green) ![](https://img.shields.io/github/issues-pr/coderwassananmol/BUB2?color=green) ![](https://img.shields.io/github/downloads/coderwassananmol/BUB2/total) ![](https://img.shields.io/github/last-commit/coderwassananmol/BUB2) ![](https://img.shields.io/github/contributors/coderwassananmol/BUB2)<br>
 A book uploader bot that transfers documents from public libraries such as Google Books, and Punjab Digital Library etc to Internet Archive. Built for Wikimedia Tool Labs. Check out [BUB2 on Toolforge](https://bub2.toolforge.org)!
 
+# Software architecture
+<img src="public/assets/uml.png" height="400px">
+
 # Table of Contents
 
 - [Getting Started](#gettingStarted)
