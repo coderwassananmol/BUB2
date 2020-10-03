@@ -433,33 +433,6 @@ export default class Books extends React.Component {
                     </div>
                   </div>
                 </div>
-                {/* <h3>3. Enter E-Mail</h3> */}
-                <div className="input-group input-group-container">
-                  <div className="left-floating-label">Enter E-Mail</div>
-                  <input
-                    style={{ background: "transparent" }}
-                    type="email"
-                    name="email"
-                    className="form-control"
-                    id="email"
-                    placeholder={"example@domain.com"}
-                    onChange={event => this.setState({ email: event.target.value })}
-                  />
-                  <div className="input-group-btn">
-                    <button
-                      type="button"
-                      className="btn btn-default dropdown-toggle"
-                      data-toggle="dropdown"
-                      aria-haspopup="true"
-                      aria-expanded="false"
-                    >
-                      <span className="glyphicon glyphicon-question-sign" />
-                    </button>
-                    <div className="dropdown-menu well well-sm">
-                      <p>It will be used to notify that your upload has been completed.</p>
-                    </div>
-                  </div>
-                </div>
                 <div>
                   <button className="btn btn-primary submit-button" type="submit">
                     Submit
