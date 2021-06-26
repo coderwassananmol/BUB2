@@ -14,14 +14,19 @@ const app = next({
 });
 const handle = app.getRequestHandler();
 var emailaddr = "";
-const { customFetch } = require("./utils/helper.js");
-const { queueData } = require("./utils/helper.js");
+const {
+  customFetch,
+  queueData,
+  statusConfig,
+  bookTitle,
+  getPreviewLink,
+} = require("./utils/helper.js");
 const { checkForPublicDomain } = require("./controller/GB");
-const Arena = require("bull-arena");
 const GoogleBooksProducer = require("./bull/google-books-queue/producer");
 const PDLProducer = require("./bull/pdl-queue/producer");
 const { exec } = require("child_process");
 const config = require("./utils/bullconfig");
+const _ = require("lodash");
 
 app
   .prepare()
@@ -48,32 +53,6 @@ app
 
     server.use(compression());
 
-    const arenaConfig = Arena(
-      {
-        queues: [
-          {
-            // Name of the bull queue, this name must match up exactly with what you've defined in bull.
-            name: "pdl-queue",
-
-            // Redis auth.
-            redis: {
-              port: process.env.redisport,
-              host: process.env.redishost,
-            },
-          },
-        ],
-      },
-      {
-        // Make the arena dashboard become available at {my-site.com}/arena.
-        basePath: "/arena",
-
-        // Let express handle the listening.
-        disableListen: true,
-      }
-    );
-
-    server.use(arenaConfig);
-
     /**
      * Every custom route that we build needs to arrive before the * wildcard.
      * This is necessary because otherwise the server won't recognise the route.
@@ -87,10 +66,129 @@ app
       const queryParams = { pdl_queue, google_books_queue };
       res.send(queryParams);
     });
-      
-    server.get('/getqueue',async (req,res) => {
-      const pdl_queue = await config.getNewQueue('pdl-queue');
-      const google_books_queue = await config.getNewQueue('google-books-queue')
+
+    server.get("/getJobInformation", async (req, res) => {
+      try {
+        let queue, queueName;
+        switch (req.query.queue_name) {
+          case "gb":
+            queue = config.getNewQueue("google-books-queue");
+            queueName = "Google Books";
+            break;
+
+          case "pdl":
+            queue = config.getNewQueue("pdl-queue");
+            ueueName = "Panjab Digital Library";
+            break;
+
+          default:
+            throw "Invalid queue";
+        }
+        if (req.query.job_id) {
+          const job = await queue.getJob(req.query.job_id);
+          if (job) {
+            const queue_data = await queueData(job, queue);
+            const progress = job.progress();
+            const book_id = job.data.details.id || job.data.details.bookID;
+            const categoryID = job.data.details.categoryID;
+            const obj = {
+              progress: progress,
+              queueName: queueName,
+              previewLink: getPreviewLink(
+                req.query.queue_name,
+                book_id,
+                categoryID
+              ),
+              uploadStatus: {
+                uploadLink:
+                  progress === 100
+                    ? `https://archive.org/details/bub_${req.query.queue_name}_${book_id}`
+                    : "",
+                isUploaded: progress === 100 ? true : false,
+              },
+            };
+            res.send(
+              Object.assign(
+                {},
+                _.pick(queue_data, [
+                  "title",
+                  "description",
+                  "imageLinks",
+                  "coverImage",
+                ]),
+                obj
+              )
+            );
+          } else {
+            res.send({});
+          }
+        } else {
+          res.send({});
+        }
+      } catch (err) {
+        res.send({});
+        console.log(err, "::err");
+      }
+    });
+
+    server.get("/allJobs", async (req, res) => {
+      String.prototype.capitalize = function () {
+        return this.charAt(0).toUpperCase() + this.slice(1);
+      };
+
+      const returnJobStatus = (failedReason, finishedOn, processedOn) => {
+        if (failedReason) return `Failed! (Reason: ${failedReason})`;
+        if (!finishedOn) finishedOn = null;
+        const sum = processedOn + finishedOn;
+        return statusConfig(processedOn, sum)[sum];
+      };
+
+      try {
+        let queue;
+        switch (req.query.queue_name) {
+          case "gb":
+            queue = config.getNewQueue("google-books-queue");
+            break;
+
+          case "pdl":
+            queue = config.getNewQueue("pdl-queue");
+            break;
+
+          default:
+            throw "Invalid queue";
+        }
+        queue
+          .getJobs()
+          .then((jobs) => {
+            console.log(jobs[0].data, "::data");
+            let filteredJobs = jobs.filter((job) => job.data.details);
+            filteredJobs = filteredJobs.map((job) => {
+              return {
+                id: job.id,
+                title: _.get(job.data.details, bookTitle[req.query.queue_name]),
+                upload_progress: job.progress(),
+                status: returnJobStatus(
+                  job.failedReason,
+                  job.finishedOn,
+                  job.processedOn
+                ),
+              };
+            });
+            res.send(filteredJobs);
+          })
+          .catch((err) => {
+            res.send([]);
+            console.log(err, "::err");
+          });
+      } catch (err) {
+        res.send([]);
+        console.log(err, "::err");
+      }
+    });
+
+    server.get("/getqueue", async (req, res) => {
+      const pdl_queue = await config.getNewQueue("pdl-queue");
+      const google_books_queue = await config.getNewQueue("google-books-queue");
 
       const queryParams = {
         "gb-queue": {
@@ -109,20 +207,20 @@ app
       const gbqueue_waiting_job = await google_books_queue.getWaiting(0);
 
       queryParams["pdl-queue"]["active"] = await queueData(
-        pdlqueue_active_job,
+        pdlqueue_active_job[0],
         pdl_queue
       );
       queryParams["pdl-queue"]["waiting"] = await queueData(
-        pdlqueue_waiting_job,
+        pdlqueue_waiting_job[0],
         pdl_queue
       );
 
       queryParams["gb-queue"]["active"] = await queueData(
-        gbqueue_active_job,
+        gbqueue_active_job[0],
         google_books_queue
       );
       queryParams["gb-queue"]["waiting"] = await queueData(
-        gbqueue_waiting_job,
+        gbqueue_waiting_job[0],
         google_books_queue
       );
 
@@ -152,7 +250,7 @@ app
         case "obp":
           res.send({
             error: false,
-            message: "You will be mailed with the details soon!"
+            message: "You will be mailed with the details soon!",
           });
 
         case "pn":
@@ -219,7 +317,7 @@ app
     server.listen(PORT, (err) => {
       if (err) throw err;
       console.log(`> Ready on port ${PORT}`);
-      if(dev){
+      if (dev) {
         (async () => {
           console.log(`opening into browser: http://localhost:${PORT}/`);
           await open(`http://localhost:${PORT}/`);

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Welcome to <b>Book Uploader Bot (BUB)</b> Project. This file demonstrates the contributing guidelines that every developer/mentor has to adhere for GirlScript Summer of Code'20. This is required in order to create a unified development environment. Let's start.
 
 ## The Git Workflow
@@ -59,3 +60,29 @@ Please reach out to any of the below mentors for any help. Happy Contributing!
 [@Ramakrishna](https://github.com/rkpattnaik780) (Mentor)
 [@Rajat](https://github.com/rajat2502) (Mentor)
 [@Sahil](https://github.com/sahilbansal17) (Mentor)
+=======
+## Contribute
+
+#### **Did you find a bug?**
+
+* **Ensure the bug was not already reported** by searching on GitHub under [Issues](https://github.com/coderwassananmol/BUB2/issues).
+
+* If you're unable to find an open issue addressing the problem, [open a new one](https://github.com/coderwassananmol/BUB2/issues/new). Be sure to include a **title and clear description**, as much relevant information as possible, and a **code sample** or an **executable test case** demonstrating the expected behavior that is not occurring.
+
+#### **Did you write a patch that fixes a bug?**
+
+* Open a new GitHub [pull request] (https://github.com/coderwassananmol/BUB2/compare) with the patch.
+
+* Ensure the PR description clearly describes the problem and solution. Include the relevant issue number if applicable.
+
+### Pull Request Process
+
+* Fork the [repo](https://github.com/coderwassananmol/BUB2/issues)
+* Clone your forked copy 
+* Add the [repo](https://github.com/coderwassananmol/BUB2.git) as remote upstream.
+* Follow the [setup instructions](https://github.com/coderwassananmol/BUB2#local-setup-instructions) to get your local copy working.
+* Make changes as appropriate. 
+* Pull updates from remote upstream.
+* Push your changes to your forked repository.
+* Make a PR with your updates.
+>>>>>>> b58bfed757c1097c0ac3074ad4e11dae6f897717

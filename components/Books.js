@@ -13,7 +13,7 @@ export default class Books extends React.Component {
       option: "gb",
       bookid: "",
       show: true,
-      loader: false
+      loader: false,
     };
     this.onSubmit = this.onSubmit.bind(this);
   }
@@ -22,7 +22,7 @@ export default class Books extends React.Component {
    * Change the `option` state when user selects a different library
    * @param {Object} event
    */
-  handleChange = event => {
+  handleChange = (event) => {
     this.setState({ option: event.target.value });
   };
 
@@ -53,22 +53,53 @@ export default class Books extends React.Component {
     return url;
   };
 
-  onSubmit = event => {
+  /**
+   * Makes a request from Google Books API based on the entered book Id
+   * If the book Id is not valid the request resolves with an error message
+   */
+  validateGoogleBook = (enteredId) => {
+    let googleUrl = `https://www.googleapis.com/books/v1/volumes/${enteredId}`;
+    fetch(googleUrl)
+      .then((response) => response.json())
+      .then((details) => {
+        console.log(details, "::");
+        if (details.error && details.error.code === 404) {
+          alert("The volume ID could not be found.");
+        } else if (details.error) {
+          alert("Please give a valid volume ID.");
+        } else {
+          this.setState({
+            bookid: details.id,
+            bookTitle: details.volumeInfo.title,
+            bookAuthors: details.volumeInfo.authors,
+            bookDescription: details.volumeInfo.description,
+            bookCover: details.volumeInfo.imageLinks.thumbnail,
+          });
+        }
+      })
+      .catch((error) => {
+        console.log("Error:", error);
+      });
+  };
+
+  onSubmit = (event) => {
     event.preventDefault();
     this.setState({
-      loader: true
+      loader: true,
     });
 
     let url = "";
     switch (this.state.option) {
       case "gb":
-        url = `/check?bookid=${this.state.bookid}&option=${this.state.option +
-          (this.state.email ? "&email=" + this.state.email : "")}`;
+        url = `http://localhost:5000/check?bookid=${this.state.bookid}&option=${
+          this.state.option +
+          (this.state.email ? "&email=" + this.state.email : "")
+        }`;
         fetch(url)
-          .then(response => response.json())
-          .then(async response => {
+          .then((response) => response.json())
+          .then(async (response) => {
             this.setState({
-              loader: false
+              loader: false,
             });
             if (response.error) {
               Swal("Error!", response.message, "error");
@@ -77,32 +108,33 @@ export default class Books extends React.Component {
                 input: "url",
                 backdrop: true,
                 width: "50%",
-                title: '<strong style="font-size: 22px;">Just a few more steps...</strong>',
+                title:
+                  '<strong style="font-size: 22px;">Just a few more steps...</strong>',
                 html:
                   `<ol style="text-align: left; font-size: 16px; line-height: 1.5">` +
                   `<li>Go to this link: <a href = "${response.url}">${response.title}</a></li>` +
                   `<li>Enter the captcha.</li>` +
-                  `<li>Enter the URL below (<i>https://books.googleusercontent.com/books/content?req=xxx</i>)</li>`
+                  `<li>Enter the URL below (<i>https://books.googleusercontent.com/books/content?req=xxx</i>)</li>`,
               });
 
               this.setState({
-                loader: true
+                loader: true,
               });
 
-              fetch("/download", {
+              fetch("http://localhost:5000/download", {
                 body: JSON.stringify({
-                  url: url
+                  url: url,
                 }),
                 headers: {
                   "Content-Type": "application/json",
-                  "Access-Control-Allow-Origin": "*"
+                  "Access-Control-Allow-Origin": "*",
                 },
-                method: "POST"
+                method: "POST",
               })
-                .then(response => response.json())
-                .then(response => {
+                .then((response) => response.json())
+                .then((response) => {
                   this.setState({
-                    loader: false
+                    loader: false,
                   });
                   if (response.error) Swal("Error!", response.message, "error");
                   else Swal("Voila!", response.message, "success");
@@ -110,19 +142,19 @@ export default class Books extends React.Component {
             }
           });
         break;
-      
-        case "obp":
+
+      case "obp":
         const IDobp = this.state.bookid;
-        const categoryObp = '';
-        url = `/check?bookid=${IDobp}&option=${this.state.option +
-          (this.state.email
-            ? "&email=" + this.state.email
-            : "")}&categoryID=${categoryObp}`;
+        const categoryObp = "";
+        url = `/check?bookid=${IDobp}&option=${
+          this.state.option +
+          (this.state.email ? "&email=" + this.state.email : "")
+        }&categoryID=${categoryObp}`;
         fetch(url)
-          .then(res => res.json())
-          .then(response => {
+          .then((res) => res.json())
+          .then((response) => {
             this.setState({
-              loader: false
+              loader: false,
             });
             if (response.error) Swal("Error!", response.message, "error");
             else Swal("Voila!", response.message, "success");
@@ -133,13 +165,15 @@ export default class Books extends React.Component {
         const searchParams = new URL(this.state.bookid).searchParams;
         const ID = searchParams.get("ID");
         const categoryID = searchParams.get("CategoryID");
-        url = `/check?bookid=${ID}&option=${this.state.option +
-          (this.state.email ? "&email=" + this.state.email : "")}&categoryID=${categoryID}`;
+        url = `http://localhost:5000/check?bookid=${ID}&option=${
+          this.state.option +
+          (this.state.email ? "&email=" + this.state.email : "")
+        }&categoryID=${categoryID}`;
         fetch(url)
-          .then(res => res.json())
-          .then(response => {
+          .then((res) => res.json())
+          .then((response) => {
             this.setState({
-              loader: false
+              loader: false,
             });
             if (response.error) Swal("Error!", response.message, "error");
             else Swal("Voila!", response.message, "success");
@@ -364,7 +398,13 @@ export default class Books extends React.Component {
             <div className="card-container">
               <div className="image">{bookIcon}</div>
               <form onSubmit={this.onSubmit}>
-                <div style={{ position: "relative", width: "fit-content", maxWidth: "-moz-fit-content" }}>
+                <div
+                  style={{
+                    position: "relative",
+                    width: "fit-content",
+                    maxWidth: "-moz-fit-content",
+                  }}
+                >
                   <div className="left-floating-label">Choose Library</div>
                   <div className="selector">{">"}</div>
                   <select
@@ -395,24 +435,30 @@ export default class Books extends React.Component {
                     <span className="input-group-addon helper" id="bid">
                       https://books.google.co.in/books?id=
                     </span>
-                    ) : this.state.option === "obp"
-                        ? (<span className="input-group-addon helper" id="bid">
-                            https://www.openbookpublishers.com/product/
-                          </span>)
-                        : null}
+                  ) : this.state.option === "obp" ? (
+                    <span className="input-group-addon helper" id="bid">
+                      https://www.openbookpublishers.com/product/
+                    </span>
+                  ) : null}
                   <input
                     style={{ background: "#EFEFEF", border: "none" }}
                     id="bookid"
                     name="bookid"
-                    type={(this.state.option === "gb") || (this.state.option === "obp") ? "text" : "url"}
+                    type={
+                      this.state.option === "gb" || this.state.option === "obp"
+                        ? "text"
+                        : "url"
+                    }
                     placeholder={
                       this.state.option === "gb"
                         ? "At46AQAAMAAJ"
-                        : this.state.option === "obp" 
+                        : this.state.option === "obp"
                         ? "1171"
                         : "http://www.panjabdigilib.org/webuser/searches/displayPageContent.jsp?ID=2833&page=1&CategoryID=3&Searched=W3GX"
                     }
-                    onChange={event => this.setState({ bookid: event.target.value })}
+                    onChange={(event) =>
+                      this.setState({ bookid: event.target.value })
+                    }
                     required
                     className="form-control"
                     id="bookid"
@@ -443,7 +489,9 @@ export default class Books extends React.Component {
                     className="form-control"
                     id="email"
                     placeholder={"example@domain.com"}
-                    onChange={event => this.setState({ email: event.target.value })}
+                    onChange={(event) =>
+                      this.setState({ email: event.target.value })
+                    }
                   />
                   <div className="input-group-btn">
                     <button
@@ -456,12 +504,18 @@ export default class Books extends React.Component {
                       <span className="glyphicon glyphicon-question-sign" />
                     </button>
                     <div className="dropdown-menu well well-sm">
-                      <p>It will be used to notify that your upload has been completed.</p>
+                      <p>
+                        It will be used to notify that your upload has been
+                        completed.
+                      </p>
                     </div>
                   </div>
                 </div>
                 <div>
-                  <button className="btn btn-primary submit-button" type="submit">
+                  <button
+                    className="btn btn-primary submit-button"
+                    type="submit"
+                  >
                     Submit
                   </button>
                 </div>
