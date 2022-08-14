@@ -5,7 +5,7 @@ export default () => (
       paddingTop: "15px",
       paddingBottom: "15px",
       width: "100%",
-      backgroundColor: "#d7d6d6",
+      backgroundColor: "#FFFFFF",
       fontFamily: 'verdana,"Helvetica Neue",Helvetica,Arial,sans-serif',
     }}
   >
