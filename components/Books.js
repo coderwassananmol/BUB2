@@ -83,6 +83,13 @@ export default class Books extends React.Component {
       });
   };
 
+  isPDLValidUrl = (urlString) => {
+    var urlPattren = new RegExp(
+      "((http|https)\\:\\/\\/)(www.)?(panjabdigilib\\.org\\/webuser\\/searches\\/displayPage\\.jsp\\?ID\\=)([0-9]*)(\\&page\\=)([0-9]*)(\\&CategoryID\\=)([0-9]*)(\\&Searched\\=)([a-zA-Z0-9@:%._+~#?&//=]*)"
+    );
+    return urlPattren.test(urlString);
+  };
+
   onSubmit = (event) => {
     event.preventDefault();
     this.setState({
@@ -163,22 +170,29 @@ export default class Books extends React.Component {
         break;
 
       case "pn":
-        const searchParams = new URL(this.state.bookid).searchParams;
-        const ID = searchParams.get("ID");
-        const categoryID = searchParams.get("CategoryID");
-        url = `${host}/check?bookid=${ID}&option=${
-          this.state.option +
-          (this.state.email ? "&email=" + this.state.email : "")
-        }&categoryID=${categoryID}`;
-        fetch(url)
-          .then((res) => res.json())
-          .then((response) => {
-            this.setState({
-              loader: false,
+        if (this.isPDLValidUrl(this.state.bookid)) {
+          const searchParams = new URL(this.state.bookid).searchParams;
+          const ID = searchParams.get("ID");
+          const categoryID = searchParams.get("CategoryID");
+          url = `http://localhost:5000/check?bookid=${ID}&option=${
+            this.state.option +
+            (this.state.email ? "&email=" + this.state.email : "")
+          }&categoryID=${categoryID}`;
+          fetch(url)
+            .then((res) => res.json())
+            .then((response) => {
+              this.setState({
+                loader: false,
+              });
+              if (response.error) Swal("Error!", response.message, "error");
+              else Swal("Voila!", response.message, "success");
             });
-            if (response.error) Swal("Error!", response.message, "error");
-            else Swal("Voila!", response.message, "success");
+        } else {
+          this.setState({
+            loader: false,
           });
+          Swal("Opps...", "Enter a valid URL", "error");
+        }
     }
   };
 
