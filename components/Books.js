@@ -2,6 +2,8 @@ import React from "react";
 import Swal from "sweetalert2";
 import ReactDOM from "react-dom";
 import bookIcon from "./bookIcon";
+import { host } from "../utils/constants";
+
 export default class Books extends React.Component {
   /**
    * @param {Object} props
@@ -62,7 +64,6 @@ export default class Books extends React.Component {
     fetch(googleUrl)
       .then((response) => response.json())
       .then((details) => {
-        console.log(details, "::");
         if (details.error && details.error.code === 404) {
           alert("The volume ID could not be found.");
         } else if (details.error) {
@@ -98,7 +99,7 @@ export default class Books extends React.Component {
     let url = "";
     switch (this.state.option) {
       case "gb":
-        url = `http://localhost:5000/check?bookid=${this.state.bookid}&option=${
+        url = `${host}/check?bookid=${this.state.bookid}&option=${
           this.state.option +
           (this.state.email ? "&email=" + this.state.email : "")
         }`;
@@ -128,7 +129,7 @@ export default class Books extends React.Component {
                 loader: true,
               });
 
-              fetch("http://localhost:5000/download", {
+              fetch(`${host}/download`, {
                 body: JSON.stringify({
                   url: url,
                 }),
@@ -475,7 +476,6 @@ export default class Books extends React.Component {
                     }
                     required
                     className="form-control"
-                    id="bookid"
                     aria-describedby="bid"
                   />
                   <div className="input-group-btn">

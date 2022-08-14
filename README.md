@@ -129,22 +129,16 @@ Please read [CONTRIBUTING.md](https://github.com/coderwassananmol/BUB2/blob/deve
 Please read [CONTRIBUTING.md](https://github.com/coderwassananmol/BUB2/blob/develop/CONTRIBUTING.md) for information on how to contribute to BUB2.
 
 <a id="keepSupporting"></a>
-=======
 ## Contribute
 We actively welcome pull requests. Learn how to [contribute.](https://github.com/coderwassananmol/BUB2/blob/master/CONTRIBUTING.md)
-
->>>>>>> b58bfed757c1097c0ac3074ad4e11dae6f897717
 ## Keep Supporting
 
 There was no Node.js wrapper available for Internet Archive, so I decided to write the Node implementation to upload books to Internet Archive. If you like this repository, show your support by starring the project. Cheers!
 
-<<<<<<< HEAD
 <a id="licence"></a>
 ## Licence
 [![license](https://img.shields.io/github/license/DAVFoundation/captain-n3m0.svg?style=flat-square)](https://github.com/coderwassananmol/BUB2/blob/develop/LICENSE.md)
  
  Please read [licence](https://github.com/coderwassananmol/BUB2/blob/develop/LICENSE.md) for more information.
-=======
 ## License
 See the [LICENSE](LICENSE.md) file for license rights and limitations (MIT).
->>>>>>> b58bfed757c1097c0ac3074ad4e11dae6f897717

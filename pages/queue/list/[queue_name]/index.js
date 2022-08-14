@@ -84,7 +84,17 @@ const ShowUploadQueue = (props) => {
         </a>
       ),
     },
-    { id: "title", label: "Title", minWidth: 300, align: "left" },
+    {
+      id: "title",
+      label: "Title",
+      minWidth: 300,
+      align: "left",
+      format: (value, label) => (
+        <a className={classes.id} onClick={() => onClick(value)}>
+          {label}
+        </a>
+      ),
+    },
     { id: "status", label: "Status", minWidth: 30, align: "left" },
     {
       id: "upload_progress",
@@ -114,6 +124,16 @@ const ShowUploadQueue = (props) => {
     setPage(newPage);
   };
 
+  const conditionalRender = (column, value, row) => {
+    if (column.id === "id" || column.id === "upload_progress") {
+      return column.format(value);
+    } else if (column.id === "title") {
+      return column.format(row["id"], value);
+    } else {
+      return value;
+    }
+  };
+
   useEffect(() => {
     // The job id changed!
     if (router.query.job_id) {
@@ -127,7 +147,6 @@ const ShowUploadQueue = (props) => {
       fetch(`http://localhost:5000/allJobs?queue_name=${props.queue_name}`)
         .then((resp) => resp.json())
         .then((resp) => {
-          console.log(resp, "::resp");
           setRows(resp);
         });
   }, [props.queue_name]);
@@ -171,10 +190,7 @@ const ShowUploadQueue = (props) => {
                               className={classes.body}
                               align={column.align}
                             >
-                              {column.id === "id" ||
-                              column.id === "upload_progress"
-                                ? column.format(value)
-                                : value}
+                              {conditionalRender(column, value, row)}
                             </TableCell>
                           );
                         })}
@@ -215,7 +231,6 @@ const ShowUploadQueue = (props) => {
 // This function gets called at build time
 export async function getStaticProps({ params }) {
   // Call an external API endpoint to get posts
-  console.log(params, "::params");
   return {
     props: params,
   };

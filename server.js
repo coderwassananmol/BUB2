@@ -139,6 +139,7 @@ app
       const returnJobStatus = (failedReason, finishedOn, processedOn) => {
         if (failedReason) return `Failed! (Reason: ${failedReason})`;
         if (!finishedOn) finishedOn = null;
+        if (!processedOn) processedOn = null;
         const sum = processedOn + finishedOn;
         return statusConfig(processedOn, sum)[sum];
       };
@@ -160,9 +161,7 @@ app
         queue
           .getJobs()
           .then((jobs) => {
-            console.log(jobs[0].data, "::data");
-            let filteredJobs = jobs.filter((job) => job.data.details);
-            filteredJobs = filteredJobs.map((job) => {
+            let filteredJobs = jobs.map((job) => {
               return {
                 id: job.id,
                 title: _.get(job.data.details, bookTitle[req.query.queue_name]),
@@ -200,8 +199,8 @@ app
           waiting: {},
         },
       };
-      const pdlqueue_active_job = await pdl_queue.getActive(0);
-      const pdlqueue_waiting_job = await pdl_queue.getWaiting(0);
+      const pdlqueue_active_job = await pdl_queue.getActive(0, 0);
+      const pdlqueue_waiting_job = await pdl_queue.getWaiting(0, 0);
 
       const gbqueue_active_job = await google_books_queue.getActive(0);
       const gbqueue_waiting_job = await google_books_queue.getWaiting(0);
