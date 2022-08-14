@@ -10,6 +10,8 @@ const init = () => (
         {`
           display: flex;
           margin: 0;
+          flex: 1;
+          flex-direction: row;
           width: 100%;
           min-height: 70vh;
           background-color: #3ec6ff;
