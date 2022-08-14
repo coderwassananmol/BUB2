@@ -174,7 +174,7 @@ export default class Books extends React.Component {
           const searchParams = new URL(this.state.bookid).searchParams;
           const ID = searchParams.get("ID");
           const categoryID = searchParams.get("CategoryID");
-          url = `http://localhost:5000/check?bookid=${ID}&option=${
+          url = `${host}/check?bookid=${ID}&option=${
             this.state.option +
             (this.state.email ? "&email=" + this.state.email : "")
           }&categoryID=${categoryID}`;
