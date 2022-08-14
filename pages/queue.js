@@ -1,26 +1,48 @@
-/**
- * I don't know but a script has to be written that runs in background and keeps on adding books
- * to IA. This needs to be done and then it's done. Only WB will be left then.
- * Let's finish this goddamn thing tonight itself.
- */
+import Header from "../components/Header";
+import QueueSection from "../components/QueueSection";
+import { queue_data_endpoint } from "../utils/constants";
+import NProgress from "nprogress";
+import Router from "next/router";
 
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import ShowQueue from '../components/ShowQueue';
-import Paginate from '../components/Paginate';
-import Link from 'next/link';
+NProgress.configure({ easing: "ease", speed: 500, showSpinner: false });
 
-const Queue = (props) => (
+Router.onRouteChangeStart = () => {
+  NProgress.start();
+};
+
+Router.onRouteChangeComplete = () => {
+  NProgress.done();
+};
+
+Router.onRouteChangeError = () => {
+  NProgress.done();
+};
+
+const Queue = ({ data }) => {
+  return (
     <div>
-        <Header page="queue"/>
-            <Paginate prev={props.prev != 0 ? props.prev : ''} next={props.next}/>
-            <ShowQueue data = {props.data} />
-        <Footer />
+      <Header page="queue" />
+      <QueueSection
+        queue_name="gb"
+        name="Google Books Queue"
+        active={data["gb-queue"]["active"]}
+        waiting={data["gb-queue"]["waiting"]}
+      />
+      <QueueSection
+        queue_name="pdl"
+        name="Panjab Digital Library Queue"
+        active={data["pdl-queue"]["active"]}
+        waiting={data["pdl-queue"]["waiting"]}
+      />
     </div>
-)
+  );
+};
 
-Queue.getInitialProps = ({query},res) => {
-    return {data: query, prev: query.page-1, next: Number(query.page)+1}
+export async function getServerSideProps() {
+  const resp = await fetch(queue_data_endpoint);
+  const data = await resp.json();
+  return { props: { data } };
+  // Pass data to the page via props
 }
 
 export default Queue;

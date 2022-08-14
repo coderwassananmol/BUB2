@@ -92,7 +92,7 @@ export default class ParticularBook extends React.Component {
                 <td>
                 {
                   this.props.previewLink !== undefined ? 
-                  <Link href={this.props.previewLink} prefetch>
+                  <Link href={this.props.previewLink}>
                     <a target="_blank">Preview Link</a>
                   </Link> : <td>Not available</td>
                 }
@@ -103,7 +103,7 @@ export default class ParticularBook extends React.Component {
                 <td>
                 {
                   this.props.downloadLink !== undefined ? 
-                  <Link href={this.props.downloadLink} prefetch>
+                  <Link href={this.props.downloadLink}>
                     <a target="_blank">Download Link</a>
                   </Link> : <p>Not available</p>
                 }
@@ -114,7 +114,7 @@ export default class ParticularBook extends React.Component {
                 <td>
                 {
                   this.props.uri !== undefined ? 
-                  <Link href={this.props.uri} prefetch>
+                  <Link href={this.props.uri}>
                     <a target="_blank">IA Link</a>
                   </Link> : <td>Not available</td>
                 }
