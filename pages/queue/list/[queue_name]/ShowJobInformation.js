@@ -55,7 +55,7 @@ const ShowJobInformation = (props) => {
       if (props.queue_name && props.job_id) {
         setLoading(true);
         fetch(
-          `http://${host}/getJobInformation?queue_name=${props.queue_name}&job_id=${props.job_id}`
+          `${host}/getJobInformation?queue_name=${props.queue_name}&job_id=${props.job_id}`
         )
           .then((resp) => resp.json())
           .then((resp) => {

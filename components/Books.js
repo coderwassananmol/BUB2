@@ -92,7 +92,7 @@ export default class Books extends React.Component {
     let url = "";
     switch (this.state.option) {
       case "gb":
-        url = `http://${host}/check?bookid=${this.state.bookid}&option=${
+        url = `${host}/check?bookid=${this.state.bookid}&option=${
           this.state.option +
           (this.state.email ? "&email=" + this.state.email : "")
         }`;
@@ -122,7 +122,7 @@ export default class Books extends React.Component {
                 loader: true,
               });
 
-              fetch(`http://${host}/download`, {
+              fetch(`${host}/download`, {
                 body: JSON.stringify({
                   url: url,
                 }),
@@ -166,7 +166,7 @@ export default class Books extends React.Component {
         const searchParams = new URL(this.state.bookid).searchParams;
         const ID = searchParams.get("ID");
         const categoryID = searchParams.get("CategoryID");
-        url = `http://${host}/check?bookid=${ID}&option=${
+        url = `${host}/check?bookid=${ID}&option=${
           this.state.option +
           (this.state.email ? "&email=" + this.state.email : "")
         }&categoryID=${categoryID}`;
