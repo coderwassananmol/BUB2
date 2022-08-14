@@ -1,12 +1,12 @@
 export default () => (
   <div
     style={{
-      marginTop: '0px',
+      marginTop: "0px",
       paddingTop: "15px",
       paddingBottom: "15px",
       width: "100%",
       backgroundColor: "#d7d6d6",
-      fontFamily: 'verdana,"Helvetica Neue",Helvetica,Arial,sans-serif'
+      fontFamily: 'verdana,"Helvetica Neue",Helvetica,Arial,sans-serif',
     }}
   >
     <footer>
@@ -33,17 +33,17 @@ export default () => (
             href="https://creativecommons.org/licenses/by-sa/4.0"
             style={{
               marginRight: "15px",
-              marginLeft: "4px"
+              marginLeft: "4px",
             }}
           >
             CC BY-SA 4.0
           </a>
           Author:
           <a
-            href="https://en.wikipedia.org/wiki/User:Neolux"
+            href="https://en.wikipedia.org/wiki/User:Wassan.anmol"
             style={{ marginLeft: "4px" }}
           >
-            Neolux
+            Wassan.anmol
           </a>
         </div>
       </div>
