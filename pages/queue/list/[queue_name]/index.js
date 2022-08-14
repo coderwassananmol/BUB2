@@ -13,6 +13,7 @@ import Backdrop from "@material-ui/core/Backdrop";
 import ShowJobInformation from "./ShowJobInformation";
 import Link from "next/link";
 import Header from "../../../../components/Header";
+import { host } from "../../../../utils/constants";
 
 const ShowUploadQueue = (props) => {
   const useStyles = makeStyles((theme) => ({
