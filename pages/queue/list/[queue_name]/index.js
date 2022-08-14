@@ -144,7 +144,7 @@ const ShowUploadQueue = (props) => {
 
   useEffect(() => {
     if (props.queue_name)
-      fetch(`http://localhost:5000/allJobs?queue_name=${props.queue_name}`)
+      fetch(`${host}/allJobs?queue_name=${props.queue_name}`)
         .then((resp) => resp.json())
         .then((resp) => {
           setRows(resp);
