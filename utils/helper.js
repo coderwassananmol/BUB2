@@ -1,6 +1,9 @@
 /* Helper functions to modularize the code */
 const fetch = require("isomorphic-fetch");
 const rp = require("request-promise");
+const _ = require("lodash");
+const winston = require("winston");
+const logger = winston.loggers.get("defaultLogger");
 
 module.exports = {
   checkForDuplicatesFromIA: async (ID) => {
@@ -20,10 +23,26 @@ module.exports = {
       headers: headers,
     })
       .then(
-        (res) => res.json(),
-        (err) => console.log(err)
+        (res) => {
+          if (res.status === 404) {
+            return 404;
+          } else return res.json();
+        },
+        (err) => {
+          logger.log({
+            level: "error",
+            message: `customFetch ${err}`,
+          });
+          return 404;
+        }
       )
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        logger.log({
+          level: "error",
+          message: `customFetch catch ${err}`,
+        });
+        return 404;
+      });
   },
 
   queueData: async (job, queue) => {
@@ -34,6 +53,22 @@ module.exports = {
     else return [];
   },
 
+  bookTitle: {
+    gb: "volumeInfo.title",
+    pdl: "title",
+    trove: "name",
+  },
+
+  jobData: (job, queue) => {
+    const bookTitlePath = {
+      gb: "volumeInfo.title",
+      pdl: "title",
+      trove: "name",
+    };
+    if (!job) return null;
+    return _.get(job.data.details, bookTitlePath[`${queue}`]);
+  },
+
   statusConfig: (processedOn, sum) => {
     return {
       [sum]: "Completed",
@@ -42,20 +77,16 @@ module.exports = {
     };
   },
 
-  bookTitle: {
-    gb: "volumeInfo.title",
-    pdl: "title",
-  },
-
   getPreviewLink: (queue_name, book_id, category_id = null) => {
     const previewLinks = {
       gb: `http://books.google.co.in/books?id=${book_id}&hl=&source=gbs_api`,
       pdl: `http://www.panjabdigilib.org/webuser/searches/displayPage.jsp?ID=${book_id}&page=1&CategoryID=${category_id}&Searched=W3GX`,
+      trove: `https://trove.nla.gov.au/ndp/del/title/${book_id}`,
     };
     return previewLinks[queue_name];
   },
 
-  getMetaData: async (cheerioOptions, bookid, categoryID) => {
+  getPDLMetaData: async (cheerioOptions, bookid, categoryID) => {
     const $ = await rp(cheerioOptions);
     let PNdetails = {};
     const keys = $(".ubhypers");
@@ -131,5 +162,19 @@ module.exports = {
     delete PNdetails[""];
 
     return PNdetails;
+  },
+
+  getTroveMetaData: async (cheerioOptions) => {
+    const $ = await rp(cheerioOptions);
+    const issueRenditionId = $(".issueRendition")
+      .attr("data-prepurl")
+      .match(/\d+/);
+    if (issueRenditionId && issueRenditionId !== null)
+      return issueRenditionId[0];
+    else
+      logger.log({
+        level: "error",
+        message: `issueRenditionId not found ${issueRenditionId}`,
+      });
   },
 };

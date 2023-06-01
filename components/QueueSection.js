@@ -18,8 +18,8 @@ const QueueSection = ({ name, active, waiting, queue_name }) => (
       `}
     </style>
     <h3>{name}</h3>
-    <p>Current Active: {(active && active.title) || "No active job"}</p>
-    <p>Next: {(waiting && waiting.title) || "No waiting job"}</p>
+    <p>Current Active: {active || "No active job"}</p>
+    <p>Next: {waiting || "No active job"}</p>
     <Link href="/queue/list/[queue_name]" as={`/queue/list/${queue_name}`}>
       <Button size="large" variant="contained" color="secondary">
         Show Queue

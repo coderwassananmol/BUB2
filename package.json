@@ -64,7 +64,8 @@
     "stream-length": "^1.0.2",
     "styled-jsx": "^3.2.1",
     "sweetalert2": "^7.33.1",
-    "url": "^0.11.0"
+    "url": "^0.11.0",
+    "winston": "^3.9.0"
   },
   "devDependencies": {
     "husky": "^4.2.3",

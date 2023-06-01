@@ -2,22 +2,30 @@ const request = require("request");
 const EmailProducer = require("../email-queue/producer");
 const config = require("../../utils/bullconfig");
 const GoogleBooksQueue = config.getNewQueue("google-books-queue");
+const winston = require("winston");
+const logger = winston.loggers.get("defaultLogger");
 
 let responseSize,
   dataSize = 0;
 
 GoogleBooksQueue.on("active", (job, jobPromise) => {
-  console.log(`Consumer(next): Job ${job.id} is active!`);
+  logger.log({
+    level: "info",
+    message: `Consumer(next): Job ${job.id} is active!`,
+  });
 });
 
 GoogleBooksQueue.on("completed", (job, result) => {
-  console.log(`Consumer(next): Job ${job.id} completed! Result: ${result}`);
+  logger.log({
+    level: "info",
+    message: `Consumer(next): Job ${job.id} completed! Result: ${result}`,
+  });
 });
 
 GoogleBooksQueue.process((job, done) => {
   const requestURI = request(job.data.uri);
   const { id, volumeInfo, accessInfo } = job.data.details;
-  job.log(JSON.stringify(volumeInfo));
+  const jobLogs = volumeInfo;
   let {
     publisher,
     publishedDate,
@@ -29,9 +37,11 @@ GoogleBooksQueue.process((job, done) => {
     infoLink,
   } = volumeInfo;
   const { accessViewStatus } = accessInfo;
-  title = title.replace(/ /g, "_");
-  const IAuri = `http://s3.us.archive.org/${title}/${title}.pdf`;
-  const trueURI = `http://archive.org/details/${title}`;
+  const bucketTitle = title.replace(/[ \(\)\[\],:]/g, "");
+  const IAuri = `http://s3.us.archive.org/${bucketTitle}/${bucketTitle}.pdf`;
+  const trueURI = `http://archive.org/details/${bucketTitle}`;
+  jobLogs["trueURI"] = trueURI;
+  job.log(JSON.stringify(jobLogs));
   requestURI.pipe(
     request(
       {
@@ -61,11 +71,15 @@ GoogleBooksQueue.process((job, done) => {
       },
       async (error, response, body) => {
         if (error || response.statusCode != 200) {
+          logger.log({
+            level: "error",
+            message: `IA Failure GB ${body}`,
+          });
           done(null, false);
-          EmailProducer(job.data.email, title, trueURI, false);
+          //EmailProducer(job.data.email, title, trueURI, false);
         } else {
           done(null, true);
-          EmailProducer(job.data.email, title, trueURI, true);
+          //EmailProducer(job.data.email, title, trueURI, true);
         }
       }
     )
