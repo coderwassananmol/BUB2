@@ -34,6 +34,12 @@ const Queue = ({ data }) => {
         active={data["pdl-queue"]["active"]}
         waiting={data["pdl-queue"]["waiting"]}
       />
+      <QueueSection
+        queue_name="trove"
+        name="Trove Digital Library Queue"
+        active={data["trove-queue"]["active"]}
+        waiting={data["trove-queue"]["waiting"]}
+      />
     </div>
   );
 };

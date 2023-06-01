@@ -33,7 +33,7 @@ class Header extends Component {
             integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
             crossOrigin="anonymous"
           />
-
+          <title>Book Uploader Bot</title>
           <link
             rel="stylesheet"
             href="https://unpkg.com/nprogress@0.2.0/nprogress.css"

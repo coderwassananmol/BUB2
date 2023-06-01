@@ -9,9 +9,29 @@ require("dotenv").config();
 const dev = process.env.NODE_ENV !== "production";
 const PORT = process.env.PORT || 5000;
 const GB_KEY = process.env.GB_KEY;
+const trove_key = process.env.trove_key;
+const winston = require("winston");
+
 const app = next({
   dev,
 });
+
+const logger = winston.loggers.add("defaultLogger", {
+  level: "info",
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
+  transports: [
+    //
+    // - Write all logs with importance level of `error` or less to `error.log`
+    // - Write all logs with importance level of `info` or less to `combined.log`
+    //
+    new winston.transports.File({ filename: "error.log", level: "error" }),
+    new winston.transports.File({ filename: "combined.log" }),
+  ],
+});
+
 const handle = app.getRequestHandler();
 var emailaddr = "";
 const {
@@ -20,10 +40,12 @@ const {
   statusConfig,
   bookTitle,
   getPreviewLink,
+  jobData,
 } = require("./utils/helper.js");
 const { checkForPublicDomain } = require("./controller/GB");
 const GoogleBooksProducer = require("./bull/google-books-queue/producer");
 const PDLProducer = require("./bull/pdl-queue/producer");
+const TroveProducer = require("./bull/trove-queue/producer");
 const { exec } = require("child_process");
 const config = require("./utils/bullconfig");
 const _ = require("lodash");
@@ -63,7 +85,10 @@ app
       const google_books_queue = await config
         .getNewQueue("google-books-queue")
         .getJobCounts();
-      const queryParams = { pdl_queue, google_books_queue };
+      const trove_queue = await config
+        .getNewQueue("trove-queue")
+        .getJobCounts();
+      const queryParams = { pdl_queue, google_books_queue, trove_queue };
       res.send(queryParams);
     });
 
@@ -78,7 +103,12 @@ app
 
           case "pdl":
             queue = config.getNewQueue("pdl-queue");
-            ueueName = "Panjab Digital Library";
+            queueName = "Panjab Digital Library";
+            break;
+
+          case "trove":
+            queue = config.getNewQueue("trove-queue");
+            queueName = "Trove Digital Library";
             break;
 
           default:
@@ -91,6 +121,14 @@ app
             const progress = job.progress();
             const book_id = job.data.details.id || job.data.details.bookID;
             const categoryID = job.data.details.categoryID;
+            const trueURI = _.get(queue_data, "trueURI");
+            if (req.query.queue_name === "trove") {
+              _.set(
+                queue_data,
+                "coverImage",
+                "https://assets.nla.gov.au/logos/trove/trove-colour.svg"
+              );
+            }
             const obj = {
               progress: progress,
               queueName: queueName,
@@ -100,10 +138,7 @@ app
                 categoryID
               ),
               uploadStatus: {
-                uploadLink:
-                  progress === 100
-                    ? `https://archive.org/details/bub_${req.query.queue_name}_${book_id}`
-                    : "",
+                uploadLink: progress === 100 && trueURI ? trueURI : "",
                 isUploaded: progress === 100 ? true : false,
               },
             };
@@ -127,8 +162,41 @@ app
         }
       } catch (err) {
         res.send({});
-        console.log(err, "::err");
+        logger.log({
+          level: "error",
+          message: `getJobInformation ${err}`,
+        });
       }
+    });
+
+    server.get("/getJobProgress", async (req, res) => {
+      let queue;
+      switch (req.query.queue_name) {
+        case "gb":
+          queue = config.getNewQueue("google-books-queue");
+          break;
+
+        case "pdl":
+          queue = config.getNewQueue("pdl-queue");
+          queueName = "Panjab Digital Library";
+          break;
+
+        case "trove":
+          queue = config.getNewQueue("trove-queue");
+          queueName = "Trove Digital Library";
+          break;
+
+        default:
+          throw "Invalid queue";
+      }
+      if (req.query.job_id) {
+        const job = await queue.getJob(req.query.job_id);
+        if (job) {
+          return job.progress();
+        }
+        return null;
+      }
+      return null;
     });
 
     server.get("/allJobs", async (req, res) => {
@@ -155,6 +223,10 @@ app
             queue = config.getNewQueue("pdl-queue");
             break;
 
+          case "trove":
+            queue = config.getNewQueue("trove-queue");
+            break;
+
           default:
             throw "Invalid queue";
         }
@@ -177,52 +249,71 @@ app
           })
           .catch((err) => {
             res.send([]);
-            console.log(err, "::err");
+            logger.log({
+              level: "error",
+              message: `allJobs getJobs ${err}`,
+            });
           });
       } catch (err) {
         res.send([]);
-        console.log(err, "::err");
+        logger.log({
+          level: "error",
+          message: `allJobs ${err}`,
+        });
       }
     });
 
     server.get("/getqueue", async (req, res) => {
       const pdl_queue = await config.getNewQueue("pdl-queue");
       const google_books_queue = await config.getNewQueue("google-books-queue");
+      const trove_queue = await config.getNewQueue("trove-queue");
 
       const queryParams = {
         "gb-queue": {
-          active: {},
-          waiting: {},
+          active: "",
+          waiting: "",
         },
         "pdl-queue": {
-          active: {},
-          waiting: {},
+          active: "",
+          waiting: "",
+        },
+        "trove-queue": {
+          active: "",
+          waiting: "",
         },
       };
       const pdlqueue_active_job = await pdl_queue.getActive(0, 0);
       const pdlqueue_waiting_job = await pdl_queue.getWaiting(0, 0);
 
-      const gbqueue_active_job = await google_books_queue.getActive(0);
-      const gbqueue_waiting_job = await google_books_queue.getWaiting(0);
+      const gbqueue_active_job = await google_books_queue.getActive(0, 0);
+      const gbqueue_waiting_job = await google_books_queue.getWaiting(0, 0);
 
-      queryParams["pdl-queue"]["active"] = await queueData(
+      const trovequeue_active_job = await trove_queue.getActive(0, 0);
+      const trovequeue_waiting_job = await trove_queue.getWaiting(0, 0);
+
+      queryParams["pdl-queue"]["active"] = jobData(
         pdlqueue_active_job[0],
-        pdl_queue
+        "pdl"
       );
-      queryParams["pdl-queue"]["waiting"] = await queueData(
+      queryParams["pdl-queue"]["waiting"] = jobData(
         pdlqueue_waiting_job[0],
-        pdl_queue
+        "pdl"
       );
 
-      queryParams["gb-queue"]["active"] = await queueData(
-        gbqueue_active_job[0],
-        google_books_queue
-      );
-      queryParams["gb-queue"]["waiting"] = await queueData(
+      queryParams["gb-queue"]["active"] = jobData(gbqueue_active_job[0], "gb");
+      queryParams["gb-queue"]["waiting"] = jobData(
         gbqueue_waiting_job[0],
-        google_books_queue
+        "gb"
       );
 
+      queryParams["trove-queue"]["active"] = jobData(
+        trovequeue_active_job[0],
+        "trove"
+      );
+      queryParams["trove-queue"]["waiting"] = jobData(
+        trovequeue_waiting_job[0],
+        "trove"
+      );
       res.send(queryParams);
     });
 
@@ -240,9 +331,7 @@ app
             })
           ).then((data) => {
             const { error } = checkForPublicDomain(data, res);
-            if (!error) {
-              GBdetails = data;
-            }
+            if (!error) GBdetails = data;
           });
           break;
 
@@ -273,19 +362,61 @@ app
           //   }
           // })
           break;
+
+        case "trove":
+          customFetch(
+            `https://api.trove.nla.gov.au/v2/newspaper/${bookid}?key=${trove_key}&encoding=json&reclevel=full`,
+            "GET",
+            new Headers({
+              "Content-Type": "application/json",
+            })
+          ).then((data) => {
+            if (data === 404) {
+              res.send({
+                error: true,
+                message: "Invalid Newspaper/Gazette ID",
+              });
+            } else {
+              res.send({
+                error: false,
+                message: "You will be mailed with the details soon!",
+              });
+              troveUrl = `https://trove.nla.gov.au/ndp/del/title/${data.article.title.id}`;
+              const id = _.get(data, "article.title.id");
+              const name = _.get(data, "article.title.value");
+              const date = _.get(data, "article.date");
+              const troveData = {
+                id,
+                name,
+                troveUrl,
+                date,
+              };
+              TroveProducer(bookid, troveData, email);
+            }
+          });
+          break;
       }
     });
 
     server.post("/webhook", async (req, res) => {
       exec(
-        "git pull; yes | npm install; webservice --backend kubernetes node10 restart",
+        "cd www/js; git pull origin master; yes | npm install; webservice --backend kubernetes node16 restart",
         (err, stdout, stderr) => {
           if (err) {
-            console.log("::err::", err);
+            logger.log({
+              level: "error",
+              message: `webhook err ${err}`,
+            });
           } else if (stderr) {
-            console.log("::stderr::", stderr);
+            logger.log({
+              level: "error",
+              message: `webhook stderr ${stderr}`,
+            });
           } else {
-            console.log("::stdout::".stdout);
+            logger.log({
+              level: "info",
+              message: `webhook ${stdout}`,
+            });
           }
         }
       );
@@ -293,17 +424,19 @@ app
     });
 
     server.post("/download", async (req, res) => {
-      res.send({
-        error: false,
-        message: "You will be mailed with the details soon!",
-      });
-
-      GoogleBooksProducer(req.body.url, GBdetails, emailaddr);
-      // download.downloadFromGoogleBooks(
-      //   req.body.url,
-      //   GBdetails,
-      //   emailaddr
-      // );
+      const regex = /https:\/\/books\.googleusercontent\.com\/books\/content\?req=*/;
+      if (regex.test(req.body.url)) {
+        res.send({
+          error: false,
+          message: "You will be mailed with the details soon!",
+        });
+        GoogleBooksProducer(req.body.url, GBdetails, emailaddr);
+      } else {
+        res.send({
+          error: true,
+          message: "Invalid URL.",
+        });
+      }
     });
 
     /**
@@ -315,10 +448,8 @@ app
 
     server.listen(PORT, (err) => {
       if (err) throw err;
-      console.log(`> Ready on port ${PORT}`);
       if (dev) {
         (async () => {
-          console.log(`opening into browser: http://localhost:${PORT}/`);
           await open(`http://localhost:${PORT}/`);
         })();
       }

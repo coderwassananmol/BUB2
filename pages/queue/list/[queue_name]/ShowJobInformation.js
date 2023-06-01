@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Spinner from "../../../../components/Spinner";
 import Header from "../../../../components/Header";
 import _ from "lodash";
@@ -13,6 +13,7 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Link from "next/link";
 import { CircularProgress } from "@material-ui/core";
+import { host } from "../../../../utils/constants";
 
 const ShowJobInformation = (props) => {
   const useStyles = makeStyles({
@@ -30,6 +31,10 @@ const ShowJobInformation = (props) => {
     button: {
       fontSize: "11px",
     },
+
+    cardImage: {
+      maxHeight: "400px",
+    },
   });
 
   const router = useRouter();
@@ -38,15 +43,16 @@ const ShowJobInformation = (props) => {
   const [data, setData] = useState({
     title: "",
     description: "",
-    progress: "",
     previewLink: "https://bub2.toolforge.org",
     imageLinks: {},
     uploadStatus: {
       isUploaded: false,
       uploadLink: "",
     },
-    queueName: "Google Books",
+    queueName: props.queue_name,
   });
+
+  const [progress, setProgress] = useState(0);
 
   const [loading, setLoading] = useState(false);
 
@@ -60,6 +66,7 @@ const ShowJobInformation = (props) => {
           .then((resp) => resp.json())
           .then((resp) => {
             setData(resp);
+            setProgress(resp.progress);
           })
           .catch((err) => console.error(err));
       }
@@ -82,6 +89,7 @@ const ShowJobInformation = (props) => {
               alt={data.title}
               image={data.imageLinks ? data.imageLinks.small : data.coverImage}
               title={data.title}
+              className={classes.cardImage}
             />
             <CardContent>
               <Typography gutterBottom variant="h2">
@@ -91,7 +99,7 @@ const ShowJobInformation = (props) => {
                 {data.description}
               </Typography>
               <Typography variant="h5" color="textSecondary">
-                <strong>Upload Progress:</strong> {data.progress}%
+                <strong>Upload Progress:</strong> {progress}%
               </Typography>
             </CardContent>
           </CardActionArea>
