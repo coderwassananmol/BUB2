@@ -14,6 +14,7 @@ export default class Books extends React.Component {
     this.state = {
       option: "gb",
       bookid: "",
+      email: "",
       show: true,
       loader: false,
     };
@@ -39,17 +40,14 @@ export default class Books extends React.Component {
         url = "https://books.google.co.in/books?id=At46AQAAMAAJ";
         break;
 
-      case "wb":
-        url = "http://westbengal.com";
-        break;
-
-      case "obp":
-        url = "https://www.openbookpublishers.com/product/1171";
-        break;
-
       case "pn":
         url =
-          "http://www.panjabdigilib.org/webuser/searches/displayPageContent.jsp?ID=xxxx&page=x&CategoryID=x&Searched=xxxx";
+          "http://www.panjabdigilib.org/webuser/searches/displayPage.jsp?ID=365&page=1&CategoryID=5&Searched=";
+        break;
+
+      case "trove":
+        url =
+          "The service will fetch the original issue from the article ID (not just the article)";
         break;
     }
     return url;
@@ -79,8 +77,80 @@ export default class Books extends React.Component {
         }
       })
       .catch((error) => {
-        console.log("Error:", error);
+        console.log(error);
       });
+  };
+
+  renderContent = (option) => {
+    switch (option) {
+      case "gb":
+        return (
+          <>
+            <div className="right-floating-label">Enter Book ID</div>
+            <span className="input-group-addon helper" id="bid">
+              https://books.google.co.in/books?id=
+            </span>
+            <input
+              style={{ background: "#EFEFEF", border: "none" }}
+              id="bookid"
+              name="bookid"
+              type="text"
+              placeholder="At46AQAAMAAJ"
+              onChange={(event) =>
+                this.setState({ bookid: event.target.value })
+              }
+              required
+              className="form-control"
+              aria-describedby="bid"
+            />
+          </>
+        );
+
+      case "pn":
+        return (
+          <>
+            <div className="right-floating-label">Enter URI</div>
+            <input
+              style={{ background: "#EFEFEF", border: "none" }}
+              id="bookid"
+              name="bookid"
+              type="url"
+              placeholder="http://www.panjabdigilib.org/webuser/searches/displayPage.jsp?ID=365&page=1&CategoryID=5&Searched="
+              onChange={(event) =>
+                this.setState({ bookid: event.target.value })
+              }
+              required
+              className="form-control"
+              aria-describedby="bid"
+            />
+          </>
+        );
+
+      case "trove":
+        return (
+          <>
+            <div className="right-floating-label">
+              Enter Newspaper/Gazette Article ID
+            </div>
+            <span className="input-group-addon helper" id="bid">
+              https://trove.nla.gov.au/newspaper/article/
+            </span>
+            <input
+              style={{ background: "#EFEFEF", border: "none" }}
+              id="bookid"
+              name="bookid"
+              type="text"
+              placeholder="249146214"
+              onChange={(event) =>
+                this.setState({ bookid: event.target.value })
+              }
+              required
+              className="form-control"
+              aria-describedby="bid"
+            />
+          </>
+        );
+    }
   };
 
   isPDLValidUrl = (urlString) => {
@@ -116,6 +186,9 @@ export default class Books extends React.Component {
                 input: "url",
                 backdrop: true,
                 width: "50%",
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                showCloseButton: true,
                 title:
                   '<strong style="font-size: 22px;">Just a few more steps...</strong>',
                 html:
@@ -125,49 +198,51 @@ export default class Books extends React.Component {
                   `<li>Enter the URL below (<i>https://books.googleusercontent.com/books/content?req=xxx</i>)</li>`,
               });
 
-              this.setState({
-                loader: true,
-              });
-
-              fetch(`${host}/download`, {
-                body: JSON.stringify({
-                  url: url,
-                }),
-                headers: {
-                  "Content-Type": "application/json",
-                  "Access-Control-Allow-Origin": "*",
-                },
-                method: "POST",
-              })
-                .then((response) => response.json())
-                .then((response) => {
-                  this.setState({
-                    loader: false,
-                  });
-                  if (response.error) Swal("Error!", response.message, "error");
-                  else Swal("Voila!", response.message, "success");
+              if (url && typeof url !== "object") {
+                this.setState({
+                  loader: true,
                 });
+                fetch(`${host}/download`, {
+                  body: JSON.stringify({
+                    url: url,
+                  }),
+                  headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                  },
+                  method: "POST",
+                })
+                  .then((response) => response.json())
+                  .then((response) => {
+                    this.setState({
+                      loader: false,
+                    });
+                    if (response.error)
+                      Swal("Error!", response.message, "error");
+                    else Swal("Voila!", response.message, "success");
+                  });
+              }
             }
           });
         break;
 
-      case "obp":
-        const IDobp = this.state.bookid;
-        const categoryObp = "";
-        url = `/check?bookid=${IDobp}&option=${
-          this.state.option +
-          (this.state.email ? "&email=" + this.state.email : "")
-        }&categoryID=${categoryObp}`;
-        fetch(url)
-          .then((res) => res.json())
-          .then((response) => {
-            this.setState({
-              loader: false,
-            });
-            if (response.error) Swal("Error!", response.message, "error");
-            else Swal("Voila!", response.message, "success");
-          });
-        break;
+      // case "obp":
+      //   const IDobp = this.state.bookid;
+      //   const categoryObp = "";
+      //   url = `/check?bookid=${IDobp}&option=${
+      //     this.state.option +
+      //     (this.state.email ? "&email=" + this.state.email : "")
+      //   }&categoryID=${categoryObp}`;
+      //   fetch(url)
+      //     .then((res) => res.json())
+      //     .then((response) => {
+      //       this.setState({
+      //         loader: false,
+      //       });
+      //       if (response.error) Swal("Error!", response.message, "error");
+      //       else Swal("Voila!", response.message, "success");
+      //     });
+      //   break;
 
       case "pn":
         if (this.isPDLValidUrl(this.state.bookid)) {
@@ -193,13 +268,29 @@ export default class Books extends React.Component {
           });
           Swal("Opps...", "Enter a valid URL", "error");
         }
+        break;
+
+      case "trove":
+        url = `${host}/check?bookid=${this.state.bookid}&option=${
+          this.state.option +
+          (this.state.email ? "&email=" + this.state.email : "")
+        }`;
+        fetch(url)
+          .then((res) => res.json())
+          .then((response) => {
+            this.setState({
+              loader: false,
+            });
+            if (response.error) Swal("Error!", response.message, "error");
+            else Swal("Voila!", response.message, "success");
+          });
     }
   };
 
   render() {
     return (
       <React.Fragment>
-        <style jsx>
+        <style jsx global>
           {`
             .main-content {
               width: 100%;
@@ -431,8 +522,8 @@ export default class Books extends React.Component {
                     onChange={this.handleChange}
                   >
                     <option value="gb">Google Books</option>
-                    <option value="obp">Open Book Publishers</option>
                     <option value="pn">Punjab Digital Library</option>
+                    <option value="trove">Trove Digital Library</option>
                   </select>
                 </div>
 
@@ -441,43 +532,7 @@ export default class Books extends React.Component {
               <span> *</span>
             </h3> */}
                 <div className="input-group full-width input dynamic-input input-group-container">
-                  {this.state.option === "gb" ? (
-                    <div className="right-floating-label">Enter Book ID</div>
-                  ) : (
-                    <div className="right-floating-label">Enter URI</div>
-                  )}
-                  {this.state.option === "gb" ? (
-                    <span className="input-group-addon helper" id="bid">
-                      https://books.google.co.in/books?id=
-                    </span>
-                  ) : this.state.option === "obp" ? (
-                    <span className="input-group-addon helper" id="bid">
-                      https://www.openbookpublishers.com/product/
-                    </span>
-                  ) : null}
-                  <input
-                    style={{ background: "#EFEFEF", border: "none" }}
-                    id="bookid"
-                    name="bookid"
-                    type={
-                      this.state.option === "gb" || this.state.option === "obp"
-                        ? "text"
-                        : "url"
-                    }
-                    placeholder={
-                      this.state.option === "gb"
-                        ? "At46AQAAMAAJ"
-                        : this.state.option === "obp"
-                        ? "1171"
-                        : "http://www.panjabdigilib.org/webuser/searches/displayPageContent.jsp?ID=2833&page=1&CategoryID=3&Searched=W3GX"
-                    }
-                    onChange={(event) =>
-                      this.setState({ bookid: event.target.value })
-                    }
-                    required
-                    className="form-control"
-                    aria-describedby="bid"
-                  />
+                  {this.renderContent(this.state.option)}
                   <div className="input-group-btn">
                     <button
                       type="button"
@@ -494,37 +549,6 @@ export default class Books extends React.Component {
                   </div>
                 </div>
                 {/* <h3>3. Enter E-Mail</h3> */}
-                <div className="input-group input-group-container">
-                  <div className="left-floating-label">Enter E-Mail</div>
-                  <input
-                    style={{ background: "transparent" }}
-                    type="email"
-                    name="email"
-                    className="form-control"
-                    id="email"
-                    placeholder={"example@domain.com"}
-                    onChange={(event) =>
-                      this.setState({ email: event.target.value })
-                    }
-                  />
-                  <div className="input-group-btn">
-                    <button
-                      type="button"
-                      className="btn btn-default dropdown-toggle"
-                      data-toggle="dropdown"
-                      aria-haspopup="true"
-                      aria-expanded="false"
-                    >
-                      <span className="glyphicon glyphicon-question-sign" />
-                    </button>
-                    <div className="dropdown-menu well well-sm">
-                      <p>
-                        It will be used to notify that your upload has been
-                        completed.
-                      </p>
-                    </div>
-                  </div>
-                </div>
                 <div>
                   <button
                     className="btn btn-primary submit-button"

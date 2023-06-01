@@ -4,14 +4,22 @@ const PDLQueue = config.getNewQueue("pdl-queue");
 const rp = require("request-promise");
 const request = require("request");
 const _ = require("lodash");
+const winston = require("winston");
+const logger = winston.loggers.get("defaultLogger");
 
 var JSZip = require("jszip");
 PDLQueue.on("active", (job, jobPromise) => {
-  console.log(`Consumer(next): Job ${job.id} is active!`);
+  logger.log({
+    level: "info",
+    message: `Consumer(next): Job ${job.id} is active!`,
+  });
 });
 
 PDLQueue.on("completed", (job, result) => {
-  console.log(`Consumer(next): Job ${job.id} completed! Result: ${result}`);
+  logger.log({
+    level: "info",
+    message: `Consumer(next): Job ${job.id} completed! Result: ${result}`,
+  });
 });
 
 async function getZipAndBytelength(no_of_pages, id, title, job) {
@@ -41,8 +49,7 @@ async function getZipAndBytelength(no_of_pages, id, title, job) {
   for (let i = 1; i <= temp_pages; ++i) {
     const str = `http://www.panjabdigilib.org/images?ID=${id}&page=${i}&pagetype=null&Searched=W3GX`;
     await download_image(str, `${title}_${i}.jpeg`);
-    const current_progress = job.progress();
-    job.progress(current_progress + Math.round((i / temp_pages) * 82));
+    job.progress(Math.round((i / temp_pages) * 82));
   }
   let { byteLength } = await zip.generateAsync({ type: "nodebuffer" });
   byteLength = Number(byteLength + no_of_pages * 16); //No. of pages * 16
@@ -75,11 +82,15 @@ function setHeaders(metadata, byteLength, title) {
   return headers;
 }
 
-async function uploadToIA(zip, metadata, byteLength, email) {
-  let title = metadata.title.replace(/ /g, "_");
-  const IAuri = `http://s3.us.archive.org/${title}/${title}_images.zip`;
-  const trueURI = `http://archive.org/details/${title}`;
-  let headers = setHeaders(metadata, byteLength, title);
+async function uploadToIA(zip, metadata, byteLength, email, job) {
+  const bucketTitle = metadata.title.replace(/[ \(\)\[\],:]/g, "");
+  const IAuri = `http://s3.us.archive.org/${bucketTitle}/${bucketTitle}_images.zip`;
+  const trueURI = `http://archive.org/details/${bucketTitle}`;
+  const jobLogs = metadata;
+  jobLogs["trueURI"] = trueURI;
+  job.log(JSON.stringify(jobLogs));
+  metadata = _.omit(metadata, "coverImage");
+  let headers = setHeaders(metadata, byteLength, metadata.title);
   await zip.generateNodeStream({ type: "nodebuffer", streamFiles: true }).pipe(
     request(
       {
@@ -93,7 +104,10 @@ async function uploadToIA(zip, metadata, byteLength, email) {
         if (response.statusCode === 200) {
           //EmailProducer(email, metadata.title, trueURI, true);
         } else {
-          console.log(error, response, body);
+          logger.log({
+            level: "error",
+            message: `IA Failure PDL ${body}`,
+          });
           //EmailProducer(email, metadata.title, trueURI, false);
         }
       }
@@ -111,9 +125,10 @@ PDLQueue.process(async (job, done) => {
   job.progress(90);
   await uploadToIA(
     zip,
-    _.omit(job.data.details, "coverImage"),
+    job.data.details,
     byteLength,
-    job.data.details.email
+    job.data.details.email,
+    job
   );
   job.progress(100);
   done(null, true);

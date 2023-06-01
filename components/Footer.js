@@ -28,7 +28,7 @@ export default () => (
           </a>
         </div>
         <div className="h5">
-          Licence:
+          License:
           <a
             href="https://creativecommons.org/licenses/by-sa/4.0"
             style={{

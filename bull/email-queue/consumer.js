@@ -2,6 +2,8 @@ const emailtemp = require("../../utils/email");
 const config = require("../../utils/bullconfig");
 const nodemailer = require("nodemailer");
 const EmailQueue = config.getNewQueue("email-queue");
+const winston = require("winston");
+const logger = winston.loggers.get("defaultLogger");
 
 require("dotenv").config();
 
@@ -34,7 +36,10 @@ EmailQueue.process((job, done) => {
 
     transporter.sendMail(mailOptions, function (err, info) {
       if (err) {
-        console.log(err);
+        logger.log({
+          level: "error",
+          message: `getJobInformation ${err}`,
+        });
         done(null, false);
       } else {
         done(null, true);

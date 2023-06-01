@@ -4,7 +4,7 @@
 
 ![](https://img.shields.io/github/repo-size/coderwassananmol/BUB) ![](https://img.shields.io/github/license/coderwassananmol/BUB2?color=red)<br>
 ![](https://img.shields.io/github/issues/coderwassananmol/BUB2?color=green) ![](https://img.shields.io/github/issues-pr/coderwassananmol/BUB2?color=green) ![](https://img.shields.io/github/downloads/coderwassananmol/BUB2/total) ![](https://img.shields.io/github/last-commit/coderwassananmol/BUB2) ![](https://img.shields.io/github/contributors/coderwassananmol/BUB2)<br>
-A book uploader bot that transfers documents from public libraries such as Google Books, and Punjab Digital Library etc to [Internet Archive](https://archive.org). Built for Wikimedia Tool Labs. Check out [BUB2 on Toolforge](https://bub2.toolforge.org)!
+A book uploader bot that transfers documents from public libraries such as Google Books, Punjab Digital Library and Trove Digital Library to [Internet Archive](https://archive.org). Built for Wikimedia Tool Labs. Check out [BUB2 on Toolforge](https://bub2.toolforge.org)!
 
 # Table of Contents
 
@@ -21,7 +21,7 @@ A book uploader bot that transfers documents from public libraries such as Googl
 - [Contributing](#contributing)
 - [Request to Contribute](#requestToContribute)
 - [Keep Supporting](#keepSupporting)
-- [Licence](#licence)
+- [License](#license)
 
 <a id="gettingStarted"></a>
 ## Getting Started
@@ -51,7 +51,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 Rename `.env.example` to `.env`. Then, to fill the credentials,
 
-- Make an account on [archive.org](https://archive.org) and note down the sign-in credentials. Using these details, fill 'email' and 'password' fields in the `.env` file.
+- Make an account on [archive.org](https://archive.org).
 - Go to https://archive.org/account/s3.php . Generate the **access** and **secret** keys and fill
   them in the `.env` file in the corresponding fields.
 - Go to [Google Developers console](https://console.developers.google.com/getting-started). Make a new project to run the app. In that Google Developers project, search for 'Books API' in the Google API console, then **enable** the API for the project, then generate the **API keys**, and then copy and paste the API key in the `GB_Key` field.
@@ -135,10 +135,10 @@ We actively welcome pull requests. Learn how to [contribute.](https://github.com
 
 There was no Node.js wrapper available for Internet Archive, so I decided to write the Node implementation to upload books to Internet Archive. If you like this repository, show your support by starring the project. Cheers!
 
-<a id="licence"></a>
-## Licence
+<a id="license"></a>
+## License
 [![license](https://img.shields.io/github/license/DAVFoundation/captain-n3m0.svg?style=flat-square)](https://github.com/coderwassananmol/BUB2/blob/develop/LICENSE.md)
  
- Please read [licence](https://github.com/coderwassananmol/BUB2/blob/develop/LICENSE.md) for more information.
+ Please read [license](https://github.com/coderwassananmol/BUB2/blob/develop/LICENSE.md) for more information.
 ## License
 See the [LICENSE](LICENSE.md) file for license rights and limitations (MIT).

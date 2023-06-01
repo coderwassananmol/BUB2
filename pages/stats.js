@@ -10,10 +10,10 @@ const emptyObject = {
   active: 0,
   failed: 0,
   completed: 0,
-  delayed: 0
+  delayed: 0,
 };
 
-const Stats = props => (
+const Stats = (props) => (
   <div>
     <Header page="stats" />
     <style jsx>
@@ -92,16 +92,24 @@ const Stats = props => (
       <div className="card-container">
         <div className="particular-card">
           <div className="card-title">
+            <p>Google Books Queue</p>
+          </div>
+          <ShowQueue
+            data={!props.data ? emptyObject : props.data.google_books_queue}
+          />
+        </div>
+        <div className="particular-card">
+          <div className="card-title">
             <p>Panjab Digital Library Queue</p>
           </div>
           <ShowQueue data={!props.data ? emptyObject : props.data.pdl_queue} />
         </div>
         <div className="particular-card">
           <div className="card-title">
-            <p>Google Books Queue</p>
+            <p>Trove Digital Library Queue</p>
           </div>
           <ShowQueue
-            data={!props.data ? emptyObject : props.data.google_books_queue}
+            data={!props.data ? emptyObject : props.data.trove_queue}
           />
         </div>
       </div>
