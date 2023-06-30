@@ -68,6 +68,8 @@
     "winston": "^3.9.0"
   },
   "devDependencies": {
+    "@wikimedia/codex": "^0.13.0",
+    "@wikimedia/codex-design-tokens": "^0.13.0",
     "husky": "^4.2.3",
     "lint-staged": "^10.0.9",
     "prettier": "2.0.2"
