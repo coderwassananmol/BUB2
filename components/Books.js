@@ -1,10 +1,10 @@
 import React from "react";
 import Swal from "sweetalert2";
-import ReactDOM from "react-dom";
 import bookIcon from "./bookIcon";
 import { host } from "../utils/constants";
+import { withSession } from "../hooks/withSession";
 
-export default class Books extends React.Component {
+class Books extends React.Component {
   /**
    * @param {Object} props
    * @constructor
@@ -288,6 +288,7 @@ export default class Books extends React.Component {
   };
 
   render() {
+    const { data: session } = this.props.session;
     return (
       <React.Fragment>
         <style jsx global>
@@ -549,14 +550,31 @@ export default class Books extends React.Component {
                   </div>
                 </div>
                 {/* <h3>3. Enter E-Mail</h3> */}
-                <div>
-                  <button
-                    className="btn btn-primary submit-button"
-                    type="submit"
+                {session && (
+                  <div>
+                    <button
+                      className="btn btn-primary submit-button"
+                      type="submit"
+                    >
+                      Submit
+                    </button>
+                  </div>
+                )}
+                {/* !!! the placement of this message banner is to be adjusted when the upload page is redesigned !!! */}
+                {!session && (
+                  <div
+                    className="cdx-message cdx-message--block cdx-message--warning"
+                    aria-live="polite"
                   >
-                    Submit
-                  </button>
-                </div>
+                    <span className="cdx-message__icon"></span>
+                    <div className="cdx-message__content">
+                      <p>
+                        You need to log in using your Wikimedia account to
+                        upload books
+                      </p>
+                    </div>
+                  </div>
+                )}
               </form>
             </div>
           </div>
@@ -565,3 +583,7 @@ export default class Books extends React.Component {
     );
   }
 }
+
+const BooksWithSession = withSession(Books);
+
+export default BooksWithSession;

@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import Link from "next/link";
 import Octicon, { Star, RepoForked } from "@primer/octicons-react";
+import { withSession } from "../hooks/withSession";
+import { signIn, signOut } from "next-auth/react";
 
 class Header extends Component {
   constructor() {
@@ -19,6 +21,7 @@ class Header extends Component {
       });
   }
   render() {
+    const { data: session } = this.props.session;
     return (
       <div>
         <nav className="navbar navbar-default" style={{ marginBottom: "0px" }}>
@@ -106,6 +109,21 @@ class Header extends Component {
                     </li>
                   </ul>
                 </li>
+                <li>
+                  <button
+                    type="button"
+                    className="cdx-button"
+                    style={{ marginTop: 15 }}
+                    onClick={() => (session ? signOut() : signIn())}
+                  >
+                    {session ? "Logout" : "Login"}
+                  </button>
+                </li>
+                <li>
+                  <p style={{ marginLeft: 10, marginTop: 20 }}>
+                    {session && session?.user?.name}
+                  </p>
+                </li>
               </ul>
             </div>
           </div>
@@ -115,4 +133,6 @@ class Header extends Component {
   }
 }
 
-export default Header;
+const HeaderWithSession = withSession(Header);
+
+export default HeaderWithSession;
