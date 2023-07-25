@@ -12,7 +12,6 @@ const init = () => (
         </div>
       </div>
     </div>
-    <Footer />
   </div>
 );
 

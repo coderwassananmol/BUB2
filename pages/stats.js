@@ -1,5 +1,4 @@
 import Header from "../components/Header";
-import Footer from "../components/Footer";
 import ShowQueue from "../components/ShowQueue";
 import fetch from "isomorphic-fetch";
 import UploadedItems from "../components/UploadedItems";
@@ -115,7 +114,6 @@ const Stats = (props) => (
       </div>
       <UploadedItems />
     </div>
-    <Footer />
   </div>
 );
 

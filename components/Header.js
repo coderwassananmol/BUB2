@@ -20,96 +20,104 @@ class Header extends Component {
   }
   render() {
     return (
-      <div>
-        <nav className="navbar navbar-default" style={{ marginBottom: "0px" }}>
-          <div className="container-fluid">
-            <div className="navbar-header">
-              <button
-                type="button"
-                className="navbar-toggle collapsed"
-                data-toggle="collapse"
-                data-target="#bs-example-navbar-collapse-1"
-                aria-expanded="false"
-              >
-                <span className="sr-only">Toggle navigation</span>
-                <span className="icon-bar"></span>
-                <span className="icon-bar"></span>
-                <span className="icon-bar"></span>
-              </button>
-            </div>
-
-            <div
-              className="collapse navbar-collapse"
-              id="bs-example-navbar-collapse-1"
+      <div className="marginTop">
+        <style jsx>
+          {`
+            .marginTop {
+              margin-top: 20px;
+            }
+            .cdx-button__right {
+              margin-left: auto !important;
+            }
+          `}
+        </style>
+        <div className="cdx-tabs">
+          <div className="cdx-tabs__header">
+            <ul
+              className="cdx-tabs__list"
+              role="tablist"
+              aria-activedescendant="form-tabs-1"
             >
-              <ul className="nav navbar-nav">
-                <li className={this.props.page === "index" ? "active" : null}>
-                  <Link href="/">
-                    <a>
-                      Upload<span className="sr-only">(current)</span>
-                    </a>
-                  </Link>
-                </li>
-                <li className={this.props.page === "queue" ? "active" : null}>
-                  <Link href="/queue">
-                    <a>Queue</a>
-                  </Link>
-                </li>
-                <li className={this.props.page === "stats" ? "active" : null}>
-                  <Link href="/stats">
-                    <a>Stats</a>
-                  </Link>
-                </li>
-              </ul>
-              <ul className="nav navbar-nav navbar-right">
-                <li>
-                  <a href="https://github.com/coderwassananmol/BUB2/">
-                    <button type="button" className="btn btn-primary">
-                      <Octicon icon={Star} />
-                      <b> Star </b>
-                      <span className="badge badge-light">
-                        {this.state.gitstats.stargazers_count}
-                      </span>
-                    </button>
-                  </a>
-                </li>
-                <li>
-                  <a href="https://github.com/coderwassananmol/BUB2/fork">
-                    <button type="button" className="btn btn-primary">
-                      <Octicon icon={RepoForked} />
-                      <b> Fork </b>
-                      <span className="badge badge-light">
-                        {this.state.gitstats.forks_count}
-                      </span>
-                    </button>
-                  </a>
-                </li>
-                <li className="dropdown">
-                  <a
-                    href="#"
-                    className="dropdown-toggle"
-                    data-toggle="dropdown"
-                    role="button"
-                    aria-haspopup="true"
-                    aria-expanded="false"
+              <Link href="/">
+                <li
+                  id="form-tabs-1-label"
+                  className="cdx-tabs__list__item"
+                  role="presentation"
+                >
+                  <label
+                    for="form-tabs-1-input"
+                    role="tab"
+                    aria-selected={
+                      this.props.page === "index" ? "true" : "false"
+                    }
                   >
-                    Help<span className="caret"></span>
-                  </a>
-                  <ul className="dropdown-menu">
-                    <li>
-                      <Link href="/faq">
-                        <a>FAQ</a>
-                      </Link>
-                    </li>
-                    <li>
-                      <a href="#">About</a>
-                    </li>
-                  </ul>
+                    Upload
+                  </label>
                 </li>
-              </ul>
-            </div>
+              </Link>
+              <Link href="/queue">
+                <li
+                  id="form-tabs-2-label"
+                  className="cdx-tabs__list__item"
+                  role="presentation"
+                >
+                  <label
+                    for="form-tabs-2-input"
+                    role="tab"
+                    aria-selected={
+                      this.props.page === "queue" ? "true" : "false"
+                    }
+                  >
+                    Queue
+                  </label>
+                </li>
+              </Link>
+              <Link href="/stats">
+                <li
+                  id="form-tabs-3-label"
+                  className="cdx-tabs__list__item"
+                  role="presentation"
+                >
+                  <label
+                    for="form-tabs-3-input"
+                    role="tab"
+                    aria-selected={
+                      this.props.page === "stats" ? "true" : "false"
+                    }
+                  >
+                    Stats
+                  </label>
+                </li>
+              </Link>
+              <Link href="/faq">
+                <li
+                  id="form-tabs-3-label"
+                  className="cdx-tabs__list__item"
+                  role="presentation"
+                >
+                  <label
+                    for="form-tabs-3-input"
+                    role="tab"
+                    aria-selected={this.props.page === "faq" ? "true" : "false"}
+                  >
+                    FAQ
+                  </label>
+                </li>
+              </Link>
+            </ul>
+            <a
+              className="cdx-button cdx-button__right cdx-button--fake-button cdx-button--fake-button--enabled cdx-button--action-progressive"
+              href="https://github.com/coderwassananmol/BUB2"
+              target="__blank"
+            >
+              <span
+                className="cdx-button__icon cdx-demo-css-icon--arrow-previous"
+                aria-hidden="true"
+              ></span>
+              Fork me on GitHub
+            </a>
           </div>
-        </nav>
+        </div>
       </div>
     );
   }

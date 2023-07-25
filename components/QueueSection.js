@@ -2,29 +2,44 @@ import React from "react";
 import Link from "next/link";
 import Button from "@material-ui/core/Button";
 
-const QueueSection = ({ name, active, waiting, queue_name }) => (
-  <div className="container">
+const QueueSection = ({ active, waiting }) => (
+  <div className="queue-section">
     <style jsx>
       {`
-        div.container {
-          padding: 10px;
+        .cdx-card-custom {
+          margin-top: 20px;
+          flex: 20%;
+          margin-right: 20px;
+          max-width: 400px;
         }
-        h3 {
-          font-family: "Lato", sans-serif;
-        }
-        p {
-          font-family: "Open-Sans", sans-serif;
+        .queue-section {
+          display: flex;
+          flex-direction: row;
         }
       `}
     </style>
-    <h3>{name}</h3>
-    <p>Current Active: {active || "No active job"}</p>
-    <p>Next: {waiting || "No active job"}</p>
-    <Link href="/queue/list/[queue_name]" as={`/queue/list/${queue_name}`}>
-      <Button size="large" variant="contained" color="secondary">
-        Show Queue
-      </Button>
-    </Link>
+    <a
+      className="cdx-card cdx-card-custom cdx-card--is-link"
+      href="https://www.example.com"
+    >
+      <span className="cdx-card__text">
+        <span className="cdx-card__text__title">Current active</span>
+        <span className="cdx-card__text__description">
+          {active || "No active job"}
+        </span>
+      </span>
+    </a>
+    <a
+      className="cdx-card cdx-card-custom cdx-card--is-link"
+      href="https://www.example.com"
+    >
+      <span className="cdx-card__text">
+        <span className="cdx-card__text__title">Next job</span>
+        <span className="cdx-card__text__description">
+          {waiting || "No waiting job"}
+        </span>
+      </span>
+    </a>
   </div>
 );
 

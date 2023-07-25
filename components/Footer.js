@@ -1,32 +1,18 @@
 export default () => (
-  <div
-    style={{
-      marginTop: "0px",
-      paddingTop: "15px",
-      paddingBottom: "15px",
-      width: "100%",
-      backgroundColor: "#FFFFFF",
-      fontFamily: 'verdana,"Helvetica Neue",Helvetica,Arial,sans-serif',
-    }}
-  >
+  <div>
     <footer>
-      <div className="text-center">
-        <div style={{ fontSize: "16px" }}>
-          Made with{" "}
-          <span style={{ color: "#ad1010", fontSize: "24px" }}>&hearts;</span>{" "}
-          for
-          <a
-            title='Logo and trademark of the Wikimedia Foundation, designed by Wikipedia user "Neolux" / CC BY-SA (https://creativecommons.org/licenses/by-sa/4.0)'
-            href="https://commons.wikimedia.org/wiki/File:Wikimedia_Foundation_Logo.png"
-            style={{ marginLeft: "5px" }}
-          >
-            <img
-              width="35"
-              alt="Wikimedia Foundation Logo"
-              src="https://upload.wikimedia.org/wikipedia/commons/5/56/Wikimedia_Foundation_Logo.png"
-            />
-          </a>
-        </div>
+      <div className="text-center h5">
+        Made with ❤️ for
+        <a
+          title='Logo and trademark of the Wikimedia Foundation, designed by Wikipedia user "Neolux" / CC BY-SA (https://creativecommons.org/licenses/by-sa/4.0)'
+          href="https://commons.wikimedia.org/wiki/File:Wikimedia_Foundation_Logo.png"
+        >
+          <img
+            width="35"
+            alt="Wikimedia Foundation Logo"
+            src="https://upload.wikimedia.org/wikipedia/commons/5/56/Wikimedia_Foundation_Logo.png"
+          />
+        </a>
         <div className="h5">
           License:
           <a

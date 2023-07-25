@@ -1,7 +1,5 @@
 import React from "react";
 import Swal from "sweetalert2";
-import ReactDOM from "react-dom";
-import bookIcon from "./bookIcon";
 import { host } from "../utils/constants";
 
 export default class Books extends React.Component {
@@ -86,68 +84,68 @@ export default class Books extends React.Component {
       case "gb":
         return (
           <>
-            <div className="right-floating-label">Enter Book ID</div>
-            <span className="input-group-addon helper" id="bid">
-              https://books.google.co.in/books?id=
-            </span>
-            <input
-              style={{ background: "#EFEFEF", border: "none" }}
-              id="bookid"
-              name="bookid"
-              type="text"
-              placeholder="At46AQAAMAAJ"
-              onChange={(event) =>
-                this.setState({ bookid: event.target.value })
-              }
-              required
-              className="form-control"
-              aria-describedby="bid"
-            />
+            <h4>2. Enter Google Books ID</h4>
+            <div className="cdx-text-input input-group">
+              <span className="input-group-addon helper" id="bid">
+                https://books.google.co.in/books?id=
+              </span>
+              <input
+                className="cdx-text-input__input"
+                id="bookid"
+                name="bookid"
+                type="text"
+                required
+                placeholder="At46AQAAMAAJ"
+                onChange={(event) =>
+                  this.setState({ bookid: event.target.value })
+                }
+                aria-describedby="bid"
+              />
+            </div>
           </>
         );
 
       case "pn":
         return (
           <>
-            <div className="right-floating-label">Enter URI</div>
-            <input
-              style={{ background: "#EFEFEF", border: "none" }}
-              id="bookid"
-              name="bookid"
-              type="url"
-              placeholder="http://www.panjabdigilib.org/webuser/searches/displayPage.jsp?ID=365&page=1&CategoryID=5&Searched="
-              onChange={(event) =>
-                this.setState({ bookid: event.target.value })
-              }
-              required
-              className="form-control"
-              aria-describedby="bid"
-            />
+            <h4>2. Enter URI</h4>
+            <div className="cdx-text-input">
+              <input
+                className="cdx-text-input__input"
+                type="text"
+                id="bookid"
+                name="bookid"
+                onChange={(event) =>
+                  this.setState({ bookid: event.target.value })
+                }
+                required
+                placeholder="http://www.panjabdigilib.org/webuser/searches/displayPage.jsp?ID=9073&page=1&CategoryID=1&Searched="
+              />
+            </div>
           </>
         );
 
       case "trove":
         return (
           <>
-            <div className="right-floating-label">
-              Enter Newspaper/Gazette Article ID
+            <h4>2. Enter Newspaper/Gazette Article ID</h4>
+            <div className="cdx-text-input input-group">
+              <span className="input-group-addon helper" id="bid">
+                https://trove.nla.gov.au/newspaper/article/
+              </span>
+              <input
+                className="cdx-text-input__input"
+                id="bookid"
+                name="bookid"
+                type="text"
+                placeholder="249146214"
+                onChange={(event) =>
+                  this.setState({ bookid: event.target.value })
+                }
+                required
+                aria-describedby="bid"
+              />
             </div>
-            <span className="input-group-addon helper" id="bid">
-              https://trove.nla.gov.au/newspaper/article/
-            </span>
-            <input
-              style={{ background: "#EFEFEF", border: "none" }}
-              id="bookid"
-              name="bookid"
-              type="text"
-              placeholder="249146214"
-              onChange={(event) =>
-                this.setState({ bookid: event.target.value })
-              }
-              required
-              className="form-control"
-              aria-describedby="bid"
-            />
           </>
         );
     }
@@ -189,10 +187,9 @@ export default class Books extends React.Component {
                 allowEscapeKey: false,
                 allowOutsideClick: false,
                 showCloseButton: true,
-                title:
-                  '<strong style="font-size: 22px;">Just a few more steps...</strong>',
+                title: '<h4">Just a few more steps...</h4>',
                 html:
-                  `<ol style="text-align: left; font-size: 16px; line-height: 1.5">` +
+                  `<ol style="text-align: left; font-size: 16px; line-height: 1.5;">` +
                   `<li>Go to this link: <a href = "${response.url}">${response.title}</a></li>` +
                   `<li>Enter the captcha.</li>` +
                   `<li>Enter the URL below (<i>https://books.googleusercontent.com/books/content?req=xxx</i>)</li>`,
@@ -290,277 +287,50 @@ export default class Books extends React.Component {
   render() {
     return (
       <React.Fragment>
-        <style jsx global>
-          {`
-            .main-content {
-              width: 100%;
-              min-eight: 70vh;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              padding: 3vw;
-            }
-            .card-container {
-              background-color: #efefef;
-              min-width: 100%;
-              min-height: fit-content;
-              border-radius: 1.5vh;
-              display: flex;
-              align-items: center;
-              flex-direction: column;
-              padding: 3vw;
-              word-wrap: break-all;
-            }
-            .image {
-              margin: 0 2vw 2vw 2vw;
-            }
-            .input-group-container {
-              background: transparent;
-              border: 0.35vh solid black;
-              border-radius: 0.5vh;
-              font-size: 1.8rem;
-              margin-bottom: 4vh;
-              height: fit-content;
-              margin-bottom: 4vh;
-            }
-            .input-block {
-              background: transparent;
-              border: 0.3vh solid black;
-              border-radius: 0.5vh;
-              padding: 0.5vh;
-              min-width: 16rem;
-              font-size: 1.3rem;
-              margin-bottom: 4vh;
-              height: fit-content;
-            }
-            .submit-button {
-              background: #3ec6ff !important;
-              color: black;
-              border: none;
-              text-transform: uppercase;
-              height: fit-content;
-              padding: 1.2vh 2vh;
-            }
-            .dynamic-input {
-              padding: 0;
-              background: #c4c4c4;
-              min-width: 32vw;
-            }
-            .left-floating-label {
-              position: absolute;
-              font-size: 1.25rem;
-              top: -1.25vh;
-              left: 1.7vw;
-              background-color: #efefef;
-              z-index: 100;
-            }
-            .right-floating-label {
-              position: absolute;
-              font-size: 1.25rem;
-              top: -1.3vh;
-              right: 7vw;
-              background-color: #efefef;
-              z-index: 100;
-            }
-            .helper {
-              padding: 1vh;
-              font-size: 1.3rem;
-              sbackground: transparent;
-              border: none;
-            }
-            select {
-              -webkit-appearance: none;
-              -moz-appearance: none;
-              appearance: none;
-              /* Add some styling */
-
-              display: block;
-              width: 100%;
-              max-width: 320px;
-              height: 50px;
-              margin: 5px 0px;
-              padding: 0px 24px;
-              font-size: 16px;
-              line-height: 1.75;
-              background-image: none;
-              border: 1px solid #cccccc;
-              -ms-word-break: normal;
-              word-break: normal;
-            }
-            .selector {
-              font: 1.6rem "Consolas", monospace;
-              color: black;
-              -webkit-transform: rotate(90deg);
-              -moz-transform: rotate(90deg);
-              -ms-transform: rotate(90deg);
-              transform: rotate(90deg);
-              right: 10px;
-              /*Adjust for position however you want*/
-
-              top: 0.9rem;
-              padding: 0 0 2px;
-
-              position: absolute;
-              pointer-events: none;
-            }
-            @media only screen and (min-width: 320px) and (max-width: 480px) {
-              .image {
-                margin: 2vw 5vw 5vw 5vw;
-              }
-              .right-floating-label {
-                right: unset;
-                left: 1.7vw;
-              }
-              .helper {
-                display: none;
-              }
-              .main-content {
-                padding: 5vw;
-              }
-              .selector {
-                font: 4vw "Consolas", monospace;
-                top: 3vw;
-              }
-            }
-            @media only screen and (min-width: 1440px) and (max-width: 1445px) {
-              .selector {
-                top: 1.1rem;
-                right: 15px;
-              }
-            }
-            @media only screen and (min-width: 1920px) and (max-width: 1925px) {
-              .selector {
-                top: 1.3rem;
-                right: 15px;
-              }
-            }
-
-            .lds-ellipsis {
-              display: inline-block;
-              position: relative;
-              width: 64px;
-              height: 64px;
-            }
-            .lds-ellipsis div {
-              position: absolute;
-              top: 27px;
-              width: 11px;
-              height: 11px;
-              border-radius: 50%;
-              background: #000;
-              animation-timing-function: cubic-bezier(0, 1, 1, 0);
-            }
-            .lds-ellipsis div:nth-child(1) {
-              left: 6px;
-              animation: lds-ellipsis1 0.6s infinite;
-            }
-            .lds-ellipsis div:nth-child(2) {
-              left: 6px;
-              animation: lds-ellipsis2 0.6s infinite;
-            }
-            .lds-ellipsis div:nth-child(3) {
-              left: 26px;
-              animation: lds-ellipsis2 0.6s infinite;
-            }
-            .lds-ellipsis div:nth-child(4) {
-              left: 45px;
-              animation: lds-ellipsis3 0.6s infinite;
-            }
-            @keyframes lds-ellipsis1 {
-              0% {
-                transform: scale(0);
-              }
-              100% {
-                transform: scale(1);
-              }
-            }
-            @keyframes lds-ellipsis3 {
-              0% {
-                transform: scale(1);
-              }
-              100% {
-                transform: scale(0);
-              }
-            }
-            @keyframes lds-ellipsis2 {
-              0% {
-                transform: translate(0, 0);
-              }
-              100% {
-                transform: translate(19px, 0);
-              }
-            }
-          `}
-        </style>
-        {this.state.loader ? (
-          <div className="lds-ellipsis">
-            <div />
-            <div />
-            <div />
-            <div />
+        <div className="main-content">
+          <h2>Book Uploader Bot</h2>
+          <div className="cdx-label">
+            <span className="cdx-label__description">
+              Upload books, newspapers, magazines etc. from public libraries to
+              Internet Archive
+            </span>
           </div>
-        ) : (
-          <div className="col-md-6 main-content">
-            <div className="card-container">
-              <div className="image">{bookIcon}</div>
-              <form onSubmit={this.onSubmit}>
-                <div
-                  style={{
-                    position: "relative",
-                    width: "fit-content",
-                    maxWidth: "-moz-fit-content",
-                  }}
-                >
-                  <div className="left-floating-label">Choose Library</div>
-                  <div className="selector">{">"}</div>
-                  <select
-                    className="input-block"
-                    value={this.state.option}
-                    id="option"
-                    name="option"
-                    required
-                    onChange={this.handleChange}
-                  >
-                    <option value="gb">Google Books</option>
-                    <option value="pn">Punjab Digital Library</option>
-                    <option value="trove">Trove Digital Library</option>
-                  </select>
-                </div>
-
-                {/* <h3>
-              2. Enter the {this.state.option === "gb" ? "ID" : "URI"} ({this.showExample()}){" "}
-              <span> *</span>
-            </h3> */}
-                <div className="input-group full-width input dynamic-input input-group-container">
-                  {this.renderContent(this.state.option)}
-                  <div className="input-group-btn">
-                    <button
-                      type="button"
-                      className="btn btn-default dropdown-toggle"
-                      data-toggle="dropdown"
-                      aria-haspopup="true"
-                      aria-expanded="false"
-                    >
-                      <span className="glyphicon glyphicon-question-sign" />
-                    </button>
-                    <div className="dropdown-menu well well-sm">
-                      <p>{this.showExample()}</p>
-                    </div>
-                  </div>
-                </div>
-                {/* <h3>3. Enter E-Mail</h3> */}
-                <div>
-                  <button
-                    className="btn btn-primary submit-button"
-                    type="submit"
-                  >
-                    Submit
-                  </button>
-                </div>
-              </form>
+          <form onSubmit={this.onSubmit}>
+            <div className="section">
+              <h4>1. Select a library</h4>
+              <select className="cdx-select" onChange={this.handleChange}>
+                <option value="gb" selected>
+                  Google Books
+                </option>
+                <option value="pn">Panjab Digital Library</option>
+                <option value="trove">Trove Digital Library</option>
+              </select>
             </div>
-          </div>
-        )}
+            <div className="section">
+              {this.renderContent(this.state.option)}
+            </div>
+            <div style={{ marginTop: 20 }}>
+              <button className="cdx-button cdx-button--action-progressive cdx-button--weight-primary">
+                Submit
+              </button>
+            </div>
+          </form>
+          {this.state.loader ? (
+            <div className="loader">
+              <span className="cdx-label__description">
+                Fetching information. Please wait..
+              </span>
+              <div
+                className="cdx-progress-bar cdx-progress-bar--inline"
+                role="progressbar"
+                aria-valuemin="0"
+                aria-valuemax="100"
+              >
+                <div className="cdx-progress-bar__bar" />
+              </div>
+            </div>
+          ) : null}
+        </div>
       </React.Fragment>
     );
   }
