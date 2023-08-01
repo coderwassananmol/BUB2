@@ -169,10 +169,9 @@ class Books extends React.Component {
     let url = "";
     switch (this.state.option) {
       case "gb":
-        url = `${host}/check?bookid=${this.state.bookid}&option=${
-          this.state.option +
+        url = `${host}/check?bookid=${this.state.bookid}&option=${this.state.option +
           (this.state.email ? "&email=" + this.state.email : "")
-        }`;
+          }`;
         fetch(url)
           .then((response) => response.json())
           .then(async (response) => {
@@ -248,10 +247,9 @@ class Books extends React.Component {
           const searchParams = new URL(this.state.bookid).searchParams;
           const ID = searchParams.get("ID");
           const categoryID = searchParams.get("CategoryID");
-          url = `${host}/check?bookid=${ID}&option=${
-            this.state.option +
+          url = `${host}/check?bookid=${ID}&option=${this.state.option +
             (this.state.email ? "&email=" + this.state.email : "")
-          }&categoryID=${categoryID}`;
+            }&categoryID=${categoryID}`;
           fetch(url)
             .then((res) => res.json())
             .then((response) => {
@@ -270,10 +268,9 @@ class Books extends React.Component {
         break;
 
       case "trove":
-        url = `${host}/check?bookid=${this.state.bookid}&option=${
-          this.state.option +
+        url = `${host}/check?bookid=${this.state.bookid}&option=${this.state.option +
           (this.state.email ? "&email=" + this.state.email : "")
-        }`;
+          }`;
         fetch(url)
           .then((res) => res.json())
           .then((response) => {
@@ -321,6 +318,11 @@ class Books extends React.Component {
             )}
             {!session && (
               <div style={{ marginTop: 20 }}>
+                <div className="cdx-label">
+                  <span className="cdx-label__description">
+                    Upload restricted. Login with Wikimedia Account to continue.
+                  </span>
+                </div>
                 <button
                   className="cdx-button"
                   style={{ padding: "1rem" }}

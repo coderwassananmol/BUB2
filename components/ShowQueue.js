@@ -17,7 +17,7 @@ const ShowQueue = ({ data, library }) => (
         }
       `}
     </style>
-    <a className="cdx-card cdx-card-custom cdx-card--is-link" href="#">
+    <span className="cdx-card cdx-card-custom">
       <span className="cdx-card__text">
         <span className="cdx-card__text__title">{library}</span>
         <span className="cdx-card__text__description">
@@ -36,7 +36,7 @@ const ShowQueue = ({ data, library }) => (
           Delayed: {data?.delayed}
         </span>
       </span>
-    </a>
+    </span>
   </div>
 );
 

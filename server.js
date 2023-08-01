@@ -98,7 +98,6 @@ app
         "GET"
       ).then((resp) => {
         if (resp && resp.response && resp.response.numFound) {
-          res.send;
           res.send({
             queueStats: queueStats,
             totalUploadedCount: resp.response.numFound,

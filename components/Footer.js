@@ -11,7 +11,7 @@ export default () => (
       `}
     </style>
     <footer className="footer">
-      <div className="text-center h4">
+      <div className="text-center h5">
         Made with <span className="cdx-css-icon--heart-icon"></span> for
         <a
           title='Logo and trademark of the Wikimedia Foundation, designed by Wikipedia user "Neolux" / CC BY-SA (https://creativecommons.org/licenses/by-sa/4.0)'
