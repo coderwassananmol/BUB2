@@ -1,8 +1,10 @@
 import React from "react";
 import Swal from "sweetalert2";
 import { host } from "../utils/constants";
+import { withSession } from "../hooks/withSession";
+import { signIn } from "next-auth/react";
 
-export default class Books extends React.Component {
+class Books extends React.Component {
   /**
    * @param {Object} props
    * @constructor
@@ -285,6 +287,7 @@ export default class Books extends React.Component {
   };
 
   render() {
+    const { data: session } = this.props.session;
     return (
       <React.Fragment>
         <div className="main-content">
@@ -309,11 +312,31 @@ export default class Books extends React.Component {
             <div className="section">
               {this.renderContent(this.state.option)}
             </div>
-            <div style={{ marginTop: 20 }}>
-              <button className="cdx-button cdx-button--action-progressive cdx-button--weight-primary">
-                Submit
-              </button>
-            </div>
+            {session && (
+              <div style={{ marginTop: 20 }}>
+                <button className="cdx-button cdx-button--action-progressive cdx-button--weight-primary">
+                  Submit
+                </button>
+              </div>
+            )}
+            {!session && (
+              <div style={{ marginTop: 20 }}>
+                <button
+                  className="cdx-button"
+                  style={{ padding: "1rem" }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    signIn("wikimedia");
+                  }}
+                >
+                  <span
+                    className="cdx-button__icon cdx-css-icon--wikimedia-icon"
+                    aria-hidden="true"
+                  ></span>
+                  Login with Wikimedia
+                </button>
+              </div>
+            )}
           </form>
           {this.state.loader ? (
             <div className="loader">
@@ -335,3 +358,7 @@ export default class Books extends React.Component {
     );
   }
 }
+
+const BooksWithSession = withSession(Books);
+
+export default BooksWithSession;

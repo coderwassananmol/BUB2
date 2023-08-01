@@ -1,0 +1,26 @@
+@import '@wikimedia/codex/dist/codex.style.css';
+@import (reference) "@wikimedia/codex-design-tokens/theme-wikimedia-ui.less";
+@import (reference) "@wikimedia/codex/mixins/css-icon.less";
+
+.cdx-css-icon--wikimedia-icon {
+	.cdx-mixin-css-icon(@cdx-icon-logo-wikimedia, @param-is-button-icon: true);
+	margin: 0 5px;
+}
+
+.cdx-css-icon--wikimedia-only-icon {
+	.cdx-mixin-css-icon(@cdx-icon-logo-wikimedia, @param-is-button-icon: false, @param-size-icon: @size-icon-small);
+	margin: 0 5px;
+}
+
+.cdx-css-icon--heart-icon {
+	.cdx-mixin-css-icon(@cdx-icon-heart, @param-is-button-icon: false, @param-size-icon: @size-icon-small);
+}
+
+.cdx-css-icon--logout-icon {
+	.cdx-mixin-css-icon(@cdx-icon-log-out, @param-is-button-icon: false, @param-size-icon: @size-icon-medium);
+}
+
+.cdx-css-icon--expand-icon {
+	.cdx-mixin-css-icon(@cdx-icon-expand, @param-is-button-icon: true, @param-size-icon: @size-icon-medium);
+	margin-left: 5px;
+}

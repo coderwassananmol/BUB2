@@ -1,7 +1,8 @@
 import Head from "next/head";
 // import global styles
-import "./../styles/global.css";
+import "./../styles/global.less";
 import Footer from "../components/Footer";
+import { SessionProvider } from "next-auth/react";
 
 function MyApp({ Component, pageProps }) {
   return (
@@ -184,7 +185,9 @@ function MyApp({ Component, pageProps }) {
           href="assets/apple-touch-icon.png"
         ></link>
       </Head>
-      <Component {...pageProps} />
+      <SessionProvider>
+        <Component {...pageProps} />
+      </SessionProvider>
       <Footer />
     </div>
   );

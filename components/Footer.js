@@ -1,17 +1,13 @@
 export default () => (
   <div>
     <footer>
-      <div className="text-center h5">
-        Made with ❤️ for
+      <div className="text-center h4">
+        Made with <span className="cdx-css-icon--heart-icon"></span> for
         <a
           title='Logo and trademark of the Wikimedia Foundation, designed by Wikipedia user "Neolux" / CC BY-SA (https://creativecommons.org/licenses/by-sa/4.0)'
           href="https://commons.wikimedia.org/wiki/File:Wikimedia_Foundation_Logo.png"
         >
-          <img
-            width="35"
-            alt="Wikimedia Foundation Logo"
-            src="https://upload.wikimedia.org/wikipedia/commons/5/56/Wikimedia_Foundation_Logo.png"
-          />
+          <span className="cdx-css-icon--wikimedia-only-icon"></span>
         </a>
         <div className="h5">
           License:
