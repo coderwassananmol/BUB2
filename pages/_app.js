@@ -12,8 +12,10 @@ function MyApp({ Component, pageProps }) {
           .main-content {
             width: 100%;
             min-height: 80vh;
-            display: block;
+            display: flex;
             padding: 3vw;
+            flex-flow: column;
+            flex-grow: 1;
           }
           .section {
             margin-top: 40px;

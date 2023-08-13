@@ -108,7 +108,7 @@ class Header extends Component {
                   </label>
                 </li>
               </Link>
-              <Link href="/faq">
+              {/* <Link href="/faq">
                 <li
                   id="form-tabs-3-label"
                   className="cdx-tabs__list__item"
@@ -122,7 +122,7 @@ class Header extends Component {
                     FAQ
                   </label>
                 </li>
-              </Link>
+              </Link> */}
             </ul>
             {session && (
               <div className="user-info__right">

@@ -51,7 +51,7 @@
     "loaders.css": "^0.1.2",
     "lodash": "^4.17.20",
     "next": "^12.2.5",
-    "next-auth": "^4.22.3",
+    "next-auth": "^4.15.1",
     "next-with-less": "^3.0.1",
     "node-fetch": "^2.2.1",
     "nodemailer": "^6.7.8",

@@ -6,6 +6,4 @@ export const withSession = (Component) => (props) => {
   if (Component.prototype.render) {
     return <Component session={session} {...props} />;
   }
-
-  throw new Error("Use `useSession` directly");
 };

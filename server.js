@@ -41,8 +41,8 @@ const {
   bookTitle,
   getPreviewLink,
   jobData,
+  checkForPublicDomain,
 } = require("./utils/helper.js");
-const { checkForPublicDomain } = require("./controller/GB");
 const GoogleBooksProducer = require("./bull/google-books-queue/producer");
 const PDLProducer = require("./bull/pdl-queue/producer");
 const TroveProducer = require("./bull/trove-queue/producer");
@@ -88,8 +88,23 @@ app
       const trove_queue = await config
         .getNewQueue("trove-queue")
         .getJobCounts();
-      const queryParams = { pdl_queue, google_books_queue, trove_queue };
-      res.send(queryParams);
+      const queueStats = {
+        pdl: pdl_queue,
+        gb: google_books_queue,
+        trove: trove_queue,
+      };
+      customFetch(
+        `https://archive.org/advancedsearch.php?q=bub.wikimedia+&rows=0&output=json`,
+        "GET"
+      ).then((resp) => {
+        if (resp && resp.response && resp.response.numFound) {
+          res.send;
+          res.send({
+            queueStats: queueStats,
+            totalUploadedCount: resp.response.numFound,
+          });
+        }
+      });
     });
 
     server.get("/getJobInformation", async (req, res) => {

@@ -1,6 +1,16 @@
 export default () => (
   <div>
-    <footer>
+    <style jsx>
+      {`
+        .footer {
+          width: 100%;
+          background-color: #f5f5f5;
+          position: absolute;
+          bottom: 0;
+        }
+      `}
+    </style>
+    <footer className="footer">
       <div className="text-center h4">
         Made with <span className="cdx-css-icon--heart-icon"></span> for
         <a
