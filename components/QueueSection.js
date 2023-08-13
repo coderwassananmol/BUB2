@@ -18,28 +18,22 @@ const QueueSection = ({ active, waiting }) => (
         }
       `}
     </style>
-    <a
-      className="cdx-card cdx-card-custom cdx-card--is-link"
-      href="https://www.example.com"
-    >
+    <span className="cdx-card cdx-card-custom">
       <span className="cdx-card__text">
         <span className="cdx-card__text__title">Current active</span>
         <span className="cdx-card__text__description">
           {active || "No active job"}
         </span>
       </span>
-    </a>
-    <a
-      className="cdx-card cdx-card-custom cdx-card--is-link"
-      href="https://www.example.com"
-    >
+    </span>
+    <span className="cdx-card cdx-card-custom">
       <span className="cdx-card__text">
         <span className="cdx-card__text__title">Next job</span>
         <span className="cdx-card__text__description">
           {waiting || "No waiting job"}
         </span>
       </span>
-    </a>
+    </span>
   </div>
 );
 

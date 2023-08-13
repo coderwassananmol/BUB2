@@ -461,6 +461,13 @@ app
       return handle(req, res);
     });
 
+    /**
+     * The express handler for default POST routes (for next-auth)
+     */
+    server.post("*", (req, res) => {
+      return handle(req, res);
+    });
+
     server.listen(PORT, (err) => {
       if (err) throw err;
       if (dev) {
