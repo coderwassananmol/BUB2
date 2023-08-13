@@ -1,7 +1,8 @@
 import Header from "../components/Header";
 import QueueSection from "../components/QueueSection";
+import QueueTable from "../components/QueueTable";
 import { queue_data_endpoint } from "../utils/constants";
-import { useEffect, useState, useRef } from "react";
+import { useState } from "react";
 
 const Queue = ({ data }) => {
   const [queueName, setQueueName] = useState("gb");
@@ -18,13 +19,14 @@ const Queue = ({ data }) => {
             <option value="gb" selected>
               Google Books
             </option>
-            <option value="pn">Panjab Digital Library</option>
+            <option value="pdl">Panjab Digital Library</option>
             <option value="trove">Trove Digital Library</option>
           </select>
           <QueueSection
             active={data[`${queueName}-queue`]["active"]}
-            waiting={data["gb-queue"]["waiting"]}
+            waiting={data[`${queueName}-queue`]["waiting"]}
           />
+          <QueueTable queue_name={queueName} />
         </div>
       </div>
     </div>

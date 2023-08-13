@@ -5,6 +5,11 @@ export const host =
 export const stats_data_endpoint = `${host}/getstats`;
 export const queue_data_endpoint = `${host}/getqueue`;
 export const queuelist_data_endpoint = `${host}/getqueuelist`;
+export const library = {
+  gb: "Google Books",
+  pdl: "Panjab Digital Library",
+  trove: "Trove Digital Library",
+};
 export const faq_data = [
   {
     que: "What is Book Uploader Bot?",

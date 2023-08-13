@@ -26,9 +26,6 @@ class Header extends Component {
             .marginTop {
               margin-top: 20px;
             }
-            .cdx-button__right {
-              margin-left: auto !important;
-            }
           `}
         </style>
         <div className="cdx-tabs">
@@ -89,7 +86,7 @@ class Header extends Component {
                   </label>
                 </li>
               </Link>
-              <Link href="/faq">
+              {/* <Link href="/faq">
                 <li
                   id="form-tabs-3-label"
                   className="cdx-tabs__list__item"
@@ -103,19 +100,8 @@ class Header extends Component {
                     FAQ
                   </label>
                 </li>
-              </Link>
+              </Link> */}
             </ul>
-            <a
-              className="cdx-button cdx-button__right cdx-button--fake-button cdx-button--fake-button--enabled cdx-button--action-progressive"
-              href="https://github.com/coderwassananmol/BUB2"
-              target="__blank"
-            >
-              <span
-                className="cdx-button__icon cdx-demo-css-icon--arrow-previous"
-                aria-hidden="true"
-              ></span>
-              Fork me on GitHub
-            </a>
           </div>
         </div>
       </div>
