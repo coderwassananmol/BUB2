@@ -17,7 +17,7 @@ A book uploader bot that transfers documents from public libraries such as Googl
     - [Start the server](#startTheServer)
 - [Example](#example)
 - [Contributing](#contributing)
-- [Request to Contribute](#requestToContribute)
+- [Request to Contribute](#request-to-contribute)
 - [Keep Supporting](#keepSupporting)
 - [License](#license)
 
