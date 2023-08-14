@@ -8,17 +8,17 @@ A book uploader bot that transfers documents from public libraries such as Googl
 
 # Table of Contents
 
-- [Getting Started](#gettingStarted)
+- [Getting Started](#getting-started)
   -  [Prerequisites](#prerequisites)
-  - [Local setup](#localSetup)
-    - [Clone the repo](#cloneTheRepo)
-    - [Set environment variables](#setEnvironmentVariables)
-  - [Run Redis server](#runRedisServer)
-    - [Start the server](#startTheServer)
+  - [Local setup](#local-setup)
+    - [Clone the repo](#clone-the-repo)
+    - [Set environment variables](#set-environment-variables)
+  - [Run Redis server](#run-redis-server)
+    - [Start the server](#start-the-server)
 - [Example](#example)
 - [Contributing](#contributing)
 - [Request to Contribute](#request-to-contribute)
-- [Keep Supporting](#keepSupporting)
+- [Keep Supporting](#keep-supporting)
 - [License](#license)
 
 <a id="gettingStarted"></a>
@@ -94,5 +94,3 @@ There was no Node.js wrapper available for Internet Archive, so I decided to wri
 [![license](https://img.shields.io/github/license/DAVFoundation/captain-n3m0.svg?style=flat-square)](https://github.com/coderwassananmol/BUB2/blob/develop/LICENSE.md)
  
  Please read [license](https://github.com/coderwassananmol/BUB2/blob/develop/LICENSE.md) for more information.
-## License
-See the [LICENSE](LICENSE.md) file for license rights and limitations (MIT).
