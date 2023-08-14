@@ -75,7 +75,7 @@ Please read [CONTRIBUTING.md](https://github.com/coderwassananmol/BUB2/blob/deve
 ## Request to Contribute
 1. Fork the repository.
 2. Clone the repository to your local system by using the command : `git clone "https://github.com/<YOUR_USERNAME>/BUB2"`. 
-3. The issues are maintained on [Phabricator[(https://phabricator.wikimedia.org/maniphest/?project=PHID-PROJ-wnkiea2sihld2xlpq527&statuses=open()&group=none&order=newest#R).
+3. The issues are maintained on [Phabricator]https://phabricator.wikimedia.org/maniphest/?project=PHID-PROJ-wnkiea2sihld2xlpq527&statuses=open()&group=none&order=newest#R).
 4. Assign an issue to yourself from Phabricator.
 5. Create a new branch and start working on the issue locally.
 6. Create a PULL REQUEST to merge your branch with the main branch and mention the Phab task in the description.
