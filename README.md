@@ -14,8 +14,6 @@ A book uploader bot that transfers documents from public libraries such as Googl
     - [Clone the repo](#cloneTheRepo)
     - [Set environment variables](#setEnvironmentVariables)
   - [Run Redis server](#runRedisServer)
-    - [Running Redis using Docker](#runningRedisUsingDocker)
-    - [Running Redis using Docker Compose](#runningRedisUsingDockerCompose)
     - [Start the server](#startTheServer)
 - [Example](#example)
 - [Contributing](#contributing)
