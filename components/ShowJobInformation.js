@@ -1,7 +1,5 @@
 import { useRouter } from "next/router";
 import { useEffect, useState, useRef } from "react";
-import Spinner from "../../../../components/Spinner";
-import Header from "../../../../components/Header";
 import _ from "lodash";
 import Card from "@material-ui/core/Card";
 import CardActionArea from "@material-ui/core/CardActionArea";
@@ -13,7 +11,7 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Link from "next/link";
 import { CircularProgress } from "@material-ui/core";
-import { host } from "../../../../utils/constants";
+import { host } from "../utils/constants";
 
 const ShowJobInformation = (props) => {
   const useStyles = makeStyles({
