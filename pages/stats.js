@@ -1,9 +1,10 @@
 import Header from "../components/Header";
-import Footer from "../components/Footer";
 import ShowQueue from "../components/ShowQueue";
 import fetch from "isomorphic-fetch";
 import UploadedItems from "../components/UploadedItems";
-import { stats_data_endpoint } from "../utils/constants";
+import { stats_data_endpoint, library } from "../utils/constants";
+import { useState } from "react";
+import Link from "next/link";
 
 const emptyObject = {
   waiting: 0,
@@ -12,120 +13,76 @@ const emptyObject = {
   completed: 0,
   delayed: 0,
 };
-
-const Stats = (props) => (
-  <div>
-    <Header page="stats" />
-    <style jsx>
-      {`
-        .stats-page {
-          background-color: #1da6e0;
-          margin: 0;
-          padding: 40px;
-        }
-        .card-container {
-          width: 100%;
-          display: flex;
-          text-align: center;
-          justify-content: space-around;
-          align-items: flex-end;
-          margin-bottom: 4vh;
-        }
-        .particular-card {
-          display: block;
-          width: 35%;
-        }
-        .card-title {
-          color: #ffffff;
-          font-family: Montserrat;
-          font-style: normal;
-          font-weight: bold;
-          font-size: 32px;
-          line-height: 40px;
-        }
-        @media only screen and (max-width: 575.98px) {
-          .card-container {
-            flex-direction: column;
-            margin-bottom: 2vh;
+const Stats = (props) => {
+  const [queueName, setQueueName] = useState("gb");
+  const onChange = (event) => {
+    setQueueName(event.target.value);
+  };
+  return (
+    <div>
+      <style jsx>
+        {`
+          .cdx-message__content {
+            color: #36c;
+            flex-grow: 0;
           }
-          .particular-card {
-            width: 98%;
-            margin-bottom: 30px;
+          .cdx-message {
+            margin-top: 20px;
+            flex-grow: 0.1;
+            justify-content: center;
+            align-items: center;
           }
-          .stats-page {
-            padding: 24px 16px;
-          }
-          .card-title {
-            font-size: 26px;
-            line-height: 32px;
-          }
-        }
-        @media only screen and (min-width: 576px) and (max-width: 767.98px) {
-          .card-container {
-            flex-direction: column;
-          }
-          .particular-card {
-            width: 95%;
-            margin-bottom: 30px;
-          }
-          .stats-page {
-            padding: 35px 25px;
-          }
-          .card-title {
-            font-size: 26px;
-          }
-        }
-        @media only screen and (min-width: 768px) and (max-width: 1200px) {
-          .particular-card {
-            width: 45%;
-          }
-          .stats-page {
-            padding: 35px 25px;
-          }
-          .card-title {
-            font-size: 26px;
-          }
-        }
-      `}
-    </style>
-    <div className="stats-page">
-      <div className="card-container">
-        <div className="particular-card">
-          <div className="card-title">
-            <p>Google Books Queue</p>
+        `}
+      </style>
+      <Header page="stats" />
+      <div>
+        <div className="container p-0">
+          <div className="main-content">
+            <h4>Select a Queue</h4>
+            <select className="cdx-select" onChange={onChange}>
+              <option value="gb" selected>
+                Google Books
+              </option>
+              <option value="pdl">Panjab Digital Library</option>
+              <option value="trove">Trove Digital Library</option>
+            </select>
+            <ShowQueue
+              data={
+                !props.data.queueStats
+                  ? emptyObject
+                  : props.data.queueStats[`${queueName}`]
+              }
+              library={library[queueName]}
+            />
+            <div
+              className="cdx-message cdx-message--block cdx-message--success"
+              aria-live="polite"
+            >
+              <span className="cdx-message__icon"></span>
+              <div className="cdx-message__content">
+                <Link href={"https://archive.org/details/@bub_wikimedia"}>
+                  <a target="_blank">
+                    {props.data.totalUploadedCount} books uploaded to Internet
+                    Archive using BUB2!
+                  </a>
+                </Link>
+              </div>
+            </div>
           </div>
-          <ShowQueue
-            data={!props.data ? emptyObject : props.data.google_books_queue}
-          />
-        </div>
-        <div className="particular-card">
-          <div className="card-title">
-            <p>Panjab Digital Library Queue</p>
-          </div>
-          <ShowQueue data={!props.data ? emptyObject : props.data.pdl_queue} />
-        </div>
-        <div className="particular-card">
-          <div className="card-title">
-            <p>Trove Digital Library Queue</p>
-          </div>
-          <ShowQueue
-            data={!props.data ? emptyObject : props.data.trove_queue}
-          />
         </div>
       </div>
-      <UploadedItems />
     </div>
-    <Footer />
-  </div>
-);
+  );
+};
 
-Stats.getInitialProps = async ({ query }, res) => {
+export async function getServerSideProps() {
   const resp = await fetch(stats_data_endpoint);
   if (resp.status !== 200) {
     return {};
   }
   const data = await resp.json();
-  return { data };
-};
+  return { props: { data } };
+  // Pass data to the page via props
+}
 
 export default Stats;
