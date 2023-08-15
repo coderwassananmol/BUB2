@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
+    "start-dev": "nodemon server.js",
     "build": "next build;",
     "start": "npm run build; NODE_ENV=production node server.js"
   },
@@ -51,7 +52,7 @@
     "loaders.css": "^0.1.2",
     "lodash": "^4.17.20",
     "next": "^12.2.5",
-    "next-auth": "^4.15.1",
+    "next-auth": "4.15.1",
     "next-with-less": "^3.0.1",
     "node-fetch": "^2.2.1",
     "nodemailer": "^6.7.8",
@@ -77,6 +78,7 @@
     "@wikimedia/codex-design-tokens": "^0.13.0",
     "husky": "^4.2.3",
     "lint-staged": "^10.0.9",
+    "nodemon": "^3.0.1",
     "prettier": "2.0.2"
   }
 }

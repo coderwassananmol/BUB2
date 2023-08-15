@@ -1,7 +1,22 @@
 version: '3'
 services:
-  redis:
-    image: redis
+  bub-redis:
+    container_name: bub-redis
+    image: redis:latest
     ports:
       - "6379:6379"
     restart: always
+  bub-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5000:5000"
+    restart: always
+    depends_on:
+      - bub-redis
+    volumes:
+      - .:/app
+      - /app/node_modules
+    env_file:
+      - .env
