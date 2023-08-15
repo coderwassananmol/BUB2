@@ -128,6 +128,12 @@ function MyApp({ Component, pageProps }) {
             position: absolute;
             pointer-events: none;
           }
+          .queue-container {
+            display: flex;
+          }
+          .search-container {
+            margin: 0 0 0 11vw;
+          }
           @media only screen and (min-width: 320px) and (max-width: 480px) {
             .image {
               margin: 2vw 5vw 5vw 5vw;
