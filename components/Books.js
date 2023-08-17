@@ -162,6 +162,12 @@ class Books extends React.Component {
 
   onSubmit = (event, userName) => {
     event.preventDefault();
+
+    if (!userName || userName === "") {
+      Swal("Error!", "Log in with Wikimedia to continue", "error");
+      return;
+    }
+
     this.setState({
       loader: true,
     });

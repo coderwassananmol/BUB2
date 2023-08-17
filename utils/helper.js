@@ -214,4 +214,11 @@ module.exports = {
       }
     }
   },
+
+  logUserData: (userName, libraryName) => {
+    logger.log({
+      level: "info",
+      message: `User ${userName} uploaded using ${libraryName}`,
+    });
+  },
 };

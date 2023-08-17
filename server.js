@@ -365,10 +365,6 @@ app
             message: "You will be mailed with the details soon!",
           });
           PDLProducer(bookid, categoryID, email, userName);
-          logger.log({
-            level: "info",
-            message: `User ${userName} uploaded using Panjab Digital Library`,
-          });
           // const isDuplicate = checkForDuplicatesFromIA(`bub_pn_${bookid}`);
           // isDuplicate.then(resp => {
           //   if (resp.response.numFound != 0) {
@@ -412,10 +408,6 @@ app
                 date,
               };
               TroveProducer(bookid, troveData, email, userName);
-              logger.log({
-                level: "info",
-                message: `User ${userName} uploaded using Trove`,
-              });
             }
           });
           break;
@@ -455,10 +447,6 @@ app
           message: "You will be mailed with the details soon!",
         });
         GoogleBooksProducer(req.body.url, GBdetails, emailaddr, authUserName);
-        logger.log({
-          level: "info",
-          message: `User ${authUserName} uploaded using Google books`,
-        });
       } else {
         res.send({
           error: true,
