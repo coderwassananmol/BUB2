@@ -34,6 +34,7 @@ const logger = winston.loggers.add("defaultLogger", {
 
 const handle = app.getRequestHandler();
 var emailaddr = "";
+var authUserName = "";
 const {
   customFetch,
   queueData,
@@ -333,8 +334,9 @@ app
 
     let GBdetails = {};
     server.get("/check", async (req, res) => {
-      const { bookid, option, email } = req.query;
+      const { bookid, option, email, userName } = req.query;
       emailaddr = email;
+      authUserName = userName;
       switch (option) {
         case "gb":
           customFetch(
@@ -362,7 +364,7 @@ app
             error: false,
             message: "You will be mailed with the details soon!",
           });
-          PDLProducer(bookid, categoryID, email);
+          PDLProducer(bookid, categoryID, email, userName);
           // const isDuplicate = checkForDuplicatesFromIA(`bub_pn_${bookid}`);
           // isDuplicate.then(resp => {
           //   if (resp.response.numFound != 0) {
@@ -405,7 +407,7 @@ app
                 troveUrl,
                 date,
               };
-              TroveProducer(bookid, troveData, email);
+              TroveProducer(bookid, troveData, email, userName);
             }
           });
           break;
@@ -444,7 +446,7 @@ app
           error: false,
           message: "You will be mailed with the details soon!",
         });
-        GoogleBooksProducer(req.body.url, GBdetails, emailaddr);
+        GoogleBooksProducer(req.body.url, GBdetails, emailaddr, authUserName);
       } else {
         res.send({
           error: true,

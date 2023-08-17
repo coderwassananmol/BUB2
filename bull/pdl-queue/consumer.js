@@ -6,6 +6,7 @@ const request = require("request");
 const _ = require("lodash");
 const winston = require("winston");
 const logger = winston.loggers.get("defaultLogger");
+const { logUserData } = require("./../../utils/helper");
 
 var JSZip = require("jszip");
 PDLQueue.on("active", (job, jobPromise) => {
@@ -88,7 +89,9 @@ async function uploadToIA(zip, metadata, byteLength, email, job) {
   const trueURI = `http://archive.org/details/${bucketTitle}`;
   const jobLogs = metadata;
   jobLogs["trueURI"] = trueURI;
+  jobLogs["userName"] = job.data.userName;
   job.log(JSON.stringify(jobLogs));
+  logUserData(jobLogs["userName"], "Panjab Digital Library");
   metadata = _.omit(metadata, "coverImage");
   let headers = setHeaders(metadata, byteLength, metadata.title);
   await zip.generateNodeStream({ type: "nodebuffer", streamFiles: true }).pipe(

@@ -4,6 +4,7 @@ const config = require("../../utils/bullconfig");
 const GoogleBooksQueue = config.getNewQueue("google-books-queue");
 const winston = require("winston");
 const logger = winston.loggers.get("defaultLogger");
+const { logUserData } = require("./../../utils/helper");
 
 let responseSize,
   dataSize = 0;
@@ -41,7 +42,9 @@ GoogleBooksQueue.process((job, done) => {
   const IAuri = `http://s3.us.archive.org/${bucketTitle}/${bucketTitle}.pdf`;
   const trueURI = `http://archive.org/details/${bucketTitle}`;
   jobLogs["trueURI"] = trueURI;
+  jobLogs["userName"] = job.data.userName;
   job.log(JSON.stringify(jobLogs));
+  logUserData(jobLogs["userName"], "Google Books");
   requestURI.pipe(
     request(
       {
