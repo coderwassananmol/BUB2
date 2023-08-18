@@ -92,6 +92,57 @@ const ShowUploadQueue = (props) => {
         </a>
       ),
     },
+    {
+      id: "userName",
+      label: "Username",
+      minWidth: 150,
+      align: "left",
+      format: (value) => (
+        <a
+          className={classes.id}
+          href={"https://meta.wikimedia.org/wiki/" + value}
+          target="_blank"
+        >
+          {value}
+        </a>
+      ),
+    },
+    {
+      id: "date",
+      label: "Date uploaded",
+      minWidth: 150,
+      align: "center",
+      format: (value) => {
+        const months = [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
+        ];
+        return (
+          value.split("-")[0] +
+          " " +
+          months[value.split("-")[1]] +
+          " " +
+          value.split("-")[2]
+        );
+      },
+    },
+    {
+      id: "time",
+      label: "Time uploaded",
+      minWidth: 130,
+      align: "center",
+      format: (value) => value,
+    },
     { id: "status", label: "Status", minWidth: 30, align: "left" },
     {
       id: "upload_progress",
@@ -125,6 +176,10 @@ const ShowUploadQueue = (props) => {
       return column.format(value);
     } else if (column.id === "title") {
       return column.format(row["id"], value);
+    } else if (column.id === "userName") {
+      return column.format("User:" + value);
+    } else if (column.id === "date") {
+      return column.format(value);
     } else {
       return value;
     }

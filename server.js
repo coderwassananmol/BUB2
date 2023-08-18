@@ -249,9 +249,18 @@ app
           .getJobs()
           .then((jobs) => {
             let filteredJobs = jobs.map((job) => {
+              let date = new Date(job.timestamp);
               return {
                 id: job.id,
                 title: _.get(job.data.details, bookTitle[req.query.queue_name]),
+                userName: job.data.userName,
+                date:
+                  date.getUTCDate() +
+                  "-" +
+                  date.getUTCMonth() +
+                  "-" +
+                  date.getUTCFullYear(),
+                time: date.getUTCHours() + ":" + date.getUTCMinutes() + " UTC",
                 upload_progress: job.progress(),
                 status: returnJobStatus(
                   job.failedReason,
