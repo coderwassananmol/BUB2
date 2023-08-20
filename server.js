@@ -249,9 +249,28 @@ app
           .getJobs()
           .then((jobs) => {
             let filteredJobs = jobs.map((job) => {
+              let date = new Date(job.timestamp);
               return {
                 id: job.id,
                 title: _.get(job.data.details, bookTitle[req.query.queue_name]),
+                userName: job.data.userName ? job.data.userName : "-",
+                timestamp:
+                  date.getUTCFullYear() +
+                  "-" +
+                  date
+                    .getUTCMonth()
+                    .toLocaleString(undefined, { minimumIntegerDigits: 2 }) +
+                  "-" +
+                  date
+                    .getUTCDate()
+                    .toLocaleString(undefined, { minimumIntegerDigits: 2 }) +
+                  " " +
+                  date.getUTCHours() +
+                  ":" +
+                  date
+                    .getUTCMinutes()
+                    .toLocaleString(undefined, { minimumIntegerDigits: 2 }) +
+                  " (UTC)",
                 upload_progress: job.progress(),
                 status: returnJobStatus(
                   job.failedReason,
