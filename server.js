@@ -257,13 +257,19 @@ app
                 timestamp:
                   date.getUTCFullYear() +
                   "-" +
-                  date.getUTCMonth() +
+                  date
+                    .getUTCMonth()
+                    .toLocaleString(undefined, { minimumIntegerDigits: 2 }) +
                   "-" +
-                  date.getUTCDate() +
+                  date
+                    .getUTCDate()
+                    .toLocaleString(undefined, { minimumIntegerDigits: 2 }) +
                   " " +
                   date.getUTCHours() +
                   ":" +
-                  date.getUTCMinutes() +
+                  date
+                    .getUTCMinutes()
+                    .toLocaleString(undefined, { minimumIntegerDigits: 2 }) +
                   " (UTC)",
                 upload_progress: job.progress(),
                 status: returnJobStatus(
