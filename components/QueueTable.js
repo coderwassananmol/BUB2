@@ -92,6 +92,27 @@ const ShowUploadQueue = (props) => {
         </a>
       ),
     },
+    {
+      id: "userName",
+      label: "Wiki Username",
+      minWidth: 150,
+      align: "left",
+      format: (value) =>
+        value !== "-" ? (
+          <a href={"https://meta.wikimedia.org/wiki/" + value} target="_blank">
+            {value}
+          </a>
+        ) : (
+          value
+        ),
+    },
+    {
+      id: "timestamp",
+      label: "Timestamp",
+      minWidth: 150,
+      align: "left",
+      format: (value) => value,
+    },
     { id: "status", label: "Status", minWidth: 30, align: "left" },
     {
       id: "upload_progress",
@@ -125,6 +146,10 @@ const ShowUploadQueue = (props) => {
       return column.format(value);
     } else if (column.id === "title") {
       return column.format(row["id"], value);
+    } else if (column.id === "userName") {
+      return column.format((value === "-" ? "" : "User:") + value);
+    } else if (column.id === "date") {
+      return column.format(value);
     } else {
       return value;
     }

@@ -160,8 +160,14 @@ class Books extends React.Component {
     return urlPattren.test(urlString);
   };
 
-  onSubmit = (event) => {
+  onSubmit = (event, userName) => {
     event.preventDefault();
+
+    if (!userName || userName === "") {
+      Swal("Error!", "Log in with Wikimedia to continue", "error");
+      return;
+    }
+
     this.setState({
       loader: true,
     });
@@ -169,9 +175,10 @@ class Books extends React.Component {
     let url = "";
     switch (this.state.option) {
       case "gb":
-        url = `${host}/check?bookid=${this.state.bookid}&option=${this.state.option +
+        url = `${host}/check?bookid=${this.state.bookid}&option=${
+          this.state.option +
           (this.state.email ? "&email=" + this.state.email : "")
-          }`;
+        }&userName=${userName}`;
         fetch(url)
           .then((response) => response.json())
           .then(async (response) => {
@@ -247,9 +254,10 @@ class Books extends React.Component {
           const searchParams = new URL(this.state.bookid).searchParams;
           const ID = searchParams.get("ID");
           const categoryID = searchParams.get("CategoryID");
-          url = `${host}/check?bookid=${ID}&option=${this.state.option +
+          url = `${host}/check?bookid=${ID}&option=${
+            this.state.option +
             (this.state.email ? "&email=" + this.state.email : "")
-            }&categoryID=${categoryID}`;
+          }&categoryID=${categoryID}&userName=${userName}`;
           fetch(url)
             .then((res) => res.json())
             .then((response) => {
@@ -268,9 +276,10 @@ class Books extends React.Component {
         break;
 
       case "trove":
-        url = `${host}/check?bookid=${this.state.bookid}&option=${this.state.option +
+        url = `${host}/check?bookid=${this.state.bookid}&option=${
+          this.state.option +
           (this.state.email ? "&email=" + this.state.email : "")
-          }`;
+        }&userName=${userName}`;
         fetch(url)
           .then((res) => res.json())
           .then((response) => {
@@ -295,7 +304,7 @@ class Books extends React.Component {
               Internet Archive
             </span>
           </div>
-          <form onSubmit={this.onSubmit}>
+          <form onSubmit={(e) => this.onSubmit(e, session.user.name)}>
             <div className="section">
               <h4>1. Select a library</h4>
               <select className="cdx-select" onChange={this.handleChange}>

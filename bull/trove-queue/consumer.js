@@ -6,6 +6,7 @@ const request = require("request");
 const _ = require("lodash");
 const winston = require("winston");
 const logger = winston.loggers.get("defaultLogger");
+const { logUserData } = require("./../../utils/helper");
 
 let responseSize,
   dataSize = 0;
@@ -45,7 +46,9 @@ TroveQueue.process((job, done) => {
         const IAuri = `http://s3.us.archive.org/${bucketTitle}/${bucketTitle}.pdf`;
         const trueURI = `http://archive.org/details/${bucketTitle}`;
         jobLogs["trueURI"] = trueURI;
+        jobLogs["userName"] = job.data.userName;
         job.log(JSON.stringify(jobLogs));
+        logUserData(jobLogs["userName"], "Trove");
         requestURI.pipe(
           request(
             {
