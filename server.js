@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 5000;
 const GB_KEY = process.env.GB_KEY;
 const trove_key = process.env.trove_key;
 const winston = require("winston");
-
+const cheerio = require("cheerio"); // Basically jQuery for node.js
 const app = next({
   dev,
 });
@@ -40,9 +40,13 @@ const {
   queueData,
   statusConfig,
   bookTitle,
+  userNameLocation,
   getPreviewLink,
   jobData,
   checkForPublicDomain,
+  checkIfFileExistsAtIA,
+  replaceTitle,
+  getPDLTitle,
 } = require("./utils/helper.js");
 const GoogleBooksProducer = require("./bull/google-books-queue/producer");
 const PDLProducer = require("./bull/pdl-queue/producer");
@@ -134,6 +138,7 @@ app
           if (job) {
             const queue_data = await queueData(job, queue);
             const progress = job.progress();
+            const jobState = await job.getState();
             const book_id = job.data.details.id || job.data.details.bookID;
             const categoryID = job.data.details.categoryID;
             const trueURI = _.get(queue_data, "trueURI");
@@ -154,7 +159,7 @@ app
               ),
               uploadStatus: {
                 uploadLink: progress === 100 && trueURI ? trueURI : "",
-                isUploaded: progress === 100 ? true : false,
+                isUploaded: jobState === "completed" ? true : false,
               },
             };
             res.send(
@@ -246,20 +251,31 @@ app
             throw "Invalid queue";
         }
         queue
-          .getJobs()
+          .getJobs([
+            "active",
+            "waiting",
+            "completed",
+            "failed",
+            "delayed",
+            "paused",
+          ])
           .then((jobs) => {
             let filteredJobs = jobs.map((job) => {
               let date = new Date(job.timestamp);
+              let userName = _.get(
+                job.data,
+                userNameLocation[req.query.queue_name]
+              );
               return {
-                id: job.id,
+                id: Number(job.id),
                 title: _.get(job.data.details, bookTitle[req.query.queue_name]),
-                userName: job.data.userName ? job.data.userName : "-",
+                userName: userName ? userName : "-",
                 timestamp:
                   date.getUTCFullYear() +
                   "-" +
-                  date
-                    .getUTCMonth()
-                    .toLocaleString(undefined, { minimumIntegerDigits: 2 }) +
+                  parseInt(date.getUTCMonth() + 1)
+                    .toString()
+                    .padStart(2, "0") +
                   "-" +
                   date
                     .getUTCDate()
@@ -279,7 +295,7 @@ app
                 ),
               };
             });
-            res.send(filteredJobs);
+            res.send(_.orderBy(filteredJobs, "id", "desc"));
           })
           .catch((err) => {
             res.send([]);
@@ -353,7 +369,7 @@ app
 
     let GBdetails = {};
     server.get("/check", async (req, res) => {
-      const { bookid, option, email, userName } = req.query;
+      const { bookid, option, email, userName, IAtitle } = req.query;
       emailaddr = email;
       authUserName = userName;
       switch (option) {
@@ -364,9 +380,29 @@ app
             new Headers({
               "Content-Type": "application/json",
             })
-          ).then((data) => {
+          ).then(async (data) => {
             const { error } = checkForPublicDomain(data, res);
-            if (!error) GBdetails = data;
+            if (!error) {
+              const titleInIA =
+                IAtitle.trim() !== ""
+                  ? replaceTitle(IAtitle.trim())
+                  : replaceTitle(data.volumeInfo.title);
+              if ((await checkIfFileExistsAtIA(titleInIA)) === true) {
+                res.send({
+                  isDuplicate: true,
+                  titleInIA,
+                });
+              } else {
+                GBdetails = data;
+                res.send({
+                  error: false,
+                  message: "In public domain.",
+                  url: data.accessInfo.pdf.downloadLink,
+                  title: data.volumeInfo.title,
+                  IAIdentifier: titleInIA,
+                });
+              }
+            }
           });
           break;
 
@@ -379,11 +415,36 @@ app
         case "pn":
           //Check for duplicates
           const { categoryID } = req.query;
-          res.send({
-            error: false,
-            message: "You will be mailed with the details soon!",
-          });
-          PDLProducer(bookid, categoryID, email, userName);
+          const uri = `http://www.panjabdigilib.org/webuser/searches/displayPage.jsp?ID=${bookid}&page=1&CategoryID=${categoryID}&Searched=W3GX`;
+          var options = {
+            uri,
+            transform: function (body) {
+              return cheerio.load(body);
+            },
+          };
+          const titleInIA =
+            IAtitle.trim() !== ""
+              ? replaceTitle(IAtitle.trim())
+              : replaceTitle(await getPDLTitle(options));
+          if (titleInIA === "") {
+            res.send({
+              error: true,
+              message: "Not able to fetch title.",
+            });
+          } else {
+            if ((await checkIfFileExistsAtIA(titleInIA)) === true) {
+              res.send({
+                isDuplicate: true,
+                titleInIA,
+              });
+            } else {
+              res.send({
+                error: false,
+                message: "You will be mailed with the details soon!",
+              });
+              PDLProducer(bookid, titleInIA, categoryID, email, authUserName);
+            }
+          }
           // const isDuplicate = checkForDuplicatesFromIA(`bub_pn_${bookid}`);
           // isDuplicate.then(resp => {
           //   if (resp.response.numFound != 0) {
@@ -405,28 +466,39 @@ app
             new Headers({
               "Content-Type": "application/json",
             })
-          ).then((data) => {
+          ).then(async (data) => {
             if (data === 404) {
               res.send({
                 error: true,
                 message: "Invalid Newspaper/Gazette ID",
               });
             } else {
-              res.send({
-                error: false,
-                message: "You will be mailed with the details soon!",
-              });
-              troveUrl = `https://trove.nla.gov.au/ndp/del/title/${data.article.title.id}`;
-              const id = _.get(data, "article.title.id");
               const name = _.get(data, "article.title.value");
-              const date = _.get(data, "article.date");
-              const troveData = {
-                id,
-                name,
-                troveUrl,
-                date,
-              };
-              TroveProducer(bookid, troveData, email, userName);
+              const titleInIA =
+                IAtitle.trim() !== ""
+                  ? replaceTitle(IAtitle.trim())
+                  : replaceTitle(name);
+              if ((await checkIfFileExistsAtIA(titleInIA)) === true) {
+                res.send({
+                  isDuplicate: true,
+                  titleInIA,
+                });
+              } else {
+                troveUrl = `https://trove.nla.gov.au/ndp/del/title/${data.article.title.id}`;
+                const id = _.get(data, "article.title.id");
+                const date = _.get(data, "article.date");
+                const troveData = {
+                  id,
+                  name,
+                  troveUrl,
+                  date,
+                };
+                res.send({
+                  error: false,
+                  message: "You will be mailed with the details soon!",
+                });
+                TroveProducer(bookid, titleInIA, troveData, email, userName);
+              }
             }
           });
           break;
@@ -465,7 +537,13 @@ app
           error: false,
           message: "You will be mailed with the details soon!",
         });
-        GoogleBooksProducer(req.body.url, GBdetails, emailaddr, authUserName);
+        GoogleBooksProducer(
+          req.body.url,
+          req.body.titleInIA,
+          GBdetails,
+          emailaddr,
+          authUserName
+        );
       } else {
         res.send({
           error: true,

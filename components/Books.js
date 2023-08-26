@@ -17,6 +17,10 @@ class Books extends React.Component {
       email: "",
       show: true,
       loader: false,
+      isDuplicate: false,
+      IATitle: "",
+      IAIdentifier: "",
+      inputDisabled: false,
     };
     this.onSubmit = this.onSubmit.bind(this);
   }
@@ -26,7 +30,14 @@ class Books extends React.Component {
    * @param {Object} event
    */
   handleChange = (event) => {
-    this.setState({ option: event.target.value });
+    this.setState({
+      option: event.target.value,
+      bookid: "",
+      isDuplicate: false,
+      IATitle: "",
+      IAIdentifier: "",
+      inputDisabled: false,
+    });
   };
 
   /**
@@ -81,6 +92,23 @@ class Books extends React.Component {
       });
   };
 
+  onResetButtonClicked = () => {
+    this.setState({
+      isDuplicate: false,
+      inputDisabled: false,
+      IATitle: "",
+      IAIdentifier: "",
+    });
+  };
+
+  onSwalClosed = () => {
+    this.setState({
+      inputDisabled: false,
+      IAIdentifier: "",
+      IATitle: "",
+    });
+  };
+
   renderContent = (option) => {
     switch (option) {
       case "gb":
@@ -97,6 +125,7 @@ class Books extends React.Component {
                 name="bookid"
                 type="text"
                 required
+                disabled={this.state.inputDisabled}
                 placeholder="At46AQAAMAAJ"
                 onChange={(event) =>
                   this.setState({ bookid: event.target.value })
@@ -117,6 +146,7 @@ class Books extends React.Component {
                 type="text"
                 id="bookid"
                 name="bookid"
+                disabled={this.state.inputDisabled}
                 onChange={(event) =>
                   this.setState({ bookid: event.target.value })
                 }
@@ -140,6 +170,7 @@ class Books extends React.Component {
                 id="bookid"
                 name="bookid"
                 type="text"
+                disabled={this.state.inputDisabled}
                 placeholder="249146214"
                 onChange={(event) =>
                   this.setState({ bookid: event.target.value })
@@ -170,6 +201,7 @@ class Books extends React.Component {
 
     this.setState({
       loader: true,
+      isDuplicate: false,
     });
 
     let url = "";
@@ -178,54 +210,64 @@ class Books extends React.Component {
         url = `${host}/check?bookid=${this.state.bookid}&option=${
           this.state.option +
           (this.state.email ? "&email=" + this.state.email : "")
-        }&userName=${userName}`;
+        }&userName=${userName}&IAtitle=${this.state.IAIdentifier}`;
         fetch(url)
           .then((response) => response.json())
           .then(async (response) => {
             this.setState({
               loader: false,
             });
-            if (response.error) {
-              Swal("Error!", response.message, "error");
-            } else {
-              const { value: url } = await Swal({
-                input: "url",
-                backdrop: true,
-                width: "50%",
-                allowEscapeKey: false,
-                allowOutsideClick: false,
-                showCloseButton: true,
-                title: '<h4">Just a few more steps...</h4>',
-                html:
-                  `<ol style="text-align: left; font-size: 16px; line-height: 1.5;">` +
-                  `<li>Go to this link: <a href = "${response.url}">${response.title}</a></li>` +
-                  `<li>Enter the captcha.</li>` +
-                  `<li>Enter the URL below (<i>https://books.googleusercontent.com/books/content?req=xxx</i>)</li>`,
+            if (response.isDuplicate) {
+              this.setState({
+                isDuplicate: true,
+                IATitle: response.titleInIA,
+                inputDisabled: true,
               });
-
-              if (url && typeof url !== "object") {
-                this.setState({
-                  loader: true,
+            } else {
+              if (response.error) {
+                Swal("Error!", response.message, "error");
+              } else {
+                const { value: url } = await Swal({
+                  input: "url",
+                  backdrop: true,
+                  width: "50%",
+                  allowEscapeKey: false,
+                  allowOutsideClick: false,
+                  showCloseButton: true,
+                  onClose: this.onSwalClosed,
+                  title: '<h4">Just a few more steps...</h4>',
+                  html:
+                    `<ol style="text-align: left; font-size: 16px; line-height: 1.5;">` +
+                    `<li>Go to this link: <a href = "${response.url}" target="_blank">${response.title}</a></li>` +
+                    `<li>Enter the captcha.</li>` +
+                    `<li>Enter the URL below (<i>https://books.googleusercontent.com/books/content?req=xxx</i>)</li>`,
                 });
-                fetch(`${host}/download`, {
-                  body: JSON.stringify({
-                    url: url,
-                  }),
-                  headers: {
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Origin": "*",
-                  },
-                  method: "POST",
-                })
-                  .then((response) => response.json())
-                  .then((response) => {
-                    this.setState({
-                      loader: false,
-                    });
-                    if (response.error)
-                      Swal("Error!", response.message, "error");
-                    else Swal("Voila!", response.message, "success");
+
+                if (url && typeof url !== "object") {
+                  this.setState({
+                    loader: true,
                   });
+                  fetch(`${host}/download`, {
+                    body: JSON.stringify({
+                      url: url,
+                      titleInIA: response.IAIdentifier,
+                    }),
+                    headers: {
+                      "Content-Type": "application/json",
+                      "Access-Control-Allow-Origin": "*",
+                    },
+                    method: "POST",
+                  })
+                    .then((response) => response.json())
+                    .then((response) => {
+                      this.setState({
+                        loader: false,
+                      });
+                      if (response.error)
+                        Swal("Error!", response.message, "error");
+                      else Swal("Voila!", response.message, "success");
+                    });
+                }
               }
             }
           });
@@ -257,15 +299,25 @@ class Books extends React.Component {
           url = `${host}/check?bookid=${ID}&option=${
             this.state.option +
             (this.state.email ? "&email=" + this.state.email : "")
-          }&categoryID=${categoryID}&userName=${userName}`;
+          }&categoryID=${categoryID}&userName=${userName}&IAtitle=${
+            this.state.IAIdentifier
+          }`;
           fetch(url)
             .then((res) => res.json())
             .then((response) => {
               this.setState({
                 loader: false,
               });
-              if (response.error) Swal("Error!", response.message, "error");
-              else Swal("Voila!", response.message, "success");
+              if (response.isDuplicate) {
+                this.setState({
+                  isDuplicate: true,
+                  IATitle: response.titleInIA,
+                  inputDisabled: true,
+                });
+              } else {
+                if (response.error) Swal("Error!", response.message, "error");
+                else Swal("Voila!", response.message, "success");
+              }
             });
         } else {
           this.setState({
@@ -279,15 +331,23 @@ class Books extends React.Component {
         url = `${host}/check?bookid=${this.state.bookid}&option=${
           this.state.option +
           (this.state.email ? "&email=" + this.state.email : "")
-        }&userName=${userName}`;
+        }&userName=${userName}&IAtitle=${this.state.IAIdentifier}`;
         fetch(url)
           .then((res) => res.json())
           .then((response) => {
             this.setState({
               loader: false,
             });
-            if (response.error) Swal("Error!", response.message, "error");
-            else Swal("Voila!", response.message, "success");
+            if (response.isDuplicate) {
+              this.setState({
+                isDuplicate: true,
+                IATitle: response.titleInIA,
+                inputDisabled: true,
+              });
+            } else {
+              if (response.error) Swal("Error!", response.message, "error");
+              else Swal("Voila!", response.message, "success");
+            }
           });
     }
   };
@@ -318,11 +378,55 @@ class Books extends React.Component {
             <div className="section">
               {this.renderContent(this.state.option)}
             </div>
+            {this.state.isDuplicate ? (
+              <div
+                class="cdx-message cdx-message--block cdx-message--warning"
+                aria-live="polite"
+                style={{ marginTop: "20px", display: "inline-block" }}
+              >
+                <span class="cdx-message__icon"></span>
+                <div class="cdx-message__content">
+                  A file with this identifier{" "}
+                  <a href={`https://archive.org/details/${this.state.IATitle}`}>
+                    (https://archive.org/{this.state.IATitle})
+                  </a>{" "}
+                  already exists at Internet Archive. Please enter a different
+                  identifier to proceed.
+                  <div className="cdx-text-input input-group">
+                    <span className="input-group-addon helper" id="bid">
+                      https://archive.org/details/
+                    </span>
+                    <input
+                      className="cdx-text-input__input"
+                      type="text"
+                      id="IAIdentifier"
+                      name="IAIdentifier"
+                      onChange={(event) =>
+                        this.setState({ IAIdentifier: event.target.value })
+                      }
+                      required
+                      placeholder="Enter unique file identifier"
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : null}
             {session && (
-              <div style={{ marginTop: 20 }}>
-                <button className="cdx-button cdx-button--action-progressive cdx-button--weight-primary">
-                  Submit
-                </button>
+              <div>
+                <div style={{ marginTop: 20, marginRight: 20 }}>
+                  <button className="cdx-button cdx-button--action-progressive cdx-button--weight-primary">
+                    Submit
+                  </button>
+                  {this.state.isDuplicate === true && (
+                    <button
+                      onClick={this.onResetButtonClicked}
+                      style={{ marginLeft: 40 }}
+                      className="cdx-button cdx-button--action-progressive cdx-button--weight-primary"
+                    >
+                      Reset
+                    </button>
+                  )}
+                </div>
               </div>
             )}
             {!session && (

@@ -4,7 +4,7 @@ const cheerio = require("cheerio"); // Basically jQuery for node.js
 require("./consumer");
 const { getPDLMetaData } = require("../../utils/helper.js");
 
-module.exports = async (bookid, categoryID, email, userName) => {
+module.exports = async (bookid, IAIdentifier, categoryID, email, userName) => {
   const uri = `http://www.panjabdigilib.org/webuser/searches/displayPage.jsp?ID=${bookid}&page=1&CategoryID=${categoryID}&Searched=W3GX`;
   var options = {
     uri,
@@ -17,6 +17,7 @@ module.exports = async (bookid, categoryID, email, userName) => {
 
   metaData["email"] = email;
   metaData["userName"] = userName;
+  metaData["IAIdentifier"] = IAIdentifier;
   const details = {
     details: metaData,
   };
