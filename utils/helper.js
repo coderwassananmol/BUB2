@@ -3,18 +3,26 @@ const fetch = require("isomorphic-fetch");
 const rp = require("request-promise");
 const _ = require("lodash");
 const winston = require("winston");
+const { truncate } = require("fs");
 const logger = winston.loggers.get("defaultLogger");
 
 module.exports = {
-  checkForDuplicatesFromIA: async (ID) => {
-    return fetch(
-      `https://archive.org/advancedsearch.php?q=${ID}&fl[]=identifier&output=json`
-    )
-      .then(
-        (res) => res.json(),
-        (err) => console.log(err)
-      )
-      .catch((err) => console.log(err));
+  checkIfFileExistsAtIA: async (ID) => {
+    const fetchCall = await fetch(`https://archive.org/metadata/${ID}`);
+    const resp = await fetchCall.json();
+    if (!_.isEmpty(resp)) {
+      if (_.has(resp, "metadata.uploader") === true) {
+        return resp.metadata.uploader !== "bub.wikimedia@gmail.com";
+      } else {
+        return true;
+      }
+    } else {
+      return false;
+    }
+  },
+
+  replaceTitle: (title) => {
+    return title.replace(/[ \(\)\[\],:]/g, "");
   },
 
   customFetch: async (URI, method = "GET", headers = new Headers()) => {
@@ -57,6 +65,12 @@ module.exports = {
     gb: "volumeInfo.title",
     pdl: "title",
     trove: "name",
+  },
+
+  userNameLocation: {
+    gb: "userName",
+    pdl: "details.userName",
+    trove: "details.userName",
   },
 
   jobData: (job, queue) => {
@@ -164,6 +178,15 @@ module.exports = {
     return PNdetails;
   },
 
+  getPDLTitle: async (cheerioOptions) => {
+    const $ = await rp(cheerioOptions);
+    return $(
+      "#Nanakshahi > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > table:nth-child(22) > tbody > tr:nth-child(3) > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr > td:nth-child(2) > div > table > tbody > tr:nth-child(1) > td > a"
+    )
+      .text()
+      .trim();
+  },
+
   getTroveMetaData: async (cheerioOptions) => {
     const $ = await rp(cheerioOptions);
     const issueRenditionId = $(".issueRendition")
@@ -201,12 +224,6 @@ module.exports = {
           error: true,
         };
       } else {
-        res.send({
-          error: false,
-          message: "In public domain.",
-          url: data.accessInfo.pdf.downloadLink,
-          title: data.volumeInfo.title,
-        });
         return {
           error: false,
           data,

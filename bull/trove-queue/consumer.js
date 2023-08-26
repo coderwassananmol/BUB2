@@ -41,12 +41,12 @@ TroveQueue.process((job, done) => {
           `https://trove.nla.gov.au/newspaper/rendition/nla.news-issue${job.data.details.issueRenditionId}.pdf?followup=${body}`
         );
         const jobLogs = job.data.details;
-        let { name, date, id, troveUrl } = job.data.details;
-        const bucketTitle = name.replace(/[ \(\)\[\],:]/g, "");
+        let { name, date, id, troveUrl, IAIdentifier } = job.data.details;
+        const bucketTitle = IAIdentifier;
         const IAuri = `http://s3.us.archive.org/${bucketTitle}/${bucketTitle}.pdf`;
         const trueURI = `http://archive.org/details/${bucketTitle}`;
         jobLogs["trueURI"] = trueURI;
-        jobLogs["userName"] = job.data.userName;
+        jobLogs["userName"] = job.data.details.userName;
         job.log(JSON.stringify(jobLogs));
         logUserData(jobLogs["userName"], "Trove");
         requestURI.pipe(
@@ -80,8 +80,7 @@ TroveQueue.process((job, done) => {
                   level: "error",
                   message: `IA Failure Trove ${body}`,
                 });
-                job.log(true);
-                done(null, false);
+                done(new Error(body));
                 //EmailProducer(job.data.details.email, name, trueURI, false);
               } else {
                 done(null, true);

@@ -38,7 +38,7 @@ GoogleBooksQueue.process((job, done) => {
     infoLink,
   } = volumeInfo;
   const { accessViewStatus } = accessInfo;
-  const bucketTitle = title.replace(/[ \(\)\[\],:]/g, "");
+  const bucketTitle = job.data.IAIdentifier;
   const IAuri = `http://s3.us.archive.org/${bucketTitle}/${bucketTitle}.pdf`;
   const trueURI = `http://archive.org/details/${bucketTitle}`;
   jobLogs["trueURI"] = trueURI;
@@ -78,7 +78,7 @@ GoogleBooksQueue.process((job, done) => {
             level: "error",
             message: `IA Failure GB ${body}`,
           });
-          done(null, false);
+          done(new Error(body));
           //EmailProducer(job.data.email, title, trueURI, false);
         } else {
           done(null, true);

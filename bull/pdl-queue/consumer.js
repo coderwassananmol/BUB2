@@ -84,14 +84,8 @@ function setHeaders(metadata, byteLength, title) {
 }
 
 async function uploadToIA(zip, metadata, byteLength, email, job) {
-  const bucketTitle = metadata.title.replace(/[ \(\)\[\],:]/g, "");
+  const bucketTitle = metadata.IAIdentifier;
   const IAuri = `http://s3.us.archive.org/${bucketTitle}/${bucketTitle}_images.zip`;
-  const trueURI = `http://archive.org/details/${bucketTitle}`;
-  const jobLogs = metadata;
-  jobLogs["trueURI"] = trueURI;
-  jobLogs["userName"] = job.data.userName;
-  job.log(JSON.stringify(jobLogs));
-  logUserData(jobLogs["userName"], "Panjab Digital Library");
   metadata = _.omit(metadata, "coverImage");
   let headers = setHeaders(metadata, byteLength, metadata.title);
   await zip.generateNodeStream({ type: "nodebuffer", streamFiles: true }).pipe(
@@ -119,6 +113,12 @@ async function uploadToIA(zip, metadata, byteLength, email, job) {
 }
 
 PDLQueue.process(async (job, done) => {
+  const jobLogs = job.data.details;
+  const trueURI = `http://archive.org/details/${job.data.details.IAIdentifier}`;
+  jobLogs["trueURI"] = trueURI;
+  jobLogs["userName"] = job.data.details.userName;
+  job.log(JSON.stringify(jobLogs));
+  logUserData(jobLogs["userName"], "Panjab Digital Library");
   const [zip, byteLength] = await getZipAndBytelength(
     job.data.details.Pages,
     job.data.details.bookID,
