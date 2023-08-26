@@ -273,9 +273,9 @@ app
                 timestamp:
                   date.getUTCFullYear() +
                   "-" +
-                  date
-                    .getUTCMonth()
-                    .toLocaleString(undefined, { minimumIntegerDigits: 2 }) +
+                  parseInt(date.getUTCMonth() + 1)
+                    .toString()
+                    .padStart(2, "0") +
                   "-" +
                   date
                     .getUTCDate()
