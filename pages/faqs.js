@@ -13,12 +13,6 @@ const Faqs = () => {
             overflow: auto;
             height: 70vh;
           }
-          .cdx-message {
-            margin-top: 20px;
-            flex-grow: 0.1;
-            justify-content: center;
-            align-items: center;
-          }
           .
         `}
       </style>
