@@ -54,7 +54,24 @@ Rename `.env.example` to `.env`. Then, to fill the credentials,
 - Go to [Google Developers console](https://console.developers.google.com/getting-started). Make a new project to run the app. In that Google Developers project, search for 'Books API' in the Google API console, then **enable** the API for the project, then generate the **API keys**, and then copy and paste the API key in the `GB_Key` field.
 - Fill the `redishost` field. If it's hosted locally, enter **127.0.0.1**, which is the default localhost.
 - Fill the `redisport` field with **6379**, which is the default port number for redis.
+- Steps to obtain the OAuth credentials :
 
+For the `WIKIMEDIA_CLIENT_ID` and `WIKIMEDIA_CLIENT_SECRET` fields, create an [OAuth consumer on beta-wiki](https://meta.wikimedia.beta.wmflabs.org/wiki/Special:OAuthConsumerRegistration). The steps for it are : 
+- Go to [Beta-wiki](https://meta.wikimedia.beta.wmflabs.org/wiki/Special:OAuthConsumerRegistration) and click **Request a token for a new OAuth 2.0 client**.
+- Fill out the details (Application name, details, callback url, and applicable grants). Refer [this](https://meta.wikimedia.beta.wmflabs.org/wiki/Special:OAuthListConsumers/view/e70de440468d7140914e4a57e3660cf2) as a sample.
+- After submitting, note the client application key and client application secret and wait for the proposed consumer to get **approved**.
+- Go to [this file](pages/api/auth/[...nextauth].js). 
+- Add the following code after the clientId and clientSecret :
+```
+token: "https://meta.wikimedia.beta.wmflabs.org/w/rest.php/oauth2/access_token",
+userinfo: "https://meta.wikimedia.beta.wmflabs.org/w/rest.php/oauth2/resource/profile",
+authorization: {
+url: "https://meta.wikimedia.beta.wmflabs.org/w/rest.php/oauth2/authorize",
+params: { scope: "" },
+}
+```
+- Fill the client application key and client application secret in the WIKIMEDIA_CLIENT_ID and WIKIMEDIA_CLIENT_SECRET respectively.
+- Fill the `NEXTAUTH_URL` with http://localhost:5000.
 <a id="runRedisServer"></a>
 ### Run Redis server
 
