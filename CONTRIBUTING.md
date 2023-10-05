@@ -39,6 +39,7 @@ You are required to fork this repository and make changes on the forked reposito
     ```
 ## How to raise a pull request
 - Create a Pull Request to merge your branch with the **develop branch** and mention the link to the **Phabricator ticket** you worked on in the description of the Pull Request.
+- Once the Pull Request is open, provide the link to it within the comments section of the respective **Phabricator task**, as illustrated in [this sample](https://phabricator.wikimedia.org/T344119).
 
 ## Code Reviews
 - All submissions should come in the form of a PR and it must be reviewed by at least one reviewer before it gets merged.
