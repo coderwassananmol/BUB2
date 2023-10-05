@@ -21,8 +21,28 @@ module.exports = {
     }
   },
 
+  isAlphanumeric: (title) => {
+    return /^[a-zA-Z0-9]+$/.test(title);
+  },
+
+  isTitleValid: (title) => {
+    return title.length <= 50 && isAlphanumeric(title);
+  },
+
   replaceTitle: (title) => {
     return title.replace(/[ \(\)\[\],:]/g, "");
+  },
+
+  generateIdentifier: (title) => {
+    const cleanedTitle = this.replaceTitle(title);
+
+    // Trim to maximum characters, i.e. 50
+    const slicedTitle = cleanedTitle.slice(0, 50);
+
+    // Make alphanumeric
+    const alphanumericIdentifier = slicedTitle.replace(/[^a-zA-Z0-9]/g, "");
+
+    return alphanumericIdentifier;
   },
 
   customFetch: async (URI, method = "GET", headers = new Headers()) => {
