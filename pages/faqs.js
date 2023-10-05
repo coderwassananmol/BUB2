@@ -20,7 +20,7 @@ const Faqs = () => {
       <div>
         <div className="container p-0">
           <div className="main-content">
-            <h4>Frequently ask questions</h4>
+            <h4>Frequently Asked Questions</h4>
             <div className="faq-container">
               <FaqsSection faqs_data={faq_data} />
             </div>
