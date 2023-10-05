@@ -3,34 +3,28 @@ import Swal from "sweetalert2";
 import { host } from "../utils/constants";
 import { withSession } from "../hooks/withSession";
 import { signIn } from "next-auth/react";
+import {useState} from 'react'
 
-class Books extends React.Component {
-  /**
-   * @param {Object} props
-   * @constructor
-   */
-  constructor(props) {
-    super(props);
-    this.state = {
-      option: "gb",
-      bookid: "",
-      email: "",
-      show: true,
-      loader: false,
-      isDuplicate: false,
-      IATitle: "",
-      IAIdentifier: "",
-      inputDisabled: false,
-    };
-    this.onSubmit = this.onSubmit.bind(this);
-  }
+function  Books ({ data: session }) {
+    const [state, setState] = useState({
+        option: "gb",
+        bookid: "",
+        email: "",
+        show: true,
+        loader: false,
+        isDuplicate: false,
+        IATitle: "",
+        IAIdentifier: "",
+        inputDisabled: false,
+      })
+
 
   /**
    * Change the `option` state when user selects a different library
    * @param {Object} event
    */
-  handleChange = (event) => {
-    this.setState({
+  const handleChange = (event) => {
+    setState({
       option: event.target.value,
       bookid: "",
       isDuplicate: false,
@@ -44,9 +38,9 @@ class Books extends React.Component {
    * Change the example when user selects a different library
    * @return {String}
    */
-  showExample = () => {
+  const showExample = () => {
     let url = "";
-    switch (this.state.option) {
+    switch (state.option) {
       case "gb":
         url = "https://books.google.co.in/books?id=At46AQAAMAAJ";
         break;
@@ -68,7 +62,7 @@ class Books extends React.Component {
    * Makes a request from Google Books API based on the entered book Id
    * If the book Id is not valid the request resolves with an error message
    */
-  validateGoogleBook = (enteredId) => {
+  const validateGoogleBook = (enteredId) => {
     let googleUrl = `https://www.googleapis.com/books/v1/volumes/${enteredId}`;
     fetch(googleUrl)
       .then((response) => response.json())
@@ -78,7 +72,7 @@ class Books extends React.Component {
         } else if (details.error) {
           alert("Please give a valid volume ID.");
         } else {
-          this.setState({
+          setState({
             bookid: details.id,
             bookTitle: details.volumeInfo.title,
             bookAuthors: details.volumeInfo.authors,
@@ -92,8 +86,9 @@ class Books extends React.Component {
       });
   };
 
-  onResetButtonClicked = () => {
-    this.setState({
+
+  const onResetButtonClicked = () => {
+    setState({
       isDuplicate: false,
       inputDisabled: false,
       IATitle: "",
@@ -101,15 +96,16 @@ class Books extends React.Component {
     });
   };
 
-  onSwalClosed = () => {
-    this.setState({
+  const onSwalClosed = () => {
+    setState({
       inputDisabled: false,
       IAIdentifier: "",
       IATitle: "",
     });
   };
 
-  renderContent = (option) => {
+
+  const renderContent = (option) => {
     switch (option) {
       case "gb":
         return (
@@ -125,10 +121,10 @@ class Books extends React.Component {
                 name="bookid"
                 type="text"
                 required
-                disabled={this.state.inputDisabled}
+                disabled={state.inputDisabled}
                 placeholder="At46AQAAMAAJ"
                 onChange={(event) =>
-                  this.setState({ bookid: event.target.value })
+                  setState({ bookid: event.target.value })
                 }
                 aria-describedby="bid"
               />
@@ -146,9 +142,9 @@ class Books extends React.Component {
                 type="text"
                 id="bookid"
                 name="bookid"
-                disabled={this.state.inputDisabled}
+                disabled={state.inputDisabled}
                 onChange={(event) =>
-                  this.setState({ bookid: event.target.value })
+                  setState({ bookid: event.target.value })
                 }
                 required
                 placeholder="http://www.panjabdigilib.org/webuser/searches/displayPage.jsp?ID=9073&page=1&CategoryID=1&Searched="
@@ -170,10 +166,10 @@ class Books extends React.Component {
                 id="bookid"
                 name="bookid"
                 type="text"
-                disabled={this.state.inputDisabled}
+                disabled={state.inputDisabled}
                 placeholder="249146214"
                 onChange={(event) =>
-                  this.setState({ bookid: event.target.value })
+                  setState({ bookid: event.target.value })
                 }
                 required
                 aria-describedby="bid"
@@ -184,14 +180,14 @@ class Books extends React.Component {
     }
   };
 
-  isPDLValidUrl = (urlString) => {
+  const isPDLValidUrl = (urlString) => {
     var urlPattren = new RegExp(
       "((http|https)\\:\\/\\/)(www.)?(panjabdigilib\\.org\\/webuser\\/searches\\/displayPage\\.jsp\\?ID\\=)([0-9]*)(\\&page\\=)([0-9]*)(\\&CategoryID\\=)([0-9]*)(\\&Searched\\=)([a-zA-Z0-9@:%._+~#?&//=]*)"
     );
     return urlPattren.test(urlString);
   };
 
-  onSubmit = (event, userName) => {
+  const onSubmit = (event, userName) => {
     event.preventDefault();
 
     if (!userName || userName === "") {
@@ -199,26 +195,26 @@ class Books extends React.Component {
       return;
     }
 
-    this.setState({
+    setState({
       loader: true,
       isDuplicate: false,
     });
 
     let url = "";
-    switch (this.state.option) {
+    switch (state.option) {
       case "gb":
-        url = `${host}/check?bookid=${this.state.bookid}&option=${
-          this.state.option +
-          (this.state.email ? "&email=" + this.state.email : "")
-        }&userName=${userName}&IAtitle=${this.state.IAIdentifier}`;
+        url = `${host}/check?bookid=${state.bookid}&option=${
+          state.option +
+          (state.email ? "&email=" + state.email : "")
+        }&userName=${userName}&IAtitle=${state.IAIdentifier}`;
         fetch(url)
           .then((response) => response.json())
           .then(async (response) => {
-            this.setState({
+            setState({
               loader: false,
             });
             if (response.isDuplicate) {
-              this.setState({
+              setState({
                 isDuplicate: true,
                 IATitle: response.titleInIA,
                 inputDisabled: true,
@@ -234,7 +230,7 @@ class Books extends React.Component {
                   allowEscapeKey: false,
                   allowOutsideClick: false,
                   showCloseButton: true,
-                  onClose: this.onSwalClosed,
+                  onClose: onSwalClosed,
                   title: '<h4">Just a few more steps...</h4>',
                   html:
                     `<ol style="text-align: left; font-size: 16px; line-height: 1.5;">` +
@@ -244,7 +240,7 @@ class Books extends React.Component {
                 });
 
                 if (url && typeof url !== "object") {
-                  this.setState({
+                  setState({
                     loader: true,
                   });
                   fetch(`${host}/download`, {
@@ -260,7 +256,7 @@ class Books extends React.Component {
                   })
                     .then((response) => response.json())
                     .then((response) => {
-                      this.setState({
+                      setState({
                         loader: false,
                       });
                       if (response.error)
@@ -273,43 +269,25 @@ class Books extends React.Component {
           });
         break;
 
-      // case "obp":
-      //   const IDobp = this.state.bookid;
-      //   const categoryObp = "";
-      //   url = `/check?bookid=${IDobp}&option=${
-      //     this.state.option +
-      //     (this.state.email ? "&email=" + this.state.email : "")
-      //   }&categoryID=${categoryObp}`;
-      //   fetch(url)
-      //     .then((res) => res.json())
-      //     .then((response) => {
-      //       this.setState({
-      //         loader: false,
-      //       });
-      //       if (response.error) Swal("Error!", response.message, "error");
-      //       else Swal("Voila!", response.message, "success");
-      //     });
-      //   break;
-
       case "pn":
-        if (this.isPDLValidUrl(this.state.bookid)) {
-          const searchParams = new URL(this.state.bookid).searchParams;
+        if (isPDLValidUrl(state.bookid)) {
+          const searchParams = new URL(state.bookid).searchParams;
           const ID = searchParams.get("ID");
           const categoryID = searchParams.get("CategoryID");
           url = `${host}/check?bookid=${ID}&option=${
-            this.state.option +
-            (this.state.email ? "&email=" + this.state.email : "")
+            state.option +
+            (state.email ? "&email=" + state.email : "")
           }&categoryID=${categoryID}&userName=${userName}&IAtitle=${
-            this.state.IAIdentifier
+            state.IAIdentifier
           }`;
           fetch(url)
             .then((res) => res.json())
             .then((response) => {
-              this.setState({
+              setState({
                 loader: false,
               });
               if (response.isDuplicate) {
-                this.setState({
+                  setState({
                   isDuplicate: true,
                   IATitle: response.titleInIA,
                   inputDisabled: true,
@@ -320,7 +298,7 @@ class Books extends React.Component {
               }
             });
         } else {
-          this.setState({
+          setState({
             loader: false,
           });
           Swal("Opps...", "Enter a valid URL", "error");
@@ -328,18 +306,18 @@ class Books extends React.Component {
         break;
 
       case "trove":
-        url = `${host}/check?bookid=${this.state.bookid}&option=${
-          this.state.option +
-          (this.state.email ? "&email=" + this.state.email : "")
-        }&userName=${userName}&IAtitle=${this.state.IAIdentifier}`;
+        url = `${host}/check?bookid=${state.bookid}&option=${
+          state.option +
+          (state.email ? "&email=" + state.email : "")
+        }&userName=${userName}&IAtitle=${state.IAIdentifier}`;
         fetch(url)
           .then((res) => res.json())
           .then((response) => {
-            this.setState({
+            setState({
               loader: false,
             });
             if (response.isDuplicate) {
-              this.setState({
+              setState({
                 isDuplicate: true,
                 IATitle: response.titleInIA,
                 inputDisabled: true,
@@ -352,8 +330,6 @@ class Books extends React.Component {
     }
   };
 
-  render() {
-    const { data: session } = this.props.session;
     return (
       <React.Fragment>
         <div className="main-content">
@@ -364,10 +340,10 @@ class Books extends React.Component {
               Internet Archive
             </span>
           </div>
-          <form onSubmit={(e) => this.onSubmit(e, session.user.name)}>
+          <form onSubmit={(e) => onSubmit(e, session.user.name)}>
             <div className="section">
               <h4>1. Select a library</h4>
-              <select className="cdx-select" onChange={this.handleChange}>
+              <select className="cdx-select" onChange={handleChange}>
                 <option value="gb" selected>
                   Google Books
                 </option>
@@ -376,9 +352,9 @@ class Books extends React.Component {
               </select>
             </div>
             <div className="section">
-              {this.renderContent(this.state.option)}
+              {renderContent(state.option)}
             </div>
-            {this.state.isDuplicate ? (
+            {state.isDuplicate ? (
               <div
                 class="cdx-message cdx-message--block cdx-message--warning"
                 aria-live="polite"
@@ -387,8 +363,8 @@ class Books extends React.Component {
                 <span class="cdx-message__icon"></span>
                 <div class="cdx-message__content">
                   A file with this identifier{" "}
-                  <a href={`https://archive.org/details/${this.state.IATitle}`}>
-                    (https://archive.org/{this.state.IATitle})
+                  <a href={`https://archive.org/details/${state.IATitle}`}>
+                    (https://archive.org/{state.IATitle})
                   </a>{" "}
                   already exists at Internet Archive. Please enter a different
                   identifier to proceed.
@@ -402,7 +378,7 @@ class Books extends React.Component {
                       id="IAIdentifier"
                       name="IAIdentifier"
                       onChange={(event) =>
-                        this.setState({ IAIdentifier: event.target.value })
+                        setState({ IAIdentifier: event.target.value })
                       }
                       required
                       placeholder="Enter unique file identifier"
@@ -417,9 +393,9 @@ class Books extends React.Component {
                   <button className="cdx-button cdx-button--action-progressive cdx-button--weight-primary">
                     Submit
                   </button>
-                  {this.state.isDuplicate === true && (
+                  {state.isDuplicate === true && (
                     <button
-                      onClick={this.onResetButtonClicked}
+                      onClick={onResetButtonClicked}
                       style={{ marginLeft: 40 }}
                       className="cdx-button cdx-button--action-progressive cdx-button--weight-primary"
                     >
@@ -453,7 +429,7 @@ class Books extends React.Component {
               </div>
             )}
           </form>
-          {this.state.loader ? (
+          {state.loader ? (
             <div className="loader">
               <span className="cdx-label__description">
                 Fetching information. Please wait..
@@ -472,7 +448,6 @@ class Books extends React.Component {
       </React.Fragment>
     );
   }
-}
 
 const BooksWithSession = withSession(Books);
 

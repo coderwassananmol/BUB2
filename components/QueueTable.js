@@ -10,7 +10,6 @@ import TableHead from "@material-ui/core/TableHead";
 import TablePagination from "@material-ui/core/TablePagination";
 import TableRow from "@material-ui/core/TableRow";
 import Backdrop from "@material-ui/core/Backdrop";
-import { host } from "../utils/constants";
 import ShowJobInformation from "../components/ShowJobInformation";
 
 const ShowUploadQueue = (props) => {
@@ -113,7 +112,12 @@ const ShowUploadQueue = (props) => {
       align: "left",
       format: (value) => value,
     },
-    { id: "status", label: "Status", minWidth: 30, align: "left" },
+    {
+      id: "status",
+      label: "Status",
+      minWidth: 30,
+      align: "left",
+    },
     {
       id: "upload_progress",
       label: "Upload Progress",
@@ -126,7 +130,7 @@ const ShowUploadQueue = (props) => {
   const [open, setOpen] = useState(false);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [rows, setRows] = useState([]);
+  const rows = props.tableData ? props.tableData : [];
 
   const handleClose = (e) => {
     setOpen(false);
@@ -156,13 +160,8 @@ const ShowUploadQueue = (props) => {
   };
 
   useEffect(() => {
-    if (props.queue_name)
-      fetch(`${host}/allJobs?queue_name=${props.queue_name}`)
-        .then((resp) => resp.json())
-        .then((resp) => {
-          setRows(resp);
-        });
-  }, [props.queue_name]);
+    setPage(0);
+  }, [props.isSearch]);
 
   return (
     <div>
@@ -175,7 +174,9 @@ const ShowUploadQueue = (props) => {
                   <TableCell
                     key={column.id}
                     align={column.align}
-                    style={{ minWidth: column.minWidth }}
+                    style={{
+                      minWidth: column.minWidth,
+                    }}
                     className={classes.head}
                   >
                     {column.label}
