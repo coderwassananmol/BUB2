@@ -445,7 +445,8 @@ class Books extends React.Component {
                   <button className="cdx-button cdx-button--action-progressive cdx-button--weight-primary">
                     Submit
                   </button>
-                  {this.state.isDuplicate === true && (
+                  {this.state.isDuplicate === true ||
+                  this.state.isEnglish === false ? (
                     <button
                       onClick={this.onResetButtonClicked}
                       style={{ marginLeft: 40 }}
@@ -453,7 +454,7 @@ class Books extends React.Component {
                     >
                       Reset
                     </button>
-                  )}
+                  ) : null}
                 </div>
               </div>
             )}
