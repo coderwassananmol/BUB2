@@ -37,6 +37,13 @@ GoogleBooksQueue.process((job, done) => {
     pageCount,
     infoLink,
   } = volumeInfo;
+  var isValidEnglishChar = /^[a-zA-Z0-9!@#$%^&*()_+{}\[\]:;<>,.?~\\/-\s]+$/;
+  const validEnglishTitle = isValidEnglishChar.test(title)
+    ? title
+    : "non english characters";
+  const validEnglishPublisher = isValidEnglishChar.test(publisher)
+    ? publisher
+    : "non english characters";
   const { accessViewStatus } = accessInfo;
   const bucketTitle = job.data.IAIdentifier;
   const IAuri = `http://s3.us.archive.org/${bucketTitle}/${bucketTitle}.pdf`;
@@ -59,13 +66,13 @@ GoogleBooksQueue.process((job, done) => {
           "X-Amz-Auto-Make-Bucket": "1",
           "X-Archive-Meta-Collection": "opensource",
           "X-Archive-Ignore-Preexisting-Bucket": 1,
-          "X-archive-meta-title": title.trim(),
+          "X-archive-meta-title": validEnglishTitle.trim(),
           "X-archive-meta-date": publishedDate.trim(),
           "X-archive-meta-language": language.trim(),
           "X-archive-meta-mediatype": "texts",
           "X-archive-meta-licenseurl":
             "https://creativecommons.org/publicdomain/mark/1.0/",
-          "X-archive-meta-publisher": publisher.trim(),
+          "X-archive-meta-publisher": validEnglishPublisher.trim(),
           "X-archive-meta-rights": accessViewStatus.trim(),
           "X-archive-meta-Google-id": id,
           "X-archive-meta-Identifier": `bub_gb_${id}`,

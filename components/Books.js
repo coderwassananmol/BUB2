@@ -18,6 +18,7 @@ class Books extends React.Component {
       show: true,
       loader: false,
       isDuplicate: false,
+      isEnglish: true,
       IATitle: "",
       IAIdentifier: "",
       inputDisabled: false,
@@ -34,6 +35,7 @@ class Books extends React.Component {
       option: event.target.value,
       bookid: "",
       isDuplicate: false,
+      isEnglish: true,
       IATitle: "",
       IAIdentifier: "",
       inputDisabled: false,
@@ -95,6 +97,7 @@ class Books extends React.Component {
   onResetButtonClicked = () => {
     this.setState({
       isDuplicate: false,
+      isEnglish: true,
       inputDisabled: false,
       IATitle: "",
       IAIdentifier: "",
@@ -202,9 +205,11 @@ class Books extends React.Component {
     this.setState({
       loader: true,
       isDuplicate: false,
+      isEnglish: true,
     });
 
     let url = "";
+    var isValidEnglishChar = /^[a-zA-Z0-9!@#$%^&*()_+{}\[\]:;<>,.?~\\/-\s]+$/;
     switch (this.state.option) {
       case "gb":
         url = `${host}/check?bookid=${this.state.bookid}&option=${
@@ -221,6 +226,12 @@ class Books extends React.Component {
               this.setState({
                 isDuplicate: true,
                 IATitle: response.titleInIA,
+                inputDisabled: true,
+              });
+            } else if (!isValidEnglishChar.test(response.IAIdentifier)) {
+              this.setState({
+                isEnglish: false,
+                IATitle: response.IAIdentifier,
                 inputDisabled: true,
               });
             } else {
@@ -314,6 +325,12 @@ class Books extends React.Component {
                   IATitle: response.titleInIA,
                   inputDisabled: true,
                 });
+              } else if (!isValidEnglishChar.test(response.IAIdentifier)) {
+                this.setState({
+                  isEnglish: false,
+                  IATitle: response.IAIdentifier,
+                  inputDisabled: true,
+                });
               } else {
                 if (response.error) Swal("Error!", response.message, "error");
                 else Swal("Voila!", response.message, "success");
@@ -342,6 +359,12 @@ class Books extends React.Component {
               this.setState({
                 isDuplicate: true,
                 IATitle: response.titleInIA,
+                inputDisabled: true,
+              });
+            } else if (!isValidEnglishChar.test(response.IAIdentifier)) {
+              this.setState({
+                isEnglish: false,
+                IATitle: response.IAIdentifier,
                 inputDisabled: true,
               });
             } else {
@@ -411,6 +434,38 @@ class Books extends React.Component {
                 </div>
               </div>
             ) : null}
+            {!this.state.isEnglish ? (
+              <div
+                class="cdx-message cdx-message--block cdx-message--warning"
+                aria-live="polite"
+                style={{ marginTop: "20px", display: "inline-block" }}
+              >
+                <span class="cdx-message__icon"></span>
+                <div class="cdx-message__content">
+                  The file you wish to upload has a non-english identifier -
+                  {this.state.IATitle} which may cause problems when uploading
+                  to internet archive. Please enter a valid English identifier
+                  to proceed.
+                  <div className="cdx-text-input input-group">
+                    <span className="input-group-addon helper" id="bid">
+                      https://archive.org/details/
+                    </span>
+                    <input
+                      className="cdx-text-input__input"
+                      type="text"
+                      id="IAIdentifier"
+                      name="IAIdentifier"
+                      onChange={(event) =>
+                        this.setState({ IAIdentifier: event.target.value })
+                      }
+                      required
+                      placeholder="Enter a valid English Identifier"
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
             {session && (
               <div>
                 <div style={{ marginTop: 20, marginRight: 20 }}>
