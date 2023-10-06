@@ -3,6 +3,7 @@ import Swal from "sweetalert2";
 import { host } from "../utils/constants";
 import { withSession } from "../hooks/withSession";
 import { signIn } from "next-auth/react";
+import ChangeIdentifier from "./ChangeIdentifier";
 
 class Books extends React.Component {
   /**
@@ -402,68 +403,40 @@ class Books extends React.Component {
               {this.renderContent(this.state.option)}
             </div>
             {this.state.isDuplicate ? (
-              <div
-                class="cdx-message cdx-message--block cdx-message--warning"
-                aria-live="polite"
-                style={{ marginTop: "20px", display: "inline-block" }}
-              >
-                <span class="cdx-message__icon"></span>
-                <div class="cdx-message__content">
-                  A file with this identifier{" "}
-                  <a href={`https://archive.org/details/${this.state.IATitle}`}>
-                    (https://archive.org/{this.state.IATitle})
-                  </a>{" "}
-                  already exists at Internet Archive. Please enter a different
-                  identifier to proceed.
-                  <div className="cdx-text-input input-group">
-                    <span className="input-group-addon helper" id="bid">
-                      https://archive.org/details/
-                    </span>
-                    <input
-                      className="cdx-text-input__input"
-                      type="text"
-                      id="IAIdentifier"
-                      name="IAIdentifier"
-                      onChange={(event) =>
-                        this.setState({ IAIdentifier: event.target.value })
-                      }
-                      required
-                      placeholder="Enter unique file identifier"
-                    />
-                  </div>
-                </div>
-              </div>
+              <ChangeIdentifier
+                description={
+                  <>
+                    A file with this identifier{" "}
+                    <a
+                      href={`https://archive.org/details/${this.state.IATitle}`}
+                    >
+                      (https://archive.org/{this.state.IATitle})
+                    </a>{" "}
+                    already exists at Internet Archive. Please enter a different
+                    identifier to proceed.
+                  </>
+                }
+                inputPlaceholder="Enter unique file identifier"
+                onIdentifierChange={(event) =>
+                  this.setState({ IAIdentifier: event.target.value })
+                }
+              />
             ) : null}
             {!this.state.isEnglish ? (
-              <div
-                class="cdx-message cdx-message--block cdx-message--warning"
-                aria-live="polite"
-                style={{ marginTop: "20px", display: "inline-block" }}
-              >
-                <span class="cdx-message__icon"></span>
-                <div class="cdx-message__content">
-                  The file you wish to upload has a non-english identifier -
-                  {this.state.IATitle} which may cause problems when uploading
-                  to internet archive. Please enter a valid English identifier
-                  to proceed.
-                  <div className="cdx-text-input input-group">
-                    <span className="input-group-addon helper" id="bid">
-                      https://archive.org/details/
-                    </span>
-                    <input
-                      className="cdx-text-input__input"
-                      type="text"
-                      id="IAIdentifier"
-                      name="IAIdentifier"
-                      onChange={(event) =>
-                        this.setState({ IAIdentifier: event.target.value })
-                      }
-                      required
-                      placeholder="Enter a valid English Identifier"
-                    />
-                  </div>
-                </div>
-              </div>
+              <ChangeIdentifier
+                description={
+                  <>
+                    The file you wish to upload has a non-english identifier -
+                    {this.state.IATitle} which may cause problems when uploading
+                    to internet archive. Please enter a valid English identifier
+                    to proceed.
+                  </>
+                }
+                inputPlaceholder="Enter a valid English Identifier"
+                onIdentifierChange={(event) =>
+                  this.setState({ IAIdentifier: event.target.value })
+                }
+              />
             ) : null}
 
             {session && (
