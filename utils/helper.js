@@ -105,6 +105,7 @@ module.exports = {
     let PNdetails = {};
     const keys = $(".ubhypers");
     const values = $(".dhypers");
+    const downloadLink = $("#downloadpdf a");
 
     function addOtherMetaData(limit, keys, values, PNdetails) {
       let value;
@@ -172,6 +173,12 @@ module.exports = {
     ).attr("src");
     src = src.match(/pdl.*/gm);
     PNdetails.coverImage = `http://panjabdigilib.org/${src}`;
+
+    //if download option is available, then add download uri to metadata
+    if (downloadLink.length) {
+      const downloadHref = downloadLink.attr("href");
+      PNdetails.uri = downloadHref;
+    }
 
     delete PNdetails[""];
 

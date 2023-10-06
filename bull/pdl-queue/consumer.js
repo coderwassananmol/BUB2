@@ -9,6 +9,9 @@ const logger = winston.loggers.get("defaultLogger");
 const { logUserData } = require("./../../utils/helper");
 
 var JSZip = require("jszip");
+let responseSize,
+  dataSize = 0;
+
 PDLQueue.on("active", (job, jobPromise) => {
   logger.log({
     level: "info",
@@ -57,12 +60,15 @@ async function getZipAndBytelength(no_of_pages, id, title, job) {
   return [zip, byteLength];
 }
 
-function setHeaders(metadata, byteLength, title) {
+function setHeaders(metadata, byteLength, title, contentType) {
   let headers = {};
   headers[
     "Authorization"
   ] = `LOW ${process.env.access_key}:${process.env.secret_key}`;
-  headers["Content-type"] = "application/zip";
+  headers["Content-type"] =
+    contentType === "zip"
+      ? "application/zip"
+      : "application/pdf; charset=utf-8";
   headers["Content-length"] = byteLength;
   headers["X-Amz-Auto-Make-Bucket"] = 1;
   headers["X-Archive-meta-collection"] = "opensource";
@@ -83,11 +89,11 @@ function setHeaders(metadata, byteLength, title) {
   return headers;
 }
 
-async function uploadToIA(zip, metadata, byteLength, email, job) {
+async function uploadZipToIA(zip, metadata, byteLength, email, job) {
   const bucketTitle = metadata.IAIdentifier;
   const IAuri = `http://s3.us.archive.org/${bucketTitle}/${bucketTitle}_images.zip`;
   metadata = _.omit(metadata, "coverImage");
-  let headers = setHeaders(metadata, byteLength, metadata.title);
+  let headers = setHeaders(metadata, byteLength, metadata.title, zip);
   await zip.generateNodeStream({ type: "nodebuffer", streamFiles: true }).pipe(
     request(
       {
@@ -112,6 +118,46 @@ async function uploadToIA(zip, metadata, byteLength, email, job) {
   );
 }
 
+async function uploadPdfToIA(uri, metadata, email, job) {
+  const requestURI = request(job.data.uri);
+  const bucketTitle = metadata.IAIdentifier;
+  const IAuri = `http://s3.us.archive.org/${bucketTitle}/${bucketTitle}.pdf`;
+  let headers = setHeaders(metadata, responseSize, metadata.title, pdf);
+  requestURI.pipe(
+    request(
+      {
+        method: "PUT",
+        preambleCRLF: true,
+        postambleCRLF: true,
+        uri: IAuri,
+        headers: headers,
+      },
+      async (error, response, body) => {
+        if (error || response.statusCode != 200) {
+          logger.log({
+            level: "error",
+            message: `IA Failure PDL ${body}`,
+          });
+          done(new Error(body));
+          //EmailProducer(email, metadata.title, trueURI, false);
+        } else {
+          done(null, true);
+          //EmailProducer(email, metadata.title, trueURI, true);
+        }
+      }
+    )
+  );
+  requestURI.on("response", function (data) {
+    responseSize = Number(data.headers["content-length"]);
+    dataSize = 0;
+  });
+  requestURI.on("data", function (chunk) {
+    dataSize += Number(chunk.length);
+    const progress = Math.round((dataSize / responseSize) * 100);
+    if (progress !== null) job.progress(progress);
+  });
+}
+
 PDLQueue.process(async (job, done) => {
   const jobLogs = job.data.details;
   const trueURI = `http://archive.org/details/${job.data.details.IAIdentifier}`;
@@ -119,20 +165,31 @@ PDLQueue.process(async (job, done) => {
   jobLogs["userName"] = job.data.details.userName;
   job.log(JSON.stringify(jobLogs));
   logUserData(jobLogs["userName"], "Panjab Digital Library");
-  const [zip, byteLength] = await getZipAndBytelength(
-    job.data.details.Pages,
-    job.data.details.bookID,
-    job.data.details.title,
-    job
-  );
-  job.progress(90);
-  await uploadToIA(
-    zip,
-    job.data.details,
-    byteLength,
-    job.data.details.email,
-    job
-  );
-  job.progress(100);
-  done(null, true);
+
+  //if download pdf uri is present, stream the pdf directly to IA instead of creating zip
+  if (job.data.details.uri) {
+    await uploadPdfToIA(
+      job.data.details.uri,
+      job.data.details,
+      job.data.details.email,
+      job
+    );
+  } else {
+    const [zip, byteLength] = await getZipAndBytelength(
+      job.data.details.Pages,
+      job.data.details.bookID,
+      job.data.details.title,
+      job
+    );
+    job.progress(90);
+    await uploadZipToIA(
+      zip,
+      job.data.details,
+      byteLength,
+      job.data.details.email,
+      job
+    );
+    job.progress(100);
+    done(null, true);
+  }
 });
