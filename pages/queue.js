@@ -28,7 +28,8 @@ const Queue = ({ data }) => {
       return (
         item.title.toLowerCase().includes(searchParam) ||
         item.userName.toLowerCase().includes(searchParam) ||
-        item.status.toLowerCase().includes(searchParam)
+        item.status.toLowerCase().includes(searchParam) ||
+        item.id.toString().includes(searchParam)
       );
     });
     setSearchResult(filteredData);
@@ -79,7 +80,7 @@ const Queue = ({ data }) => {
                     onChange={(e) => onSearch(e)}
                     className="cdx-text-input__input"
                     type="search"
-                    placeholder="Search By Book Title , Username , or Status"
+                    placeholder="Search By Job ID , Book Title , Username , or Status"
                     style={{
                       height: "48px",
                       width: "100%",
