@@ -177,7 +177,7 @@ module.exports = {
     //if download option is available, then add download uri to metadata
     if (downloadLink.length) {
       const downloadHref = downloadLink.attr("href");
-      PNdetails.uri = downloadHref;
+      PNdetails.uri = `http://www.panjabdigilib.org/webuser/searches/${downloadHref}`;
     }
 
     delete PNdetails[""];
