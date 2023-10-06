@@ -8,15 +8,6 @@ export const authOptions = {
     WikimediaProvider({
       clientId: process.env.WIKIMEDIA_CLIENT_ID,
       clientSecret: process.env.WIKIMEDIA_CLIENT_SECRET,
-      token:
-        "https://meta.wikimedia.beta.wmflabs.org/w/rest.php/oauth2/access_token",
-      userinfo:
-        "https://meta.wikimedia.beta.wmflabs.org/w/rest.php/oauth2/resource/profile",
-      authorization: {
-        url:
-          "https://meta.wikimedia.beta.wmflabs.org/w/rest.php/oauth2/authorize",
-        params: { scope: "" },
-      },
     }),
   ],
   session: {
