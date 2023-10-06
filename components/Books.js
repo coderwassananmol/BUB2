@@ -3,6 +3,8 @@ import Swal from "sweetalert2";
 import { host } from "../utils/constants";
 import { withSession } from "../hooks/withSession";
 import { signIn } from "next-auth/react";
+import InputIdentifier from "./InputIdentifier";
+import { checkIdentifierValidity } from "../utils/helper";
 
 class Books extends React.Component {
   /**
@@ -18,6 +20,7 @@ class Books extends React.Component {
       show: true,
       loader: false,
       isDuplicate: false,
+      isValidIdentifier: true,
       IATitle: "",
       IAIdentifier: "",
       inputDisabled: false,
@@ -34,6 +37,7 @@ class Books extends React.Component {
       option: event.target.value,
       bookid: "",
       isDuplicate: false,
+      isValidIdentifier: true,
       IATitle: "",
       IAIdentifier: "",
       inputDisabled: false,
@@ -95,6 +99,7 @@ class Books extends React.Component {
   onResetButtonClicked = () => {
     this.setState({
       isDuplicate: false,
+      isValidIdentifier: true,
       inputDisabled: false,
       IATitle: "",
       IAIdentifier: "",
@@ -202,6 +207,7 @@ class Books extends React.Component {
     this.setState({
       loader: true,
       isDuplicate: false,
+      isValidIdentifier: true,
     });
 
     let url = "";
@@ -220,6 +226,12 @@ class Books extends React.Component {
             if (response.isDuplicate) {
               this.setState({
                 isDuplicate: true,
+                IATitle: response.titleInIA,
+                inputDisabled: true,
+              });
+            } else if (!checkIdentifierValidity(response.IAIdentifier)) {
+              this.setState({
+                isValidIdentifier: false,
                 IATitle: response.titleInIA,
                 inputDisabled: true,
               });
@@ -314,6 +326,12 @@ class Books extends React.Component {
                   IATitle: response.titleInIA,
                   inputDisabled: true,
                 });
+              } else if (!checkIdentifierValidity(response.IAIdentifier)) {
+                this.setState({
+                  isValidIdentifier: false,
+                  IATitle: response.titleInIA,
+                  inputDisabled: true,
+                });
               } else {
                 if (response.error) Swal("Error!", response.message, "error");
                 else Swal("Voila!", response.message, "success");
@@ -341,6 +359,12 @@ class Books extends React.Component {
             if (response.isDuplicate) {
               this.setState({
                 isDuplicate: true,
+                IATitle: response.titleInIA,
+                inputDisabled: true,
+              });
+            } else if (!checkIdentifierValidity(response.IAIdentifier)) {
+              this.setState({
+                isValidIdentifier: false,
                 IATitle: response.titleInIA,
                 inputDisabled: true,
               });
@@ -379,37 +403,39 @@ class Books extends React.Component {
               {this.renderContent(this.state.option)}
             </div>
             {this.state.isDuplicate ? (
-              <div
-                class="cdx-message cdx-message--block cdx-message--warning"
-                aria-live="polite"
-                style={{ marginTop: "20px", display: "inline-block" }}
-              >
-                <span class="cdx-message__icon"></span>
-                <div class="cdx-message__content">
-                  A file with this identifier{" "}
-                  <a href={`https://archive.org/details/${this.state.IATitle}`}>
-                    (https://archive.org/{this.state.IATitle})
-                  </a>{" "}
-                  already exists at Internet Archive. Please enter a different
-                  identifier to proceed.
-                  <div className="cdx-text-input input-group">
-                    <span className="input-group-addon helper" id="bid">
-                      https://archive.org/details/
-                    </span>
-                    <input
-                      className="cdx-text-input__input"
-                      type="text"
-                      id="IAIdentifier"
-                      name="IAIdentifier"
-                      onChange={(event) =>
-                        this.setState({ IAIdentifier: event.target.value })
-                      }
-                      required
-                      placeholder="Enter unique file identifier"
-                    />
-                  </div>
-                </div>
-              </div>
+              <InputIdentifier
+                errorDescription={
+                  <>
+                    A file with this identifier{" "}
+                    <a
+                      href={`https://archive.org/details/${this.state.IATitle}`}
+                    >
+                      (https://archive.org/{this.state.IATitle})
+                    </a>{" "}
+                    already exists at Internet Archive. Please enter a different
+                    identifier to proceed.
+                  </>
+                }
+                placeholder="Enter unique file identifier"
+                onChange={(event) =>
+                  this.setState({ IAIdentifier: event.target.value })
+                }
+              />
+            ) : null}
+            {this.state.isValidIdentifier ? (
+              <InputIdentifier
+                errorDescription={
+                  <>
+                    Invalid Identifier - {this.state.IATitle} The provided
+                    identifier exceeds 50 characters and/or is not alphanumeric.
+                    Please enter a valid identifier to proceed.
+                  </>
+                }
+                placeholder="Enter valid identifier"
+                onChange={(event) =>
+                  this.setState({ IAIdentifier: event.target.value })
+                }
+              />
             ) : null}
             {session && (
               <div>

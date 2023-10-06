@@ -47,8 +47,6 @@ const {
   checkIfFileExistsAtIA,
   replaceTitle,
   getPDLTitle,
-  isTitleValid,
-  generateIdentifier,
 } = require("./utils/helper.js");
 const GoogleBooksProducer = require("./bull/google-books-queue/producer");
 const PDLProducer = require("./bull/pdl-queue/producer");
@@ -385,13 +383,10 @@ app
           ).then(async (data) => {
             const { error } = checkForPublicDomain(data, res);
             if (!error) {
-              const trimmedTitle =
+              const titleInIA =
                 IAtitle.trim() !== ""
                   ? replaceTitle(IAtitle.trim())
                   : replaceTitle(data.volumeInfo.title);
-              const titleInIA = isTitleValid(trimmedTitle)
-                ? trimmedTitle
-                : generateIdentifier(trimmedTitle);
               if ((await checkIfFileExistsAtIA(titleInIA)) === true) {
                 res.send({
                   isDuplicate: true,
