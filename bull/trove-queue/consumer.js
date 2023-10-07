@@ -25,13 +25,6 @@ TroveQueue.on("completed", (job, result) => {
   });
 });
 
-TroveQueue.on("failed", (job, err) => {
-  logger.log({
-    level: "error",
-    message: `Consumer(next): Job ${job.id} failed with error: ${err.message}`,
-  });
-});
-
 TroveQueue.process((job, done) => {
   const currentTimestamp = Date.now();
   request(

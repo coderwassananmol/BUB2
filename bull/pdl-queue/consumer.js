@@ -23,13 +23,6 @@ PDLQueue.on("completed", (job, result) => {
   });
 });
 
-PDLQueue.on("failed", (job, err) => {
-  logger.log({
-    level: "error",
-    message: `Consumer(next): Job ${job.id} failed with error: ${err.message}`,
-  });
-});
-
 async function getZipAndBytelength(no_of_pages, id, title, job) {
   var zip = new JSZip();
   title = title.replace(/ /g, "_");
