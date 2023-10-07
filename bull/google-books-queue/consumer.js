@@ -21,6 +21,17 @@ GoogleBooksQueue.on("completed", (job, result) => {
     level: "info",
     message: `Consumer(next): Job ${job.id} completed! Result: ${result}`,
   });
+  const { email, title, trueURI } = job.data;
+  EmailProducer(email, title, trueURI, true);
+});
+
+GoogleBooksQueue.on("failed", (job, err) => {
+  logger.log({
+    level: "error",
+    message: `Consumer(next): Job ${job.id} failed with error: ${err.message}`,
+  });
+  const { email, title, trueURI } = job.data;
+  EmailProducer(email, title, trueURI, false);
 });
 
 GoogleBooksQueue.process((job, done) => {
