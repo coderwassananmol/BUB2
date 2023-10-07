@@ -7,7 +7,6 @@ const _ = require("lodash");
 const winston = require("winston");
 const logger = winston.loggers.get("defaultLogger");
 const { logUserData } = require("./../../utils/helper");
-const mediawikiEmail = require("./../../utils/mediawikiEmail");
 
 var JSZip = require("jszip");
 PDLQueue.on("active", (job, jobPromise) => {
@@ -22,10 +21,6 @@ PDLQueue.on("completed", (job, result) => {
     level: "info",
     message: `Consumer(next): Job ${job.id} completed! Result: ${result}`,
   });
-  mediawikiEmail(
-    job.data.userName,
-    "Status Update - Your PDL has been successfully uploaded to internet archive"
-  );
 });
 
 PDLQueue.on("failed", (job, err) => {
@@ -33,10 +28,6 @@ PDLQueue.on("failed", (job, err) => {
     level: "error",
     message: `Consumer(next): Job ${job.id} failed with error: ${err.message}`,
   });
-  mediawikiEmail(
-    job.data.userName,
-    `Status Update - Your PDL failed to upload to internet Archive because - ${err.message}`
-  );
 });
 
 async function getZipAndBytelength(no_of_pages, id, title, job) {
@@ -115,13 +106,23 @@ async function uploadToIA(zip, metadata, byteLength, email, job) {
       },
       (error, response, body) => {
         if (response.statusCode === 200) {
-          //EmailProducer(email, metadata.title, trueURI, true);
+          EmailProducer(
+            job.data.details.userName,
+            metadata.title,
+            trueURI,
+            true
+          );
         } else {
           logger.log({
             level: "error",
             message: `IA Failure PDL ${body}`,
           });
-          //EmailProducer(email, metadata.title, trueURI, false);
+          EmailProducer(
+            job.data.details.userName,
+            metadata.title,
+            trueURI,
+            false
+          );
         }
       }
     )

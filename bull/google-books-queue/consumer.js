@@ -5,7 +5,6 @@ const GoogleBooksQueue = config.getNewQueue("google-books-queue");
 const winston = require("winston");
 const logger = winston.loggers.get("defaultLogger");
 const { logUserData } = require("./../../utils/helper");
-const mediawikiEmail = require("./../../utils/mediawikiEmail");
 
 let responseSize,
   dataSize = 0;
@@ -22,21 +21,6 @@ GoogleBooksQueue.on("completed", (job, result) => {
     level: "info",
     message: `Consumer(next): Job ${job.id} completed! Result: ${result}`,
   });
-  mediawikiEmail(
-    job.data.userName,
-    "Status Update - Your Google Books has been successfully uploaded to internet archive"
-  );
-});
-
-GoogleBooksQueue.on("failed", (job, err) => {
-  logger.log({
-    level: "error",
-    message: `Consumer(next): Job ${job.id} failed with error: ${err.message}`,
-  });
-  mediawikiEmail(
-    job.data.userName,
-    `Status Update - Your Google Books failed to upload because - ${err.message}`
-  );
 });
 
 GoogleBooksQueue.process((job, done) => {
@@ -94,11 +78,11 @@ GoogleBooksQueue.process((job, done) => {
             level: "error",
             message: `IA Failure GB ${body}`,
           });
+          EmailProducer(job.data.userName, title, trueURI, false);
           done(new Error(body));
-          //EmailProducer(job.data.email, title, trueURI, false);
         } else {
+          EmailProducer(job.data.userName, title, trueURI, true);
           done(null, true);
-          //EmailProducer(job.data.email, title, trueURI, true);
         }
       }
     )

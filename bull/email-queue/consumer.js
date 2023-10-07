@@ -8,10 +8,12 @@ const logger = winston.loggers.get("defaultLogger");
 require("dotenv").config();
 
 const transporter = nodemailer.createTransport({
-  service: process.env.service,
+  host: "mail.tools.wmcloud.org",
+  port: 587, // set PORT to 465 if secure:true for TLS/SSL
+  secure: false,
   auth: {
-    user: process.env.email,
-    pass: process.env.password,
+    user: process.env.TOOL_EMAIL,
+    pass: process.env.TOOL_PASSWORD,
   },
 });
 
@@ -20,10 +22,10 @@ EmailQueue.on("active", (job, jobPromise) => {});
 EmailQueue.on("completed", (job, result) => {});
 
 EmailQueue.process((job, done) => {
-  if (job.data.email != "") {
+  if (job.data.userName != "") {
     const mailOptions = {
-      from: process.env.email, // sender address
-      to: job.data.email, // list of receivers
+      from: process.env.TOOL_EMAIL, // sender address
+      to: `${job.data.userName}@toolforge.org`, // list of receivers
       subject: job.data.success
         ? 'BUB File Upload - "Successful"'
         : 'BUB File Upload - "Error"', // Subject line
