@@ -7,6 +7,7 @@ const _ = require("lodash");
 const winston = require("winston");
 const logger = winston.loggers.get("defaultLogger");
 const { logUserData } = require("./../../utils/helper");
+const mediawikiEmail = require("./../../utils/mediawikiEmail");
 
 let responseSize,
   dataSize = 0;
@@ -23,6 +24,21 @@ TroveQueue.on("completed", (job, result) => {
     level: "info",
     message: `Consumer(next): Job ${job.id} completed! Result: ${result}`,
   });
+  mediawikiEmail(
+    job.data.userName,
+    "Status Update - Your Trove Item has been successfully uploaded to internet archive"
+  );
+});
+
+TroveQueue.on("failed", (job, err) => {
+  logger.log({
+    level: "error",
+    message: `Consumer(next): Job ${job.id} failed with error: ${err.message}`,
+  });
+  mediawikiEmail(
+    job.data.userName,
+    `Status Update - Your Trove item failed to upload because - ${err.message}`
+  );
 });
 
 TroveQueue.process((job, done) => {

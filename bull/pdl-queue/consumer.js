@@ -7,6 +7,7 @@ const _ = require("lodash");
 const winston = require("winston");
 const logger = winston.loggers.get("defaultLogger");
 const { logUserData } = require("./../../utils/helper");
+const mediawikiEmail = require("./../../utils/mediawikiEmail");
 
 var JSZip = require("jszip");
 PDLQueue.on("active", (job, jobPromise) => {
@@ -21,6 +22,21 @@ PDLQueue.on("completed", (job, result) => {
     level: "info",
     message: `Consumer(next): Job ${job.id} completed! Result: ${result}`,
   });
+  mediawikiEmail(
+    job.data.userName,
+    "Status Update - Your PDL has been successfully uploaded to internet archive"
+  );
+});
+
+PDLQueue.on("failed", (job, err) => {
+  logger.log({
+    level: "error",
+    message: `Consumer(next): Job ${job.id} failed with error: ${err.message}`,
+  });
+  mediawikiEmail(
+    job.data.userName,
+    `Status Update - Your PDL failed to upload to internet Archive because - ${err.message}`
+  );
 });
 
 async function getZipAndBytelength(no_of_pages, id, title, job) {
