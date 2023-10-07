@@ -106,6 +106,7 @@ module.exports = {
     const keys = $(".ubhypers");
     const values = $(".dhypers");
     const downloadLink = $("#downloadpdf a");
+    let contentType = "zip";
 
     function addOtherMetaData(limit, keys, values, PNdetails) {
       let value;
@@ -176,9 +177,11 @@ module.exports = {
 
     //if download option is available, then add download uri to metadata
     if (downloadLink.length) {
+      contentType = "pdf";
       const downloadHref = downloadLink.attr("href");
       PNdetails.uri = `http://www.panjabdigilib.org/webuser/searches/${downloadHref}`;
     }
+    PNdetails.contentType = contentType;
 
     delete PNdetails[""];
 

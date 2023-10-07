@@ -65,10 +65,7 @@ function setHeaders(metadata, byteLength, title, contentType) {
   headers[
     "Authorization"
   ] = `LOW ${process.env.access_key}:${process.env.secret_key}`;
-  headers["Content-type"] =
-    contentType === "zip"
-      ? "application/zip"
-      : "application/pdf; charset=utf-8";
+  headers["Content-type"] = contentType;
   headers["Content-length"] = byteLength;
   headers["X-Amz-Auto-Make-Bucket"] = 1;
   headers["X-Archive-meta-collection"] = "opensource";
@@ -93,7 +90,12 @@ async function uploadZipToIA(zip, metadata, byteLength, email, job) {
   const bucketTitle = metadata.IAIdentifier;
   const IAuri = `http://s3.us.archive.org/${bucketTitle}/${bucketTitle}_images.zip`;
   metadata = _.omit(metadata, "coverImage");
-  let headers = setHeaders(metadata, byteLength, metadata.title, zip);
+  let headers = setHeaders(
+    metadata,
+    byteLength,
+    metadata.title,
+    job.data.details.contentType
+  );
   await zip.generateNodeStream({ type: "nodebuffer", streamFiles: true }).pipe(
     request(
       {
@@ -122,7 +124,12 @@ async function uploadPdfToIA(uri, metadata, email, job) {
   const requestURI = request(job.data.uri);
   const bucketTitle = metadata.IAIdentifier;
   const IAuri = `http://s3.us.archive.org/${bucketTitle}/${bucketTitle}.pdf`;
-  let headers = setHeaders(metadata, responseSize, metadata.title, pdf);
+  let headers = setHeaders(
+    metadata,
+    responseSize,
+    metadata.title,
+    job.data.details.contentType
+  );
   requestURI.pipe(
     request(
       {
