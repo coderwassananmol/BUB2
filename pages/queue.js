@@ -8,6 +8,7 @@ const Queue = ({ data }) => {
   const [queueName, setQueueName] = useState("gb");
   const [tableDataArchive, setTableDataArchive] = useState([]);
   const [searchResult, setSearchResult] = useState([]);
+  const [isSearch, setIsSearch] = useState(false);
   const onChange = (event) => {
     setQueueName(event.target.value);
   };
@@ -21,9 +22,12 @@ const Queue = ({ data }) => {
     const searchParam = e.target.value.toLowerCase();
 
     if (searchParam === "") {
+      setIsSearch(false);
       setSearchResult(tableDataArchive);
       return;
     }
+
+    setIsSearch(true);
     const filteredData = tableDataArchive.filter((item) => {
       return (
         item.title.toLowerCase().includes(searchParam) ||
@@ -80,7 +84,7 @@ const Queue = ({ data }) => {
                     onChange={(e) => onSearch(e)}
                     className="cdx-text-input__input"
                     type="search"
-                    placeholder="Search By Job ID , Book Title , Username , or Status"
+                    placeholder="Search by Job ID, Title, Username or Status"
                     style={{
                       height: "48px",
                       width: "100%",
@@ -91,7 +95,11 @@ const Queue = ({ data }) => {
               </div>
             </div>
           </div>
-          <QueueTable queue_name={queueName} tableData={searchResult} />
+          <QueueTable
+            isSearch={isSearch}
+            queue_name={queueName}
+            tableData={searchResult}
+          />
         </div>
       </div>
     </div>

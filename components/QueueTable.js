@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import Table from "@material-ui/core/Table";
@@ -158,6 +158,10 @@ const ShowUploadQueue = (props) => {
       return value;
     }
   };
+
+  useEffect(() => {
+    setPage(0);
+  }, [props.isSearch]);
 
   return (
     <div>
