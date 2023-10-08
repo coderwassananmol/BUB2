@@ -4,7 +4,6 @@ import { host } from "../utils/constants";
 import { withSession } from "../hooks/withSession";
 import { signIn } from "next-auth/react";
 import InputIdentifier from "./InputIdentifier";
-import { checkIdentifierValidity } from "../utils/helper";
 
 class Books extends React.Component {
   /**
@@ -198,6 +197,7 @@ class Books extends React.Component {
 
   onSubmit = (event, userName) => {
     event.preventDefault();
+    const isIdentifierAlphaNumericUnder50 = /^[a-zA-Z0-9]{1,50}$/;
 
     if (!userName || userName === "") {
       Swal("Error!", "Log in with Wikimedia to continue", "error");
@@ -229,7 +229,9 @@ class Books extends React.Component {
                 IATitle: response.titleInIA,
                 inputDisabled: true,
               });
-            } else if (!checkIdentifierValidity(response.IAIdentifier)) {
+            } else if (
+              !isIdentifierAlphaNumericUnder50.test(response.IAIdentifier)
+            ) {
               this.setState({
                 isValidIdentifier: false,
                 IATitle: response.titleInIA,
@@ -326,7 +328,9 @@ class Books extends React.Component {
                   IATitle: response.titleInIA,
                   inputDisabled: true,
                 });
-              } else if (!checkIdentifierValidity(response.IAIdentifier)) {
+              } else if (
+                !isIdentifierAlphaNumericUnder50.test(response.IAIdentifier)
+              ) {
                 this.setState({
                   isValidIdentifier: false,
                   IATitle: response.titleInIA,
@@ -362,7 +366,9 @@ class Books extends React.Component {
                 IATitle: response.titleInIA,
                 inputDisabled: true,
               });
-            } else if (!checkIdentifierValidity(response.IAIdentifier)) {
+            } else if (
+              !isIdentifierAlphaNumericUnder50.test(response.IAIdentifier)
+            ) {
               this.setState({
                 isValidIdentifier: false,
                 IATitle: response.titleInIA,
@@ -422,13 +428,15 @@ class Books extends React.Component {
                 }
               />
             ) : null}
-            {this.state.isValidIdentifier ? (
+            {this.state.isValidIdentifier === false ? (
               <InputIdentifier
                 errorDescription={
                   <>
-                    Invalid Identifier - {this.state.IATitle} The provided
-                    identifier exceeds 50 characters and/or is not alphanumeric.
-                    Please enter a valid identifier to proceed.
+                    Invalid Identifier - {this.state.IATitle}
+                    {"\n"}
+                    The identifier of this file exceeds 50 characters and/or is
+                    not alphanumeric. Please enter a valid identifier to
+                    proceed.
                   </>
                 }
                 placeholder="Enter valid identifier"
@@ -443,7 +451,8 @@ class Books extends React.Component {
                   <button className="cdx-button cdx-button--action-progressive cdx-button--weight-primary">
                     Submit
                   </button>
-                  {this.state.isDuplicate === true && (
+                  {this.state.isDuplicate === true ||
+                  this.state.isValidIdentifier === false ? (
                     <button
                       onClick={this.onResetButtonClicked}
                       style={{ marginLeft: 40 }}
@@ -451,7 +460,7 @@ class Books extends React.Component {
                     >
                       Reset
                     </button>
-                  )}
+                  ) : null}
                 </div>
               </div>
             )}
