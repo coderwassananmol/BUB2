@@ -427,10 +427,11 @@ class Books extends React.Component {
               <ChangeIdentifier
                 description={
                   <>
-                    The file you wish to upload has an identifier -{" "}
-                    {this.state.IATitle} which is greater than 50 characters
-                    and/or is not Alphanumeric. Please enter a valid Identifier
-                    that is Alphanumeric and less than 50 characters
+                    The file you want to upload with title -{" "}
+                    {this.state.IATitle} either contains special characters or
+                    exceeds 50 characters in length. Please provide an
+                    identifier that consists only of letters (A-Z) and numbers
+                    (0-9).
                   </>
                 }
                 inputPlaceholder="Enter a valid Identifier that is less than 50 characters and Alphanumeric"
