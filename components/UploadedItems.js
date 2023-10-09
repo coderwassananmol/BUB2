@@ -11,7 +11,6 @@ const UploadedItems = () => {
         const response = await fetch(url);
         const responseJson = await response.json();
         const booksCount = await responseJson.response.numFound;
-        console.log("booksCount", booksCount);
         setBooksUploaded(booksCount);
       } catch (error) {
         console.log(error);
