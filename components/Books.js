@@ -23,48 +23,6 @@ const Books = () => {
     setInputDisabled(false);
   };
 
-  const showExample = () => {
-    let url = "";
-    switch (option) {
-      case "gb":
-        url = "https://books.google.co.in/books?id=At46AQAAMAAJ";
-        break;
-
-      case "pn":
-        url =
-          "http://www.panjabdigilib.org/webuser/searches/displayPage.jsp?ID=365&page=1&CategoryID=5&Searched=";
-        break;
-
-      case "trove":
-        url =
-          "The service will fetch the original issue from the article ID (not just the article)";
-        break;
-
-      default:
-        break;
-    }
-    return url;
-  };
-
-  const validateGoogleBook = (enteredId) => {
-    let googleUrl = `https://www.googleapis.com/books/v1/volumes/${enteredId}`;
-    fetch(googleUrl)
-      .then((response) => response.json())
-      .then((details) => {
-        if (details.error && details.error.code === 404) {
-          alert("The volume ID could not be found.");
-        } else if (details.error) {
-          alert("Please give a valid volume ID.");
-        } else {
-          setBookId(details.id);
-          setIATitle(details.volumeInfo.title);
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-
   const onResetButtonClicked = () => {
     setIsDuplicate(false);
     setInputDisabled(false);
