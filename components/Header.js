@@ -3,9 +3,10 @@ import Link from "next/link";
 import { withSession } from "../hooks/withSession";
 import { signOut } from "next-auth/react";
 
-const Header = ({ page, session }) => {
+const Header = (props) => {
   const [isDropDownOpen, setIsDropDownOpen] = useState(false);
-  const { data: session } = session;
+  const { page } = props;
+  const { data: session } = props.session;
 
   const toggleDropDown = () => {
     setIsDropDownOpen(!isDropDownOpen);
