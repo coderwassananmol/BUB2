@@ -121,7 +121,7 @@ async function uploadZipToIA(zip, metadata, byteLength, email, job) {
 }
 
 async function uploadPdfToIA(uri, metadata, email, job) {
-  const requestURI = request(job.data.uri);
+  const requestURI = request(uri);
   const bucketTitle = metadata.IAIdentifier;
   const IAuri = `http://s3.us.archive.org/${bucketTitle}/${bucketTitle}.pdf`;
   let headers = setHeaders(
