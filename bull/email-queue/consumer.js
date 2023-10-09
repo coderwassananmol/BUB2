@@ -12,8 +12,8 @@ const transporter = nodemailer.createTransport({
   port: 587, // set PORT to 465 if secure:true for TLS/SSL
   secure: false,
   auth: {
-    user: process.env.TOOL_EMAIL,
-    pass: process.env.TOOL_PASSWORD,
+    user: process.env.TOOL_FORGE_EMAIL,
+    pass: process.env.TOOL_FORGE_PASSWORD,
   },
 });
 
@@ -24,7 +24,7 @@ EmailQueue.on("completed", (job, result) => {});
 EmailQueue.process((job, done) => {
   if (job.data.userName != "") {
     const mailOptions = {
-      from: process.env.TOOL_EMAIL, // sender address
+      from: process.env.TOOL_FORGE_EMAIL, // sender address
       to: `${job.data.userName}@toolforge.org`, // list of receivers
       subject: job.data.success
         ? 'BUB File Upload - "Successful"'

@@ -134,12 +134,6 @@ class Books extends React.Component {
                 aria-describedby="bid"
               />
             </div>
-            <InputEmail
-              inputDisabled={this.state.inputDisabled}
-              handleChange={(event) =>
-                this.setState({ email: event.target.value })
-              }
-            />
           </>
         );
 
@@ -161,12 +155,6 @@ class Books extends React.Component {
                 placeholder="http://www.panjabdigilib.org/webuser/searches/displayPage.jsp?ID=9073&page=1&CategoryID=1&Searched="
               />
             </div>
-            <InputEmail
-              inputDisabled={this.state.inputDisabled}
-              handleChange={(event) =>
-                this.setState({ email: event.target.value })
-              }
-            />
           </>
         );
 
@@ -192,12 +180,6 @@ class Books extends React.Component {
                 aria-describedby="bid"
               />
             </div>
-            <InputEmail
-              inputDisabled={this.state.inputDisabled}
-              handleChange={(event) =>
-                this.setState({ email: event.target.value })
-              }
-            />
           </>
         );
     }
@@ -396,6 +378,16 @@ class Books extends React.Component {
             <div className="section">
               {this.renderContent(this.state.option)}
             </div>
+
+            <div className="section">
+              <InputEmail
+                inputDisabled={this.state.inputDisabled}
+                handleChange={(event) =>
+                  this.setState({ email: event.target.value })
+                }
+              />
+            </div>
+
             {this.state.isDuplicate ? (
               <div
                 class="cdx-message cdx-message--block cdx-message--warning"

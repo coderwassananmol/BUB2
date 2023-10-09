@@ -1,6 +1,6 @@
 export default function InputEmail({ inputDisabled, handleChange }) {
   return (
-    <div style={{ marginTop: "2em" }}>
+    <div>
       <h4>3. Enter Email Address</h4>
       <div className="cdx-text-input input-group">
         <input

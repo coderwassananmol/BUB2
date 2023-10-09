@@ -71,6 +71,9 @@ Rename `.env.example` to `.env`. Then, to fill the credentials,
       ```
 - Enter the client application key and client application secret in the `WIKIMEDIA_CLIENT_ID` and `WIKIMEDIA_CLIENT_SECRET` respectively.
 - Enter the `NEXTAUTH_URL` with http://localhost:5000.
+- Go to [wikitech](https://wikitech.wikimedia.org/wiki/Help:Toolforge/Quickstart) to register as a Toolforge user. Your `TOOL_FORGE_EMAIL` should be your 'wikitech account username' + '@toolforge.org' (eg username@toolforge.org).  Your `TOOL_FORGE_PASSWORD` should be the password you used to open your wikitech account. 
+- Alternatively, if you are the Tool Administrator Enter the `TOOL_FORGE_EMAIL` and `TOOL_FORGE_PASSWORD` with the email and password controlled by your tool. Your `TOOL_FORGE_EMAIL` should be in this format - toolname.anything@toolforge.org (eg bub2@toolforge.org). See [Toolforge](https://wikitech.wikimedia.org/wiki/Help:Toolforge/Email#Sending_via_SMTP) for reference
+
 <a id="runRedisServer"></a>
 ### Run Redis server
 
