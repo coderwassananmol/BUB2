@@ -1,23 +1,17 @@
-import React, { Component, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { withSession } from "../hooks/withSession";
+import { header_links } from "../utils/constants";
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 
 const Header = (props) => {
+  const { page } = props;
   const { data: session } = useSession();
-  const [isDropDown, setIsDropDown] = useState(false);
+  const [isDropDownOpen, setIsDropDownOpen] = useState(false);
 
   const toggleDropDown = () => {
-    setIsDropDown(!toggleDropDown);
+    setIsDropDownOpen(!toggleDropDown);
   };
-
-  const headerLinks = [
-    { name: "Upload", href: "/" },
-    { name: "Queue", href: "/queue" },
-    { name: "Stats", href: "/stats" },
-    { name: "FAQs", href: "/faqs" },
-  ];
 
   return (
     <div className="marginTop">
@@ -61,17 +55,22 @@ const Header = (props) => {
             role="tablist"
             aria-activedescendant="form-tabs-1"
           >
-            {headerLinks.map((link, i) => (
+            {header_links.map((link, i) => (
               <Link key={i} href={`${link?.href}`}>
                 <li
-                  id="form-tabs-1-label"
+                  id={`${link?.id}-label`}
                   className="cdx-tabs__list__item"
                   role="presentation"
                 >
                   <label
-                    htmlFor="form-tabs-1-input"
+                    htmlFor={`${link?.id}-input`}
                     role="tab"
-                    aria-selected={props.page === "index" ? "true" : "false"}
+                    aria-selected={
+                      (page === "index" && i === 0) ||
+                      page === link?.name.toLowerCase()
+                        ? "true"
+                        : "false"
+                    }
                   >
                     {link?.name}
                   </label>
@@ -81,17 +80,14 @@ const Header = (props) => {
           </ul>
           {session && (
             <div className="user-info__right">
-              <button
-                className="cdx-button"
-                onClick={() => this.toggleDropDown()}
-              >
+              <button className="cdx-button" onClick={() => toggleDropDown()}>
                 {session && session.user.name}
                 <span
                   className="cdx-button__icon cdx-css-icon--expand-icon"
                   aria-hidden="true"
                 ></span>
               </button>
-              {this.state.isDropDownOpen && (
+              {isDropDownOpen && (
                 <div className="user-dropdown">
                   <div
                     className="user-dropdown-option"
@@ -111,161 +107,3 @@ const Header = (props) => {
 };
 
 export default Header;
-// class Header extends Component {
-//   constructor() {
-//     super();
-//     this.state = {
-//       isDropDownOpen: false,
-//     };
-//   }
-//   toggleDropDown = () => {
-//     this.setState({ isDropDownOpen: !this.state.isDropDownOpen });
-//   };
-//   render() {
-//     const { data: session } = this.props.session;
-//     return (
-//       <div className="marginTop">
-//         <style jsx>
-//           {`
-//             .marginTop {
-//               margin-top: 20px;
-//             }
-//             .user-info__right {
-//               margin-left: auto !important;
-//               padding: 0 20px;
-//               margin-bottom: 20px;
-//             }
-//             .user-dropdown {
-//               position: absolute;
-//               right: 20px;
-//               margin-top: 5px;
-//               background: white;
-//               border: 1px solid lightgrey;
-//               width: 150px;
-//               padding: 1px;
-//             }
-//             .user-dropdown p {
-//               margin: 0;
-//             }
-//             .user-dropdown-option {
-//               display: flex;
-//               justify-content: space-between;
-//               cursor: pointer;
-//               padding: 9px;
-//             }
-//             .user-dropdown-option:hover {
-//               background: #f5f5f56d;
-//             }
-//           `}
-//         </style>
-//         <div className="cdx-tabs">
-//           <div className="cdx-tabs__header">
-//             <ul
-//               className="cdx-tabs__list"
-//               role="tablist"
-//               aria-activedescendant="form-tabs-1"
-//             >
-//               <Link href="/">
-//                 <li
-//                   id="form-tabs-1-label"
-//                   className="cdx-tabs__list__item"
-//                   role="presentation"
-//                 >
-//                   <label
-//                     htmlFor="form-tabs-1-input"
-//                     role="tab"
-//                     aria-selected={
-//                       this.props.page === "index" ? "true" : "false"
-//                     }
-//                   >
-//                     Upload
-//                   </label>
-//                 </li>
-//               </Link>
-//               <Link href="/queue">
-//                 <li
-//                   id="form-tabs-2-label"
-//                   className="cdx-tabs__list__item"
-//                   role="presentation"
-//                 >
-//                   <label
-//                     htmlFor="form-tabs-2-input"
-//                     role="tab"
-//                     aria-selected={
-//                       this.props.page === "queue" ? "true" : "false"
-//                     }
-//                   >
-//                     Queue
-//                   </label>
-//                 </li>
-//               </Link>
-//               <Link href="/stats">
-//                 <li
-//                   id="form-tabs-3-label"
-//                   className="cdx-tabs__list__item"
-//                   role="presentation"
-//                 >
-//                   <label
-//                     htmlFor="form-tabs-3-input"
-//                     role="tab"
-//                     aria-selected={
-//                       this.props.page === "stats" ? "true" : "false"
-//                     }
-//                   >
-//                     Stats
-//                   </label>
-//                 </li>
-//               </Link>
-//               <Link href="/faqs">
-//                 <li
-//                   id="form-tabs-3-label"
-//                   className="cdx-tabs__list__item"
-//                   role="presentation"
-//                 >
-//                   <label
-//                     htmlFor="form-tabs-3-input"
-//                     role="tab"
-//                     aria-selected={
-//                       this.props.page === "faqs" ? "true" : "false"
-//                     }
-//                   >
-//                     FAQs
-//                   </label>
-//                 </li>
-//               </Link>
-//             </ul>
-//             {session && (
-//               <div className="user-info__right">
-//                 <button
-//                   className="cdx-button"
-//                   onClick={() => this.toggleDropDown()}
-//                 >
-//                   {session && session.user.name}
-//                   <span
-//                     className="cdx-button__icon cdx-css-icon--expand-icon"
-//                     aria-hidden="true"
-//                   ></span>
-//                 </button>
-//                 {this.state.isDropDownOpen && (
-//                   <div className="user-dropdown">
-//                     <div
-//                       className="user-dropdown-option"
-//                       onClick={() => signOut()}
-//                     >
-//                       <p>Logout</p>
-//                       <span className="cdx-css-icon--logout-icon"></span>
-//                     </div>
-//                   </div>
-//                 )}
-//               </div>
-//             )}
-//           </div>
-//         </div>
-//       </div>
-//     );
-//   }
-// }
-
-// const HeaderWithSession = withSession(Header);
-
-// export default HeaderWithSession;

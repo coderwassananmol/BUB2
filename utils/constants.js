@@ -42,3 +42,10 @@ export const faq_data = [
       "Archives are supposed to be read-only and deleting is a 'write' operation. So it is not supported.",
   },
 ];
+
+export const header_links = [
+  { name: "Upload", href: "/", id: "form-tabs-1" },
+  { name: "Queue", href: "/queue", id: "form-tabs-2" },
+  { name: "Stats", href: "/stats", id: "form-tabs-3" },
+  { name: "FAQs", href: "/faqs", id: "form-tabs-4" },
+];
