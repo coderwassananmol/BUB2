@@ -20,10 +20,10 @@ const ShowJobInformation = (props) => {
     },
 
     cardContainer: {
-      display: "flex",
       justifyContent: "center",
       alignContent: "center",
-      marginTop: "0px",
+      maxHeight: "500px",
+      overflowY: "auto",
     },
 
     button: {
