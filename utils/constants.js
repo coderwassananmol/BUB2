@@ -49,3 +49,6 @@ export const header_links = [
   { name: "Stats", href: "/stats", id: "form-tabs-3" },
   { name: "FAQs", href: "/faqs", id: "form-tabs-4" },
 ];
+
+/** This link was taken from the UploadedItem.js */
+export const books_uploaded_link = `https://archive.org/advancedsearch.php?q=bub.wikimedia+&rows=0&output=json`;
