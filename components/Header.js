@@ -64,7 +64,7 @@ class Header extends Component {
                   role="presentation"
                 >
                   <label
-                    htmlFor="form-tabs-1-input"
+                    for="form-tabs-1-input"
                     role="tab"
                     aria-selected={
                       this.props.page === "index" ? "true" : "false"
@@ -81,7 +81,7 @@ class Header extends Component {
                   role="presentation"
                 >
                   <label
-                    htmlFor="form-tabs-2-input"
+                    for="form-tabs-2-input"
                     role="tab"
                     aria-selected={
                       this.props.page === "queue" ? "true" : "false"
@@ -98,7 +98,7 @@ class Header extends Component {
                   role="presentation"
                 >
                   <label
-                    htmlFor="form-tabs-3-input"
+                    for="form-tabs-3-input"
                     role="tab"
                     aria-selected={
                       this.props.page === "stats" ? "true" : "false"
@@ -108,23 +108,21 @@ class Header extends Component {
                   </label>
                 </li>
               </Link>
-              <Link href="/faqs">
+              {/* <Link href="/faq">
                 <li
                   id="form-tabs-3-label"
                   className="cdx-tabs__list__item"
                   role="presentation"
                 >
                   <label
-                    htmlFor="form-tabs-3-input"
+                    for="form-tabs-3-input"
                     role="tab"
-                    aria-selected={
-                      this.props.page === "faqs" ? "true" : "false"
-                    }
+                    aria-selected={this.props.page === "faq" ? "true" : "false"}
                   >
-                    FAQs
+                    FAQ
                   </label>
                 </li>
-              </Link>
+              </Link> */}
             </ul>
             {session && (
               <div className="user-info__right">
