@@ -9,8 +9,8 @@ require("dotenv").config();
 
 const transporter = nodemailer.createTransport({
   host: "mail.tools.wmcloud.org",
-  port: 587, // set PORT to 465 if secure:true for TLS/SSL
-  secure: false,
+  port: 465, // set PORT to 587 if secure:false for TSL
+  secure: true,
   auth: {
     user: process.env.TOOL_FORGE_EMAIL,
     pass: process.env.TOOL_FORGE_PASSWORD,
@@ -22,10 +22,10 @@ EmailQueue.on("active", (job, jobPromise) => {});
 EmailQueue.on("completed", (job, result) => {});
 
 EmailQueue.process((job, done) => {
-  if (job.data.userName != "") {
+  if (job.data.email != "") {
     const mailOptions = {
       from: process.env.TOOL_FORGE_EMAIL, // sender address
-      to: `${job.data.userName}@toolforge.org`, // list of receivers
+      to: job.data.email, // list of receivers
       subject: job.data.success
         ? 'BUB File Upload - "Successful"'
         : 'BUB File Upload - "Error"', // Subject line

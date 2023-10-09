@@ -88,7 +88,7 @@ Rename `.env.example` to `.env`. Then, to fill the credentials,
 <a id="contributing"></a>
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://github.com/coderwassananmol/BUB2/blob/develop/CONTRIBUTING.md) for information on how to contribute to BUB2.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for information on how to contribute to BUB2.
 
 <a id="requestToContribute"></a>
 ## Request to Contribute
@@ -99,11 +99,11 @@ Please read [CONTRIBUTING.md](https://github.com/coderwassananmol/BUB2/blob/deve
 5. Create a new branch and start working on the issue locally.
 6. Create a PULL REQUEST to merge your branch with the main branch and mention the Phab task in the description.
 7. The issue will be considered closed and resolved once the PR is accepted. 
-Please read [CONTRIBUTING.md](https://github.com/coderwassananmol/BUB2/blob/develop/CONTRIBUTING.md) for information on how to contribute to BUB2.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for information on how to contribute to BUB2.
 
 <a id="keepSupporting"></a>
 ## Contribute
-We actively welcome pull requests. Learn how to [contribute.](https://github.com/coderwassananmol/BUB2/blob/master/CONTRIBUTING.md)
+We actively welcome pull requests. Learn how to [contribute.](CONTRIBUTING.md)
 ## Keep Supporting
 
 There was no Node.js wrapper available for Internet Archive, so I decided to write the Node implementation to upload books to Internet Archive. If you like this repository, show your support by starring the project. Cheers!

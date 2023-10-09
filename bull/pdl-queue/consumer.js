@@ -99,23 +99,13 @@ async function uploadToIA(zip, metadata, byteLength, email, job) {
       },
       (error, response, body) => {
         if (response.statusCode === 200) {
-          EmailProducer(
-            job.data.details.userName,
-            metadata.title,
-            trueURI,
-            true
-          );
+          EmailProducer(job.data.details.email, metadata.title, trueURI, true);
         } else {
           logger.log({
             level: "error",
             message: `IA Failure PDL ${body}`,
           });
-          EmailProducer(
-            job.data.details.userName,
-            metadata.title,
-            trueURI,
-            false
-          );
+          EmailProducer(job.data.details.email, metadata.title, trueURI, false);
         }
       }
     )

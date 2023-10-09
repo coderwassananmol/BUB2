@@ -3,9 +3,9 @@ require("./consumer");
 
 const EmailQueue = config.getNewQueue("email-queue");
 
-module.exports = async (userName, title, trueURI, success) => {
+module.exports = async (email, title, trueURI, success) => {
   EmailQueue.add({
-    userName,
+    email,
     title,
     trueURI,
     success,

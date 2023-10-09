@@ -9,7 +9,7 @@ export default function InputEmail({ inputDisabled, handleChange }) {
           name="email"
           type="email"
           disabled={inputDisabled}
-          placeholder="user@gmail.com"
+          placeholder="Enter e-mail address (optional)"
           onChange={(event) => handleChange(event)}
           aria-describedby="bid"
         />

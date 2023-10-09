@@ -28,6 +28,7 @@ GoogleBooksQueue.process((job, done) => {
   const { id, volumeInfo, accessInfo } = job.data.details;
   const jobLogs = volumeInfo;
   let {
+    authors,
     publisher,
     publishedDate,
     imageLinks,
@@ -66,6 +67,7 @@ GoogleBooksQueue.process((job, done) => {
           "X-archive-meta-licenseurl":
             "https://creativecommons.org/publicdomain/mark/1.0/",
           "X-archive-meta-publisher": publisher.trim(),
+          "X-archive-meta-Author": authors.join().trim(),
           "X-archive-meta-rights": accessViewStatus.trim(),
           "X-archive-meta-Google-id": id,
           "X-archive-meta-Identifier": `bub_gb_${id}`,
@@ -78,10 +80,10 @@ GoogleBooksQueue.process((job, done) => {
             level: "error",
             message: `IA Failure GB ${body}`,
           });
-          EmailProducer(job.data.userName, title, trueURI, false);
+          EmailProducer(job.data.email, title, trueURI, false);
           done(new Error(body));
         } else {
-          EmailProducer(job.data.userName, title, trueURI, true);
+          EmailProducer(job.data.email, title, trueURI, true);
           done(null, true);
         }
       }

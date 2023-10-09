@@ -80,10 +80,10 @@ TroveQueue.process((job, done) => {
                   level: "error",
                   message: `IA Failure Trove ${body}`,
                 });
-                EmailProducer(job.data.details.userName, name, trueURI, false);
+                EmailProducer(job.data.details.email, name, trueURI, false);
                 done(new Error(body));
               } else {
-                EmailProducer(job.data.details.userName, name, trueURI, true);
+                EmailProducer(job.data.details.email, name, trueURI, true);
                 done(null, true);
               }
             }
