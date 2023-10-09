@@ -3,6 +3,7 @@ import Swal from "sweetalert2";
 import { host } from "../utils/constants";
 import { withSession } from "../hooks/withSession";
 import { signIn } from "next-auth/react";
+import InputEmail from "./InputEmail";
 
 class Books extends React.Component {
   /**
@@ -133,6 +134,12 @@ class Books extends React.Component {
                 aria-describedby="bid"
               />
             </div>
+            <InputEmail
+              inputDisabled={this.state.inputDisabled}
+              handleChange={(event) =>
+                this.setState({ email: event.target.value })
+              }
+            />
           </>
         );
 
@@ -154,6 +161,12 @@ class Books extends React.Component {
                 placeholder="http://www.panjabdigilib.org/webuser/searches/displayPage.jsp?ID=9073&page=1&CategoryID=1&Searched="
               />
             </div>
+            <InputEmail
+              inputDisabled={this.state.inputDisabled}
+              handleChange={(event) =>
+                this.setState({ email: event.target.value })
+              }
+            />
           </>
         );
 
@@ -179,6 +192,12 @@ class Books extends React.Component {
                 aria-describedby="bid"
               />
             </div>
+            <InputEmail
+              inputDisabled={this.state.inputDisabled}
+              handleChange={(event) =>
+                this.setState({ email: event.target.value })
+              }
+            />
           </>
         );
     }
@@ -351,7 +370,6 @@ class Books extends React.Component {
           });
     }
   };
-
   render() {
     const { data: session } = this.props.session;
     return (
