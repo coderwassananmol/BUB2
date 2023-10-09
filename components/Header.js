@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import Link from "next/link";
-import { withSession } from "../hooks/withSession";
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 
