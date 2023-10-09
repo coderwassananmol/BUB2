@@ -22,7 +22,7 @@ const ShowJobInformation = (props) => {
     cardContainer: {
       justifyContent: "center",
       alignContent: "center",
-      maxHeight: "500px",
+      maxHeight: "80%",
       overflowY: "auto",
     },
 
