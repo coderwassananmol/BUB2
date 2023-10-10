@@ -11,7 +11,7 @@ import TablePagination from "@material-ui/core/TablePagination";
 import TableRow from "@material-ui/core/TableRow";
 import Backdrop from "@material-ui/core/Backdrop";
 import { host } from "../utils/constants";
-import ShowJobInformation from "../components/ShowJobInformation";
+import ShowJobInformation from "./ShowJobInformation";
 
 const ShowUploadQueue = (props) => {
   const useStyles = makeStyles((theme) => ({
