@@ -13,7 +13,6 @@ const Faqs = () => {
             overflow: auto;
             height: 70vh;
           }
-          .
         `}
       </style>
       <Header page="faqs" />

@@ -10,7 +10,7 @@ const Header = (props) => {
   const [isDropDownOpen, setIsDropDownOpen] = useState(false);
 
   const toggleDropDown = () => {
-    setIsDropDownOpen(!toggleDropDown);
+    setIsDropDownOpen(!isDropDownOpen);
   };
 
   return (
