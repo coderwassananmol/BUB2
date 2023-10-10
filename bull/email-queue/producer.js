@@ -8,6 +8,6 @@ module.exports = async (email, title, trueURI, success) => {
     email,
     title,
     trueURI,
-    success,
+    success
   });
 };

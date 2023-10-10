@@ -13,8 +13,8 @@ const transporter = nodemailer.createTransport({
   secure: true,
   auth: {
     user: process.env.TOOL_FORGE_EMAIL,
-    pass: process.env.TOOL_FORGE_PASSWORD,
-  },
+    pass: process.env.TOOL_FORGE_PASSWORD
+  }
 });
 
 EmailQueue.on("active", (job, jobPromise) => {});
