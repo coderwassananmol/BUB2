@@ -5,8 +5,8 @@ export default () => (
         .footer {
           width: 100%;
           background-color: #f5f5f5;
-          position: absolute;
-          bottom: 0;
+          margin-top: auto;
+          padding: 1em;
         }
       `}
     </style>
