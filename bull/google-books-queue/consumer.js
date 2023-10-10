@@ -28,6 +28,7 @@ GoogleBooksQueue.process((job, done) => {
   const { id, volumeInfo, accessInfo } = job.data.details;
   const jobLogs = volumeInfo;
   let {
+    authors,
     publisher,
     publishedDate,
     imageLinks,
@@ -66,6 +67,7 @@ GoogleBooksQueue.process((job, done) => {
           "X-archive-meta-licenseurl":
             "https://creativecommons.org/publicdomain/mark/1.0/",
           "X-archive-meta-publisher": publisher.trim(),
+          "X-archive-meta-Author": authors.join().trim(),
           "X-archive-meta-rights": accessViewStatus.trim(),
           "X-archive-meta-Google-id": id,
           "X-archive-meta-Identifier": `bub_gb_${id}`,
