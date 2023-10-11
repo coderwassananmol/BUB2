@@ -387,7 +387,13 @@ app
                 IAtitle.trim() !== ""
                   ? replaceTitle(IAtitle.trim())
                   : replaceTitle(data.volumeInfo.title);
-              if ((await checkIfFileExistsAtIA(titleInIA)) === true) {
+              const isAlphanumericLess50 = /^(?![0-9]+$)[a-zA-Z0-9]{1,50}$/;
+              if (isAlphanumericLess50.test(titleInIA) === false) {
+                res.send({
+                  isInValidIdentifier: true,
+                  titleInIA,
+                });
+              } else if ((await checkIfFileExistsAtIA(titleInIA)) === true) {
                 res.send({
                   isDuplicate: true,
                   titleInIA,
@@ -426,10 +432,16 @@ app
             IAtitle.trim() !== ""
               ? replaceTitle(IAtitle.trim())
               : replaceTitle(await getPDLTitle(options));
+          const isAlphanumericLess50 = /^(?![0-9]+$)[a-zA-Z0-9]{1,50}$/;
           if (titleInIA === "") {
             res.send({
               error: true,
               message: "Not able to fetch title.",
+            });
+          } else if (isAlphanumericLess50.test(titleInIA) === false) {
+            res.send({
+              isInValidIdentifier: true,
+              titleInIA,
             });
           } else {
             if ((await checkIfFileExistsAtIA(titleInIA)) === true) {
@@ -478,7 +490,13 @@ app
                 IAtitle.trim() !== ""
                   ? replaceTitle(IAtitle.trim())
                   : replaceTitle(name);
-              if ((await checkIfFileExistsAtIA(titleInIA)) === true) {
+              const isAlphanumericLess50 = /^(?![0-9]+$)[a-zA-Z0-9]{1,50}$/;
+              if (isAlphanumericLess50.test(titleInIA) === false) {
+                res.send({
+                  isInValidIdentifier: true,
+                  titleInIA,
+                });
+              } else if ((await checkIfFileExistsAtIA(titleInIA)) === true) {
                 res.send({
                   isDuplicate: true,
                   titleInIA,
