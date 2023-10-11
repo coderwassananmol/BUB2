@@ -10,7 +10,6 @@ import TableHead from "@material-ui/core/TableHead";
 import TablePagination from "@material-ui/core/TablePagination";
 import TableRow from "@material-ui/core/TableRow";
 import Backdrop from "@material-ui/core/Backdrop";
-import { host } from "../utils/constants";
 import ShowJobInformation from "../components/ShowJobInformation";
 import { Box, InputAdornment, TextField } from "@material-ui/core";
 //import SearchIcon from '@material-ui/icons/Search';
@@ -115,7 +114,12 @@ const ShowUploadQueue = (props) => {
       align: "left",
       format: (value) => value,
     },
-    { id: "status", label: "Status", minWidth: 30, align: "left" },
+    {
+      id: "status",
+      label: "Status",
+      minWidth: 30,
+      align: "left",
+    },
     {
       id: "upload_progress",
       label: "Upload Progress",
@@ -128,12 +132,16 @@ const ShowUploadQueue = (props) => {
   const [open, setOpen] = useState(false);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+
   const [rows, setRows] = useState([]);
   const [searchInput, setSearchInput] = useState("");
 
   const handleChangeSearchInput = (event) => {
     setSearchInput(event.target.value);
   };
+
+  const rows = props.tableData ? props.tableData : [];
+
 
   const handleClose = (e) => {
     setOpen(false);
@@ -192,6 +200,10 @@ const ShowUploadQueue = (props) => {
     }
   }, [props.queue_name, searchInput]);
 
+  useEffect(() => {
+    setPage(0);
+  }, [props.isSearch]);
+
   return (
     <div>
       <Box mt={4}>
@@ -217,7 +229,9 @@ const ShowUploadQueue = (props) => {
                   <TableCell
                     key={column.id}
                     align={column.align}
-                    style={{ minWidth: column.minWidth }}
+                    style={{
+                      minWidth: column.minWidth,
+                    }}
                     className={classes.head}
                   >
                     {column.label}
