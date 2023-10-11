@@ -1,10 +1,11 @@
 import Header from "../components/Header";
 import ShowQueue from "../components/ShowQueue";
 import fetch from "isomorphic-fetch";
-import UploadedItems from "../components/UploadedItems";
+
 import { stats_data_endpoint, library } from "../utils/constants";
 import { useState } from "react";
 import Link from "next/link";
+import UploadedItems from "../components/UploadedItems";
 
 const emptyObject = {
   waiting: 0,
@@ -68,6 +69,8 @@ const Stats = (props) => {
                 </Link>
               </div>
             </div>
+
+            <UploadedItems />
           </div>
         </div>
       </div>
