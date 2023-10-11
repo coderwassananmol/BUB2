@@ -7,8 +7,17 @@ export const authOptions = {
   providers: [
     WikimediaProvider({
       clientId: process.env.WIKIMEDIA_CLIENT_ID,
-      clientSecret: process.env.WIKIMEDIA_CLIENT_SECRET
-    })
+      clientSecret: process.env.WIKIMEDIA_CLIENT_SECRET,
+      authorization: {
+        url:
+          "https://meta.wikimedia.beta.wmflabs.org/w/rest.php/oauth2/authorize",
+        params: { scope: "" },
+      },
+      token:
+        "https://meta.wikimedia.beta.wmflabs.org//w/rest.php/oauth2/access_token",
+      userinfo:
+        "https://meta.wikimedia.beta.wmflabs.org//w/rest.php/oauth2/resource/profile",
+    }),
   ],
   session: {
     jwt: true,

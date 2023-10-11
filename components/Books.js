@@ -220,6 +220,7 @@ class Books extends React.Component {
         fetch(url)
           .then((response) => response.json())
           .then(async (response) => {
+            console.log("Response from the server:", response);
             this.setState({
               loader: false,
             });
@@ -235,6 +236,7 @@ class Books extends React.Component {
                 IATitle: response.IAIdentifier,
                 inputDisabled: true,
               });
+              console.log(response.IAIdentifier);
             } else {
               if (response.error) {
                 Swal("Error!", response.message, "error");
@@ -317,6 +319,7 @@ class Books extends React.Component {
           fetch(url)
             .then((res) => res.json())
             .then((response) => {
+              console.log("Response from the server:", response);
               this.setState({
                 loader: false,
               });
@@ -327,9 +330,11 @@ class Books extends React.Component {
                   inputDisabled: true,
                 });
               } else if (!isAlphanumericLess50.test(response.IAIdentifier)) {
+                console.log("IAIdentifier:", response.IAIdentifier);
                 this.setState({
                   isValidIdentifier: false,
                   IATitle: response.IAIdentifier,
+                  //IATitle: response.message,
                   inputDisabled: true,
                 });
               } else {
@@ -434,7 +439,7 @@ class Books extends React.Component {
                     (0-9).
                   </>
                 }
-                inputPlaceholder="Enter a valid Identifier that is less than 50 characters and Alphanumeric"
+                inputPlaceholder="Enter a valid Identifier"
                 onIdentifierChange={(event) =>
                   this.setState({ IAIdentifier: event.target.value })
                 }
