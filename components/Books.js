@@ -213,6 +213,7 @@ class Books extends React.Component {
     let Identifier = this.state.IAIdentifier;
     console.log(Identifier);
     const isAlphanumericLess50 = /^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]{1,50}$/;
+    const isAlphabetUniqueLess50 = /^[a-zA-Z0-9]{1,50}$/;
     switch (this.state.option) {
       case "gb":
         url = `${host}/check?bookid=${this.state.bookid}&option=${
@@ -334,7 +335,7 @@ class Books extends React.Component {
                   IATitle: response.titleInIA,
                   inputDisabled: true,
                 });
-              } else if (!isAlphanumericLess50.test(response.IAIdentifier)) {
+              } else if (!isAlphabetUniqueLess50.test(response.IAIdentifier)) {
                 console.log("IAIdentifier:", response.IAIdentifier);
                 this.setState({
                   isValidIdentifier: false,
