@@ -333,8 +333,8 @@ class Books extends React.Component {
                 console.log("IAIdentifier:", response.IAIdentifier);
                 this.setState({
                   isValidIdentifier: false,
-                  IATitle: response.IAIdentifier,
-                  //IATitle: response.message,
+                  //IATitle: response.IAIdentifier,
+                  IATitle: response.IATitle,
                   inputDisabled: true,
                 });
               } else {
