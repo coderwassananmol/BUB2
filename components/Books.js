@@ -232,7 +232,7 @@ class Books extends React.Component {
             } else if (!isAlphanumericLess50.test(response.IAIdentifier)) {
               this.setState({
                 isValidIdentifier: false,
-                IATitle: response.IAIdentifier,
+                IATitle: response.titleInIA,
                 inputDisabled: true,
               });
             } else {
@@ -329,7 +329,7 @@ class Books extends React.Component {
               } else if (!isAlphanumericLess50.test(response.IAIdentifier)) {
                 this.setState({
                   isValidIdentifier: false,
-                  IATitle: response.IAIdentifier,
+                  IATitle: response.titleInIA,
                   inputDisabled: true,
                 });
               } else {
@@ -365,7 +365,7 @@ class Books extends React.Component {
             } else if (!isAlphanumericLess50.test(response.IAIdentifier)) {
               this.setState({
                 isValidIdentifier: false,
-                IATitle: response.IAIdentifier,
+                IATitle: response.titleInIA,
                 inputDisabled: true,
               });
             } else {
@@ -427,14 +427,13 @@ class Books extends React.Component {
               <ChangeIdentifier
                 description={
                   <>
-                    The file you want to upload with title -{" "}
-                    {this.state.IATitle} either contains special characters or
-                    exceeds 50 characters in length. Please provide an
-                    identifier that consists only of letters (A-Z) and numbers
-                    (0-9).
+                    The file you want to upload with title -{this.state.IATitle}{" "}
+                    either contains special characters or exceeds 50 characters
+                    in length. Please provide an identifier that consists only
+                    of letters (A-Z) and numbers (0-9).
                   </>
                 }
-                inputPlaceholder="Enter a valid Identifier that is less than 50 characters and Alphanumeric"
+                inputPlaceholder="Enter valid identifier"
                 onIdentifierChange={(event) =>
                   this.setState({ IAIdentifier: event.target.value })
                 }
