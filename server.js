@@ -440,6 +440,7 @@ app
             } else {
               res.send({
                 error: false,
+                IAIdentifier: titleInIA,
                 message: "You will be mailed with the details soon!",
               });
               PDLProducer(bookid, titleInIA, categoryID, email, authUserName);

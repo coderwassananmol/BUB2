@@ -210,6 +210,8 @@ class Books extends React.Component {
     });
 
     let url = "";
+    let Identifier = this.state.IAIdentifier;
+    console.log(Identifier);
     const isAlphanumericLess50 = /^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]{1,50}$/;
     switch (this.state.option) {
       case "gb":
@@ -233,7 +235,8 @@ class Books extends React.Component {
             } else if (!isAlphanumericLess50.test(response.IAIdentifier)) {
               this.setState({
                 isValidIdentifier: false,
-                IATitle: response.IAIdentifier,
+                //IATitle: response.IAIdentifier,
+                IATitle: response.titleInIA,
                 inputDisabled: true,
               });
               console.log(response.IAIdentifier);
@@ -316,6 +319,8 @@ class Books extends React.Component {
           }&categoryID=${categoryID}&userName=${userName}&IAtitle=${
             this.state.IAIdentifier
           }`;
+
+          console.log(url);
           fetch(url)
             .then((res) => res.json())
             .then((response) => {
@@ -334,7 +339,7 @@ class Books extends React.Component {
                 this.setState({
                   isValidIdentifier: false,
                   //IATitle: response.IAIdentifier,
-                  IATitle: response.IATitle,
+                  IATitle: response.titleInIA,
                   inputDisabled: true,
                 });
               } else {
