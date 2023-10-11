@@ -12,6 +12,8 @@ import TableRow from "@material-ui/core/TableRow";
 import Backdrop from "@material-ui/core/Backdrop";
 import { host } from "../utils/constants";
 import ShowJobInformation from "../components/ShowJobInformation";
+import { Box, InputAdornment, TextField } from "@material-ui/core";
+//import SearchIcon from '@material-ui/icons/Search';
 
 const ShowUploadQueue = (props) => {
   const useStyles = makeStyles((theme) => ({
@@ -166,6 +168,18 @@ const ShowUploadQueue = (props) => {
 
   return (
     <div>
+      <Box mt={4}>
+        <TextField
+          label="Search by ID or Name"
+          variant="outlined"
+          fullWidth
+          InputProps={{
+            startAdornment: <InputAdornment position="start"></InputAdornment>,
+          }}
+          placeholder="Enter ID or Name"
+        />
+      </Box>
+
       <Paper className={classes.root}>
         <TableContainer className={classes.container}>
           <Table stickyHeader aria-label="sticky table">
