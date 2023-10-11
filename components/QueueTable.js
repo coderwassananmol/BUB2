@@ -129,6 +129,11 @@ const ShowUploadQueue = (props) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [rows, setRows] = useState([]);
+  const [searchInput, setSearchInput] = useState("");
+
+  const handleChangeSearchInput = (event) => {
+    setSearchInput(event.target.value);
+  };
 
   const handleClose = (e) => {
     setOpen(false);
@@ -157,26 +162,49 @@ const ShowUploadQueue = (props) => {
     }
   };
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (props.queue_name)
       fetch(`${host}/allJobs?queue_name=${props.queue_name}`)
         .then((resp) => resp.json())
         .then((resp) => {
           setRows(resp);
         });
-  }, [props.queue_name]);
+  }, [props.queue_name]);*/
+
+  useEffect(() => {
+    if (props.queue_name) {
+      fetch(`${host}/allJobs?queue_name=${props.queue_name}`)
+        .then((resp) => resp.json())
+        .then((resp) => {
+          // Check if there's search input; if not, display all data
+          if (!searchInput) {
+            setRows(resp);
+          } else {
+            // Filter the data based on the search input
+            const filteredData = resp.filter(
+              (item) =>
+                item.id.includes(searchInput) ||
+                item.title.includes(searchInput)
+            );
+            setRows(filteredData);
+          }
+        });
+    }
+  }, [props.queue_name, searchInput]);
 
   return (
     <div>
       <Box mt={4}>
         <TextField
-          label="Search by ID or Name"
+          label="Search by ID or Title"
           variant="outlined"
+          value={searchInput}
+          onChange={handleChangeSearchInput}
           fullWidth
           InputProps={{
             startAdornment: <InputAdornment position="start"></InputAdornment>,
           }}
-          placeholder="Enter ID or Name"
+          placeholder="Enter ID or Title"
         />
       </Box>
 
