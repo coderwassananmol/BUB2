@@ -368,6 +368,7 @@ app
     });
 
     let GBdetails = {};
+    const isAlphanumericLess50 = /^[a-zA-Z0-9]{1,50}$/;
     server.get("/check", async (req, res) => {
       const { bookid, option, email, userName, IAtitle } = req.query;
       emailaddr = email;
@@ -387,7 +388,6 @@ app
                 IAtitle.trim() !== ""
                   ? replaceTitle(IAtitle.trim())
                   : replaceTitle(data.volumeInfo.title);
-              const isAlphanumericLess50 = /^(?![0-9]+$)[a-zA-Z0-9]{1,50}$/;
               if (isAlphanumericLess50.test(titleInIA) === false) {
                 res.send({
                   isInValidIdentifier: true,
@@ -432,7 +432,6 @@ app
             IAtitle.trim() !== ""
               ? replaceTitle(IAtitle.trim())
               : replaceTitle(await getPDLTitle(options));
-          const isAlphanumericLess50 = /^(?![0-9]+$)[a-zA-Z0-9]{1,50}$/;
           if (titleInIA === "") {
             res.send({
               error: true,
@@ -490,7 +489,6 @@ app
                 IAtitle.trim() !== ""
                   ? replaceTitle(IAtitle.trim())
                   : replaceTitle(name);
-              const isAlphanumericLess50 = /^(?![0-9]+$)[a-zA-Z0-9]{1,50}$/;
               if (isAlphanumericLess50.test(titleInIA) === false) {
                 res.send({
                   isInValidIdentifier: true,
