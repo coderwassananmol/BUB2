@@ -340,7 +340,7 @@ const Books = (props) => {
         <div className="section">
           <h4>1. Select a library</h4>
           <select className="cdx-select" onChange={handleChange}>
-            <option value="gb" selected>
+            <option value="gb" defaultValue="gb">
               Google Books
             </option>
             <option value="pn">Panjab Digital Library</option>
