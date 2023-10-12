@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Swal from "sweetalert2";
 import { host } from "../utils/constants";
-// import { withSession } from "../hooks/withSession";
 import { signIn, useSession } from "next-auth/react";
 import ChangeIdentifier from "./ChangeIdentifier";
 
-const Books = (props) => {
+const Books = () => {
   const [option, setOption] = useState("gb");
   const [bookid, setBookId] = useState("");
   const [bookAuthors, setBookAuthors] = useState("");
@@ -68,14 +67,6 @@ const Books = (props) => {
           setBookAuthors(details.volumeInfo.authors);
           setBookDescription(details.volumeInfo.description);
           setBookCover(details.volumeInfo.imageLinks.thumbnail);
-
-          // this.setState({
-          //   bookid: details.id,
-          //   bookTitle: details.volumeInfo.title,
-          //   bookAuthors: details.volumeInfo.authors,
-          //   bookDescription: details.volumeInfo.description,
-          //   bookCover: details.volumeInfo.imageLinks.thumbnail,
-          // });
         }
       })
       .catch((error) => {
@@ -440,7 +431,5 @@ const Books = (props) => {
     </div>
   );
 };
-
-// const BooksWithSession = withSession(Books);
 
 export default Books;
