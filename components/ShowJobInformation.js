@@ -15,23 +15,36 @@ import { host } from "../utils/constants";
 
 const ShowJobInformation = (props) => {
   const useStyles = makeStyles({
-    root: {
+    card: {
       maxWidth: 365,
-    },
-
-    cardContainer: {
+      height: "80vh",
+      margin: "10vh auto",
+      display: "flex",
+      flexDirection: "column",
       justifyContent: "center",
       alignContent: "center",
-      maxHeight: "80%",
-      overflowY: "auto",
     },
 
-    button: {
+    cardActionArea: {
+      display: "flex",
+      flexDirection: "column",
+      overflowY: "scroll",
+      flex: 1,
+    },
+
+    cardActions: {
+      display: "flex",
+      justifyContent: "space_between",
+      padding: "15px",
+    },
+
+    cardButton: {
       fontSize: "11px",
+      width: "48%",
     },
 
     cardImage: {
-      maxHeight: "400px",
+      objectFit: "cover",
     },
   });
 
@@ -79,9 +92,9 @@ const ShowJobInformation = (props) => {
     return <CircularProgress />;
   } else {
     return (
-      <div className={classes.cardContainer}>
-        <Card className={classes.root}>
-          <CardActionArea>
+      <div>
+        <Card className={classes.card}>
+          <CardActionArea className={classes.cardActionArea}>
             <CardMedia
               component="img"
               alt={data.title}
@@ -102,11 +115,11 @@ const ShowJobInformation = (props) => {
             </CardContent>
           </CardActionArea>
 
-          <CardActions>
+          <CardActions className={classes.cardActions}>
             {data.uploadStatus.isUploaded ? (
               <Link passHref href={data.uploadStatus.uploadLink}>
                 <Button
-                  className={classes.button}
+                  className={classes.cardButton}
                   target="_blank"
                   size="large"
                   color="primary"
@@ -117,7 +130,7 @@ const ShowJobInformation = (props) => {
             ) : null}
             <Link passHref href={data.previewLink}>
               <Button
-                className={classes.button}
+                className={classes.cardButton}
                 target="_blank"
                 size="large"
                 color="primary"
