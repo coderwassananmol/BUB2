@@ -6,7 +6,7 @@ export default () => (
           width: 100%;
           background-color: #f5f5f5;
           margin-top: auto;
-          padding: 1em;
+          padding: 2em;
         }
       `}
     </style>
