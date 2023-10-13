@@ -19,7 +19,7 @@ class Books extends React.Component {
       show: true,
       loader: false,
       isDuplicate: false,
-      isValidIdentifier: true,
+      isInValidIdentifier: false,
       IATitle: "",
       IAIdentifier: "",
       inputDisabled: false,
@@ -36,7 +36,7 @@ class Books extends React.Component {
       option: event.target.value,
       bookid: "",
       isDuplicate: false,
-      isValidIdentifier: true,
+      isInValidIdentifier: false,
       IATitle: "",
       IAIdentifier: "",
       inputDisabled: false,
@@ -98,7 +98,7 @@ class Books extends React.Component {
   onResetButtonClicked = () => {
     this.setState({
       isDuplicate: false,
-      isValidIdentifier: true,
+      isInValidIdentifier: false,
       inputDisabled: false,
       IATitle: "",
       IAIdentifier: "",
@@ -206,11 +206,10 @@ class Books extends React.Component {
     this.setState({
       loader: true,
       isDuplicate: false,
-      isValidIdentifier: true,
+      isInValidIdentifier: false,
     });
 
     let url = "";
-    const isAlphanumericLess50 = /^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]{1,50}$/;
     switch (this.state.option) {
       case "gb":
         url = `${host}/check?bookid=${this.state.bookid}&option=${
@@ -229,10 +228,10 @@ class Books extends React.Component {
                 IATitle: response.titleInIA,
                 inputDisabled: true,
               });
-            } else if (!isAlphanumericLess50.test(response.IAIdentifier)) {
+            } else if (response.isInValidIdentifier) {
               this.setState({
-                isValidIdentifier: false,
-                IATitle: response.IAIdentifier,
+                isInValidIdentifier: true,
+                IATitle: response.titleInIA,
                 inputDisabled: true,
               });
             } else {
@@ -326,10 +325,10 @@ class Books extends React.Component {
                   IATitle: response.titleInIA,
                   inputDisabled: true,
                 });
-              } else if (!isAlphanumericLess50.test(response.IAIdentifier)) {
+              } else if (response.isInValidIdentifier) {
                 this.setState({
-                  isValidIdentifier: false,
-                  IATitle: response.IAIdentifier,
+                  isInValidIdentifier: true,
+                  IATitle: response.titleInIA,
                   inputDisabled: true,
                 });
               } else {
@@ -362,10 +361,10 @@ class Books extends React.Component {
                 IATitle: response.titleInIA,
                 inputDisabled: true,
               });
-            } else if (!isAlphanumericLess50.test(response.IAIdentifier)) {
+            } else if (response.isInValidIdentifier) {
               this.setState({
-                isValidIdentifier: false,
-                IATitle: response.IAIdentifier,
+                isInValidIdentifier: true,
+                IATitle: response.titleInIA,
                 inputDisabled: true,
               });
             } else {
@@ -423,7 +422,7 @@ class Books extends React.Component {
               />
             ) : null}
 
-            {this.state.isValidIdentifier === false ? (
+            {this.state.isInValidIdentifier === true ? (
               <ChangeIdentifier
                 description={
                   <>
@@ -434,7 +433,7 @@ class Books extends React.Component {
                     (0-9).
                   </>
                 }
-                inputPlaceholder="Enter a valid Identifier that is less than 50 characters and Alphanumeric"
+                inputPlaceholder="Enter valid identifier"
                 onIdentifierChange={(event) =>
                   this.setState({ IAIdentifier: event.target.value })
                 }
@@ -448,7 +447,7 @@ class Books extends React.Component {
                     Submit
                   </button>
                   {this.state.isDuplicate === true ||
-                  this.state.isValidIdentifier === false ? (
+                  this.state.isInValidIdentifier === true ? (
                     <button
                       onClick={this.onResetButtonClicked}
                       style={{ marginLeft: 40 }}
