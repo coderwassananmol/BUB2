@@ -7,8 +7,8 @@ export const authOptions = {
   providers: [
     WikimediaProvider({
       clientId: process.env.WIKIMEDIA_CLIENT_ID,
-      clientSecret: process.env.WIKIMEDIA_CLIENT_SECRET,
-    }),
+      clientSecret: process.env.WIKIMEDIA_CLIENT_SECRET
+    })
   ],
   session: {
     jwt: true,
