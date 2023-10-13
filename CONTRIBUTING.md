@@ -21,6 +21,13 @@ You are required to fork this repository and make changes on the forked reposito
     # It will create a new branch with name Branch_Name and switch to that branch 
     $ git checkout -b Branch_Name
     ```
+- Install dependencies:
+    ```
+    # To install all depencencies using npm
+    $ npm install
+    # For Node v > 16
+    $ npm install --legacy-peer-deps
+    ```
 - After you've made changes or made your contribution to the project add changes to the branch you've just created by:
     ```
     # To add all new files to branch Branch_Name
