@@ -10,8 +10,6 @@ const Faqs = () => {
           .faq-container {
             color: #36c;
             flex-grow: 0;
-            overflow: auto;
-            height: 70vh;
           }
         `}
       </style>
