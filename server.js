@@ -368,6 +368,7 @@ app
     });
 
     let GBdetails = {};
+    const isAlphanumericLess50 = /^[a-zA-Z0-9]{1,50}$/;
     server.get("/check", async (req, res) => {
       const { bookid, option, email, userName, IAtitle } = req.query;
       emailaddr = email;
@@ -387,7 +388,12 @@ app
                 IAtitle.trim() !== ""
                   ? replaceTitle(IAtitle.trim())
                   : replaceTitle(data.volumeInfo.title);
-              if ((await checkIfFileExistsAtIA(titleInIA)) === true) {
+              if (isAlphanumericLess50.test(titleInIA) === false) {
+                res.send({
+                  isInValidIdentifier: true,
+                  titleInIA,
+                });
+              } else if ((await checkIfFileExistsAtIA(titleInIA)) === true) {
                 res.send({
                   isDuplicate: true,
                   titleInIA,
@@ -430,6 +436,11 @@ app
             res.send({
               error: true,
               message: "Not able to fetch title.",
+            });
+          } else if (isAlphanumericLess50.test(titleInIA) === false) {
+            res.send({
+              isInValidIdentifier: true,
+              titleInIA,
             });
           } else {
             if ((await checkIfFileExistsAtIA(titleInIA)) === true) {
@@ -478,7 +489,12 @@ app
                 IAtitle.trim() !== ""
                   ? replaceTitle(IAtitle.trim())
                   : replaceTitle(name);
-              if ((await checkIfFileExistsAtIA(titleInIA)) === true) {
+              if (isAlphanumericLess50.test(titleInIA) === false) {
+                res.send({
+                  isInValidIdentifier: true,
+                  titleInIA,
+                });
+              } else if ((await checkIfFileExistsAtIA(titleInIA)) === true) {
                 res.send({
                   isDuplicate: true,
                   titleInIA,
