@@ -1,23 +1,30 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
 import { host } from "../utils/constants";
-import { useSession, signIn } from "next-auth/react";
+import { signIn } from "next-auth/react";
+import ChangeIdentifier from "./ChangeIdentifier";
 
-const Books = () => {
-  const { data: session } = useSession();
+function Books(props) {
+  const { data: session } = props.session;
   const [option, setOption] = useState("gb");
   const [bookid, setBookId] = useState("");
   const [email, setEmail] = useState("");
   const [loader, setLoader] = useState(false);
   const [isDuplicate, setIsDuplicate] = useState(false);
+  const [isInValidIdentifier, setIsInValidIdentifier] = useState(false);
   const [IATitle, setIATitle] = useState("");
   const [IAIdentifier, setIAIdentifier] = useState("");
   const [inputDisabled, setInputDisabled] = useState(false);
+  const [bookTitle, setBookTitle] = useState("");
+  const [bookAuthors, setBookAuthors] = useState("");
+  const [bookDescription, setBookDescription] = useState("");
+  const [bookCover, setBookCover] = useState("");
 
   const handleChange = (event) => {
     setOption(event.target.value);
     setBookId("");
     setIsDuplicate(false);
+    setIsInValidIdentifier(false);
     setIATitle("");
     setIAIdentifier("");
     setInputDisabled(false);
@@ -25,9 +32,10 @@ const Books = () => {
 
   const onResetButtonClicked = () => {
     setIsDuplicate(false);
+    setIsInValidIdentifier(false);
     setInputDisabled(false);
-    setIAIdentifier("");
     setIATitle("");
+    setIAIdentifier("");
   };
 
   const onSwalClosed = () => {
@@ -36,7 +44,7 @@ const Books = () => {
     setIATitle("");
   };
 
-  const renderContent = () => {
+  const renderContent = (option) => {
     switch (option) {
       case "gb":
         return (
@@ -54,14 +62,12 @@ const Books = () => {
                 required
                 disabled={inputDisabled}
                 placeholder="At46AQAAMAAJ"
-                value={bookid}
                 onChange={(event) => setBookId(event.target.value)}
                 aria-describedby="bid"
               />
             </div>
           </>
         );
-
       case "pn":
         return (
           <>
@@ -73,7 +79,6 @@ const Books = () => {
                 id="bookid"
                 name="bookid"
                 disabled={inputDisabled}
-                value={bookid}
                 onChange={(event) => setBookId(event.target.value)}
                 required
                 placeholder="http://www.panjabdigilib.org/webuser/searches/displayPage.jsp?ID=9073&page=1&CategoryID=1&Searched="
@@ -81,7 +86,6 @@ const Books = () => {
             </div>
           </>
         );
-
       case "trove":
         return (
           <>
@@ -97,7 +101,6 @@ const Books = () => {
                 type="text"
                 disabled={inputDisabled}
                 placeholder="249146214"
-                value={bookid}
                 onChange={(event) => setBookId(event.target.value)}
                 required
                 aria-describedby="bid"
@@ -105,29 +108,27 @@ const Books = () => {
             </div>
           </>
         );
-
-      default:
-        return null;
     }
   };
 
   const isPDLValidUrl = (urlString) => {
-    var urlPattern = new RegExp(
+    var urlPattren = new RegExp(
       "((http|https)\\:\\/\\/)(www.)?(panjabdigilib\\.org\\/webuser\\/searches\\/displayPage\\.jsp\\?ID\\=)([0-9]*)(\\&page\\=)([0-9]*)(\\&CategoryID\\=)([0-9]*)(\\&Searched\\=)([a-zA-Z0-9@:%._+~#?&//=]*)"
     );
-    return urlPattern.test(urlString);
+    return urlPattren.test(urlString);
   };
 
-  const onSubmit = async (event) => {
+  const onSubmit = (event) => {
     event.preventDefault();
 
-    if (!session || !session.user.name) {
+    if (!session.user.name || session.user.name === "") {
       Swal("Error!", "Log in with Wikimedia to continue", "error");
       return;
     }
 
     setLoader(true);
     setIsDuplicate(false);
+    setIsInValidIdentifier(false);
 
     let url = "";
     switch (option) {
@@ -135,65 +136,63 @@ const Books = () => {
         url = `${host}/check?bookid=${bookid}&option=${
           option + (email ? "&email=" + email : "")
         }&userName=${session.user.name}&IAtitle=${IAIdentifier}`;
-        try {
-          const response = await fetch(url);
-          const responseData = await response.json();
-          setLoader(false);
-
-          if (responseData.isDuplicate) {
-            setIsDuplicate(true);
-            setIATitle(responseData.titleInIA);
-            setInputDisabled(true);
-          } else {
-            if (responseData.error) {
-              Swal("Error!", responseData.message, "error");
+        fetch(url)
+          .then((response) => response.json())
+          .then(async (response) => {
+            setLoader(false);
+            if (response.isDuplicate) {
+              setIsDuplicate(true);
+              setIATitle(response.titleInIA);
+              setInputDisabled(true);
+            } else if (response.isInValidIdentifier) {
+              setIsInValidIdentifier(true);
+              setIATitle(response.titleInIA);
+              setInputDisabled(true);
             } else {
-              const { value: url } = await Swal({
-                input: "url",
-                backdrop: true,
-                width: "50%",
-                allowEscapeKey: false,
-                allowOutsideClick: false,
-                showCloseButton: true,
-                onClose: onSwalClosed,
-                title: '<h4">Just a few more steps...</h4>',
-                html:
-                  `<ol style="text-align: left; font-size: 16px; line-height: 1.5;">` +
-                  `<li>Go to this link: <a href="${responseData.url}" target="_blank">${responseData.title}</a></li>` +
-                  `<li>Enter the captcha.</li>` +
-                  `<li>Enter the URL below (<i>https://books.googleusercontent.com/books/content?req=xxx</i>)</li>`,
-              });
-
-              if (url && typeof url !== "object") {
-                setLoader(true);
-                const downloadResponse = await fetch(`${host}/download`, {
-                  body: JSON.stringify({
-                    url: url,
-                    titleInIA: responseData.IAIdentifier,
-                  }),
-                  headers: {
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Origin": "*",
-                  },
-                  method: "POST",
+              if (response.error) {
+                Swal("Error!", response.message, "error");
+              } else {
+                const { value: url } = await Swal({
+                  input: "url",
+                  backdrop: true,
+                  width: "50%",
+                  allowEscapeKey: false,
+                  allowOutsideClick: false,
+                  showCloseButton: true,
+                  onClose: onSwalClosed,
+                  title: '<h4">Just a few more steps...</h4>',
+                  html:
+                    `<ol style="text-align: left; font-size: 16px; line-height: 1.5;">` +
+                    `<li>Go to this link: <a href = "${response.url}" target="_blank">${response.title}</a></li>` +
+                    `<li>Enter the captcha.</li>` +
+                    `<li>Enter the URL below (<i>https://books.googleusercontent.com/books/content?req=xxx</i>)</li>`,
                 });
 
-                const downloadData = await downloadResponse.json();
-                setLoader(false);
-
-                if (downloadData.error) {
-                  Swal("Error!", downloadData.message, "error");
-                } else {
-                  Swal("Voila!", downloadData.message, "success");
+                if (url && typeof url !== "object") {
+                  setLoader(true);
+                  fetch(`${host}/download`, {
+                    body: JSON.stringify({
+                      url: url,
+                      titleInIA: response.IAIdentifier,
+                    }),
+                    headers: {
+                      "Content-Type": "application/json",
+                      "Access-Control-Allow-Origin": "*",
+                    },
+                    method: "POST",
+                  })
+                    .then((response) => response.json())
+                    .then((response) => {
+                      setLoader(false);
+                      if (response.error)
+                        Swal("Error!", response.message, "error");
+                      else Swal("Voila!", response.message, "success");
+                    });
                 }
               }
             }
-          }
-        } catch (error) {
-          console.error(error);
-        }
+          });
         break;
-
       case "pn":
         if (isPDLValidUrl(bookid)) {
           const searchParams = new URL(bookid).searchParams;
@@ -204,57 +203,49 @@ const Books = () => {
           }&categoryID=${categoryID}&userName=${
             session.user.name
           }&IAtitle=${IAIdentifier}`;
-          try {
-            const response = await fetch(url);
-            const responseData = await response.json();
-            setLoader(false);
-
-            if (responseData.isDuplicate) {
-              setIsDuplicate(true);
-              setIATitle(responseData.titleInIA);
-              setInputDisabled(true);
-            } else {
-              if (responseData.error) {
-                Swal("Error!", responseData.message, "error");
+          fetch(url)
+            .then((res) => res.json())
+            .then((response) => {
+              setLoader(false);
+              if (response.isDuplicate) {
+                setIsDuplicate(true);
+                setIATitle(response.titleInIA);
+                setInputDisabled(true);
+              } else if (response.isInValidIdentifier) {
+                setIsInValidIdentifier(true);
+                setIATitle(response.titleInIA);
+                setInputDisabled(true);
               } else {
-                Swal("Voila!", responseData.message, "success");
+                if (response.error) Swal("Error!", response.message, "error");
+                else Swal("Voila!", response.message, "success");
               }
-            }
-          } catch (error) {
-            console.error(error);
-          }
+            });
         } else {
           setLoader(false);
           Swal("Opps...", "Enter a valid URL", "error");
         }
         break;
-
       case "trove":
         url = `${host}/check?bookid=${bookid}&option=${
           option + (email ? "&email=" + email : "")
         }&userName=${session.user.name}&IAtitle=${IAIdentifier}`;
-        try {
-          const response = await fetch(url);
-          const responseData = await response.json();
-          setLoader(false);
-
-          if (responseData.isDuplicate) {
-            setIsDuplicate(true);
-            setIATitle(responseData.titleInIA);
-            setInputDisabled(true);
-          } else {
-            if (responseData.error) {
-              Swal("Error!", responseData.message, "error");
+        fetch(url)
+          .then((res) => res.json())
+          .then((response) => {
+            setLoader(false);
+            if (response.isDuplicate) {
+              setIsDuplicate(true);
+              setIATitle(response.titleInIA);
+              setInputDisabled(true);
+            } else if (response.isInValidIdentifier) {
+              setIsInValidIdentifier(true);
+              setIATitle(response.titleInIA);
+              setInputDisabled(true);
             } else {
-              Swal("Voila!", responseData.message, "success");
+              if (response.error) Swal("Error!", response.message, "error");
+              else Swal("Voila!", response.message, "success");
             }
-          }
-        } catch (error) {
-          console.error(error);
-        }
-        break;
-
-      default:
+          });
         break;
     }
   };
@@ -269,61 +260,61 @@ const Books = () => {
             Internet Archive
           </span>
         </div>
-        <form onSubmit={(e) => onSubmit(e)}>
+        <form onSubmit={(e) => onSubmit(e, session.user.name)}>
           <div className="section">
             <h4>1. Select a library</h4>
-            <select
-              className="cdx-select"
-              onChange={handleChange}
-              value={option}
-            >
-              <option value="gb">Google Books</option>
+            <select className="cdx-select" onChange={handleChange}>
+              <option value="gb" selected>
+                Google Books
+              </option>
               <option value="pn">Panjab Digital Library</option>
               <option value="trove">Trove Digital Library</option>
             </select>
           </div>
-          <div className="section">{renderContent()}</div>
-          {isDuplicate && (
-            <div
-              className="cdx-message cdx-message--block cdx-message--warning"
-              aria-live="polite"
-              style={{ marginTop: "20px", display: "inline-block" }}
-            >
-              <span className="cdx-message__icon"></span>
-              <div className="cdx-message__content">
-                A file with this identifier{" "}
-                <a
-                  href={`https://archive.org/details/${IATitle}`}
-                  target="_blank"
-                >
-                  (https://archive.org/{IATitle})
-                </a>{" "}
-                already exists at Internet Archive. Please enter a different
-                identifier to proceed.
-                <div className="cdx-text-input input-group">
-                  <span className="input-group-addon helper" id="bid">
-                    https://archive.org/details/
-                  </span>
-                  <input
-                    className="cdx-text-input__input"
-                    type="text"
-                    id="IAIdentifier"
-                    name="IAIdentifier"
-                    onChange={(event) => setIAIdentifier(event.target.value)}
-                    required
-                    placeholder="Enter unique file identifier"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
+          <div className="section">{renderContent(option)}</div>
+          {isDuplicate ? (
+            <ChangeIdentifier
+              description={
+                <>
+                  A file with this identifier{" "}
+                  <a href={`https://archive.org/details/${IATitle}`}>
+                    (https://archive.org/{IATitle})
+                  </a>{" "}
+                  already exists at Internet Archive. Please enter a different
+                  identifier to proceed.
+                </>
+              }
+              inputPlaceholder="Enter unique file identifier"
+              onIdentifierChange={(event) =>
+                setIAIdentifier(event.target.value)
+              }
+            />
+          ) : null}
+
+          {isInValidIdentifier === true ? (
+            <ChangeIdentifier
+              description={
+                <>
+                  The file you want to upload with title - {IATitle} either
+                  contains special characters or exceeds 50 characters in
+                  length. Please provide an identifier that consists only of
+                  letters (A-Z) and numbers (0-9).
+                </>
+              }
+              inputPlaceholder="Enter valid identifier"
+              onIdentifierChange={(event) =>
+                setIAIdentifier(event.target.value)
+              }
+            />
+          ) : null}
+
           {session && (
             <div>
               <div style={{ marginTop: 20, marginRight: 20 }}>
                 <button className="cdx-button cdx-button--action-progressive cdx-button--weight-primary">
                   Submit
                 </button>
-                {isDuplicate === true && (
+                {isDuplicate === true || isInValidIdentifier === true ? (
                   <button
                     onClick={onResetButtonClicked}
                     style={{ marginLeft: 40 }}
@@ -331,7 +322,7 @@ const Books = () => {
                   >
                     Reset
                   </button>
-                )}
+                ) : null}
               </div>
             </div>
           )}
@@ -377,6 +368,6 @@ const Books = () => {
       </div>
     </React.Fragment>
   );
-};
+}
 
 export default Books;
