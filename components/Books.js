@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
 import { host } from "../utils/constants";
-import { signIn } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 import ChangeIdentifier from "./ChangeIdentifier";
 
-function Books(props) {
-  const { data: session } = props.session;
+const Books = () => {
+  const { data: session } = useSession();
   const [option, setOption] = useState("gb");
   const [bookid, setBookId] = useState("");
   const [email, setEmail] = useState("");
@@ -15,10 +15,6 @@ function Books(props) {
   const [IATitle, setIATitle] = useState("");
   const [IAIdentifier, setIAIdentifier] = useState("");
   const [inputDisabled, setInputDisabled] = useState(false);
-  const [bookTitle, setBookTitle] = useState("");
-  const [bookAuthors, setBookAuthors] = useState("");
-  const [bookDescription, setBookDescription] = useState("");
-  const [bookCover, setBookCover] = useState("");
 
   const handleChange = (event) => {
     setOption(event.target.value);
@@ -368,6 +364,6 @@ function Books(props) {
       </div>
     </React.Fragment>
   );
-}
+};
 
 export default Books;
