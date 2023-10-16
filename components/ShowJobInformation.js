@@ -1,42 +1,39 @@
 import { useRouter } from "next/router";
 import { useEffect, useState, useRef } from "react";
 import _ from "lodash";
-import Card from "@material-ui/core/Card";
-import CardActionArea from "@material-ui/core/CardActionArea";
-import CardActions from "@material-ui/core/CardActions";
-import CardContent from "@material-ui/core/CardContent";
-import CardMedia from "@material-ui/core/CardMedia";
-import Button from "@material-ui/core/Button";
-import Typography from "@material-ui/core/Typography";
-import { makeStyles } from "@material-ui/core/styles";
+import {
+  Card,
+  CardActionArea,
+  CardActions,
+  CardContent,
+  CardMedia,
+  Button,
+  Typography,
+} from "@mui/material";
 import Link from "next/link";
-import { CircularProgress } from "@material-ui/core";
+import { CircularProgress } from "@mui/material";
 import { host } from "../utils/constants";
 
 const ShowJobInformation = (props) => {
-  const useStyles = makeStyles({
+  const styles = {
     root: {
       maxWidth: 365,
     },
-
     cardContainer: {
       display: "flex",
       justifyContent: "center",
       alignContent: "center",
       marginTop: "0px",
     },
-
     button: {
       fontSize: "11px",
     },
-
     cardImage: {
       maxHeight: "400px",
     },
-  });
+  };
 
   const router = useRouter();
-  const classes = useStyles();
 
   const [data, setData] = useState({
     title: "",
@@ -79,15 +76,15 @@ const ShowJobInformation = (props) => {
     return <CircularProgress />;
   } else {
     return (
-      <div className={classes.cardContainer}>
-        <Card className={classes.root}>
+      <div style={styles.cardContainer}>
+        <Card sx={styles.root}>
           <CardActionArea>
             <CardMedia
               component="img"
               alt={data.title}
               image={data.imageLinks ? data.imageLinks.small : data.coverImage}
               title={data.title}
-              className={classes.cardImage}
+              sx={styles.cardImage}
             />
             <CardContent>
               <Typography gutterBottom variant="h2">
@@ -106,7 +103,7 @@ const ShowJobInformation = (props) => {
             {data.uploadStatus.isUploaded ? (
               <Link passHref href={data.uploadStatus.uploadLink}>
                 <Button
-                  className={classes.button}
+                  sx={styles.button}
                   target="_blank"
                   size="large"
                   color="primary"
@@ -117,7 +114,7 @@ const ShowJobInformation = (props) => {
             ) : null}
             <Link passHref href={data.previewLink}>
               <Button
-                className={classes.button}
+                sx={styles.button}
                 target="_blank"
                 size="large"
                 color="primary"
