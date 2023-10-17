@@ -28,7 +28,10 @@ const ShowJobInformation = (props) => {
       alignContent: "center",
       marginTop: "0px",
     },
-
+    uploadProgress: {
+      paddingLeft: "5px",
+      marginLeft: "12px",
+    },
     button: {
       fontSize: "11px",
     },
@@ -106,10 +109,12 @@ const ShowJobInformation = (props) => {
                 <Typography variant="h5" color="textSecondary">
                   {data.description}
                 </Typography>
-                <Typography variant="h5" color="textSecondary">
-                  <strong>Upload Progress:</strong> {progress}%
-                </Typography>
               </CardContent>
+            </div>
+            <div className={classes.uploadProgress}>
+              <Typography variant="h5" color="textSecondary">
+                <strong>Upload Progress:</strong> {progress}%
+              </Typography>
             </div>
           </CardActionArea>
 
