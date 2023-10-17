@@ -18,7 +18,10 @@ const ShowJobInformation = (props) => {
     root: {
       maxWidth: 365,
     },
-
+    cardContentContainer: {
+      height: "200px",
+      overflow: "auto",
+    },
     cardContainer: {
       display: "flex",
       justifyContent: "center",
@@ -89,17 +92,25 @@ const ShowJobInformation = (props) => {
               title={data.title}
               className={classes.cardImage}
             />
-            <CardContent>
-              <Typography gutterBottom variant="h2">
-                {data.title}
-              </Typography>
-              <Typography variant="h5" color="textSecondary">
-                {data.description}
-              </Typography>
-              <Typography variant="h5" color="textSecondary">
-                <strong>Upload Progress:</strong> {progress}%
-              </Typography>
-            </CardContent>
+            <div
+              className={
+                data.description && data.description.length > 0
+                  ? classes.cardContentContainer
+                  : null
+              }
+            >
+              <CardContent>
+                <Typography gutterBottom variant="h2">
+                  {data.title}
+                </Typography>
+                <Typography variant="h5" color="textSecondary">
+                  {data.description}
+                </Typography>
+                <Typography variant="h5" color="textSecondary">
+                  <strong>Upload Progress:</strong> {progress}%
+                </Typography>
+              </CardContent>
+            </div>
           </CardActionArea>
 
           <CardActions>
