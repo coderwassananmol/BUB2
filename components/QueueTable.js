@@ -1,19 +1,21 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableContainer from "@material-ui/core/TableContainer";
-import TableHead from "@material-ui/core/TableHead";
-import TablePagination from "@material-ui/core/TablePagination";
-import TableRow from "@material-ui/core/TableRow";
-import Backdrop from "@material-ui/core/Backdrop";
+import {
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  Backdrop,
+} from "@mui/material";
+import { host } from "../utils/constants";
 import ShowJobInformation from "../components/ShowJobInformation";
 
 const ShowUploadQueue = (props) => {
-  const useStyles = makeStyles((theme) => ({
+  const styles = {
     backdrop: {
       zIndex: 5,
       color: "#fff",
@@ -50,17 +52,19 @@ const ShowUploadQueue = (props) => {
       color: "#36c",
     },
     toolbar: {
+      marginTop: "8px",
       fontSize: "12px",
       fontFamily: "Helvetica Neue, Helvetica, Arial, sans-serif",
       color: "#54595d",
     },
     selectIcon: {
+      fontSize: "12px",
       top: "calc(50% - 8px)",
     },
-  }));
+  };
 
   const router = useRouter();
-  const classes = useStyles();
+  // const classes = useStyles();
   const [jobId, setJobId] = useState("");
 
   const onClick = (id) => {
@@ -75,7 +79,7 @@ const ShowUploadQueue = (props) => {
       minWidth: 50,
       align: "left",
       format: (value) => (
-        <a className={classes.id} onClick={() => onClick(value)}>
+        <a sx={styles.id} onClick={() => onClick(value)}>
           {value}
         </a>
       ),
@@ -86,7 +90,7 @@ const ShowUploadQueue = (props) => {
       minWidth: 300,
       align: "left",
       format: (value, label) => (
-        <a className={classes.id} onClick={() => onClick(value)}>
+        <a sx={styles.id} onClick={() => onClick(value)}>
           {label}
         </a>
       ),
@@ -165,8 +169,8 @@ const ShowUploadQueue = (props) => {
 
   return (
     <div>
-      <Paper className={classes.root}>
-        <TableContainer className={classes.container}>
+      <Paper sx={styles.root}>
+        <TableContainer sx={styles.container}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
@@ -174,10 +178,7 @@ const ShowUploadQueue = (props) => {
                   <TableCell
                     key={column.id}
                     align={column.align}
-                    style={{
-                      minWidth: column.minWidth,
-                    }}
-                    className={classes.head}
+                    sx={{ minWidth: column.minWidth, ...styles.head }}
                   >
                     {column.label}
                   </TableCell>
@@ -189,17 +190,13 @@ const ShowUploadQueue = (props) => {
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => {
                   return (
-                    <TableRow
-                      className={classes.row}
-                      tabIndex={-1}
-                      key={row.code}
-                    >
+                    <TableRow sx={styles.row} tabIndex={-1} key={row.code}>
                       {columns.map((column) => {
                         const value = row[column.id];
                         return (
                           <TableCell
                             key={column.id}
-                            className={classes.body}
+                            sx={styles.body}
                             align={column.align}
                           >
                             {conditionalRender(column, value, row)}
@@ -215,20 +212,21 @@ const ShowUploadQueue = (props) => {
         <TablePagination
           rowsPerPageOptions={[10, 25, 100]}
           component="div"
-          classes={{
-            toolbar: classes.toolbar,
-            caption: classes.toolbar,
-            menuItem: classes.toolbar,
-            selectIcon: classes.selectIcon,
-          }}
+          SelectProps={styles.selectIcon}
+          labelRowsPerPage={<div style={styles.toolbar}>Rows per page</div>}
+          labelDisplayedRows={({ from, to, count }) => (
+            <div style={styles.toolbar}>
+              {`${from}–${to} of ${count !== -1 ? count : `more than ${to}`}`}
+            </div>
+          )}
           count={rows.length}
           rowsPerPage={rowsPerPage}
           page={page}
-          onChangePage={handleChangePage}
-          onChangeRowsPerPage={handleChangeRowsPerPage}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
-      <Backdrop className={classes.backdrop} open={open} onClick={handleClose}>
+      <Backdrop sx={styles.backdrop} open={open} onClick={handleClose}>
         {open ? (
           <ShowJobInformation queue_name={props.queue_name} job_id={jobId} />
         ) : null}
