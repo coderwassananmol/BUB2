@@ -1,6 +1,4 @@
 import React from "react";
-import Link from "next/link";
-import Button from "@material-ui/core/Button";
 
 const QueueSection = ({ active, waiting }) => (
   <div className="queue-section">
