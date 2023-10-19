@@ -11,6 +11,7 @@ const Faqs = () => {
             color: #36c;
             flex-grow: 0;
             overflow: auto;
+            height: 60vh;
           }
         `}
       </style>
