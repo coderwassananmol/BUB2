@@ -35,6 +35,7 @@ const ShowUploadQueue = (props) => {
       marginTop: "20px",
       width: "100%",
       zIndex: 0,
+      cursor: "pointer",
     },
     row: {
       "&:nth-of-type(odd)": {
