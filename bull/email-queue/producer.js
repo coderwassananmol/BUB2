@@ -1,13 +1,20 @@
-const config = require('../../utils/bullconfig')
-require('./consumer')
+const config = require("../../utils/bullconfig");
+require("./consumer");
 
-const EmailQueue = config.getNewQueue('email-queue')
+const EmailQueue = config.getNewQueue("email-queue");
 
-module.exports = async (email,title,trueURI,success) => {
-    EmailQueue.add({
-        email,
-        title,
-        trueURI,
-        success
-    })
-}
+module.exports = async (
+  userName,
+  title,
+  trueURI,
+  success,
+  isEmailNotification
+) => {
+  EmailQueue.add({
+    userName,
+    title,
+    trueURI,
+    success,
+    isEmailNotification,
+  });
+};

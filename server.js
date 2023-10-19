@@ -370,7 +370,14 @@ app
     let GBdetails = {};
     const isAlphanumericLess50 = /^[a-zA-Z0-9]{1,50}$/;
     server.get("/check", async (req, res) => {
-      const { bookid, option, email, userName, IAtitle } = req.query;
+      const {
+        bookid,
+        option,
+        email,
+        userName,
+        IAtitle,
+        isEmailNotification,
+      } = req.query;
       emailaddr = email;
       authUserName = userName;
       switch (option) {
@@ -453,7 +460,14 @@ app
                 error: false,
                 message: "You will be mailed with the details soon!",
               });
-              PDLProducer(bookid, titleInIA, categoryID, email, authUserName);
+              PDLProducer(
+                bookid,
+                titleInIA,
+                categoryID,
+                email,
+                authUserName,
+                isEmailNotification
+              );
             }
           }
           // const isDuplicate = checkForDuplicatesFromIA(`bub_pn_${bookid}`);
@@ -513,7 +527,14 @@ app
                   error: false,
                   message: "You will be mailed with the details soon!",
                 });
-                TroveProducer(bookid, titleInIA, troveData, email, userName);
+                TroveProducer(
+                  bookid,
+                  titleInIA,
+                  troveData,
+                  email,
+                  userName,
+                  isEmailNotification
+                );
               }
             }
           });
@@ -558,7 +579,8 @@ app
           req.body.titleInIA,
           GBdetails,
           emailaddr,
-          authUserName
+          authUserName,
+          isEmailNotification
         );
       } else {
         res.send({

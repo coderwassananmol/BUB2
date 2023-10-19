@@ -12,6 +12,7 @@ const Books = () => {
   const [loader, setLoader] = useState(false);
   const [isDuplicate, setIsDuplicate] = useState(false);
   const [isInValidIdentifier, setIsInValidIdentifier] = useState(false);
+  const [isEmailNotification, setIsEmailNotification] = useState(false);
   const [IATitle, setIATitle] = useState("");
   const [IAIdentifier, setIAIdentifier] = useState("");
   const [inputDisabled, setInputDisabled] = useState(false);
@@ -20,6 +21,7 @@ const Books = () => {
     setOption(event.target.value);
     setBookId("");
     setIsDuplicate(false);
+    setIsEmailNotification(false);
     setIsInValidIdentifier(false);
     setIATitle("");
     setIAIdentifier("");
@@ -28,6 +30,7 @@ const Books = () => {
 
   const onResetButtonClicked = () => {
     setIsDuplicate(false);
+    setIsEmailNotification(false);
     setIsInValidIdentifier(false);
     setInputDisabled(false);
     setIATitle("");
@@ -131,7 +134,9 @@ const Books = () => {
       case "gb":
         url = `${host}/check?bookid=${bookid}&option=${
           option + (email ? "&email=" + email : "")
-        }&userName=${session.user.name}&IAtitle=${IAIdentifier}`;
+        }&userName=${
+          session.user.name
+        }&IAtitle=${IAIdentifier}&isEmailNotification=${isEmailNotification}`;
         fetch(url)
           .then((response) => response.json())
           .then(async (response) => {
@@ -198,7 +203,7 @@ const Books = () => {
             option + (email ? "&email=" + email : "")
           }&categoryID=${categoryID}&userName=${
             session.user.name
-          }&IAtitle=${IAIdentifier}`;
+          }&IAtitle=${IAIdentifier}&isEmailNotification=${isEmailNotification}`;
           fetch(url)
             .then((res) => res.json())
             .then((response) => {
@@ -224,7 +229,9 @@ const Books = () => {
       case "trove":
         url = `${host}/check?bookid=${bookid}&option=${
           option + (email ? "&email=" + email : "")
-        }&userName=${session.user.name}&IAtitle=${IAIdentifier}`;
+        }&userName=${
+          session.user.name
+        }&IAtitle=${IAIdentifier}&isEmailNotification=${isEmailNotification}`;
         fetch(url)
           .then((res) => res.json())
           .then((response) => {
@@ -268,6 +275,42 @@ const Books = () => {
             </select>
           </div>
           <div className="section">{renderContent(option)}</div>
+
+          <div className="section">
+            <span class="cdx-checkbox">
+              <input
+                id="checkbox-description-css-only-1"
+                class="cdx-checkbox__input"
+                type="checkbox"
+                aria-describedby="cdx-description-css-1"
+                onChange={(event) =>
+                  setIsEmailNotification(event.target.checked)
+                }
+              />
+              <span class="cdx-checkbox__icon"></span>
+              <div class="cdx-checkbox__label cdx-label">
+                <label
+                  for="checkbox-description-css-only-1"
+                  class="cdx-label__label"
+                >
+                  Notify updates via e-mail
+                </label>
+              </div>
+            </span>
+
+            {isEmailNotification && (
+              <span id="cdx-description-css-1" class="cdx-label__description">
+                <p>
+                  <span class="cdx-css-icon--info-filled"></span>
+                  &nbsp; BUB2 will send an email to your email ID associated
+                  with your Wikimedia account regarding the success or failure
+                  of the upload. If no email is added to the account, email will
+                  not be sent.
+                </p>
+              </span>
+            )}
+          </div>
+
           {isDuplicate ? (
             <ChangeIdentifier
               description={

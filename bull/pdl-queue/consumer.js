@@ -83,7 +83,7 @@ function setHeaders(metadata, byteLength, title) {
   return headers;
 }
 
-async function uploadToIA(zip, metadata, byteLength, email, job) {
+async function uploadToIA(zip, metadata, byteLength, email, trueURI, job) {
   const bucketTitle = metadata.IAIdentifier;
   const IAuri = `http://s3.us.archive.org/${bucketTitle}/${bucketTitle}_images.zip`;
   metadata = _.omit(metadata, "coverImage");
@@ -99,13 +99,25 @@ async function uploadToIA(zip, metadata, byteLength, email, job) {
       },
       (error, response, body) => {
         if (response.statusCode === 200) {
-          //EmailProducer(email, metadata.title, trueURI, true);
+          EmailProducer(
+            metadata.userName,
+            metadata.title,
+            trueURI,
+            true,
+            metadata.isEmailNotification
+          );
         } else {
+          EmailProducer(
+            metadata.userName,
+            metadata.title,
+            trueURI,
+            false,
+            metadata.isEmailNotification
+          );
           logger.log({
             level: "error",
             message: `IA Failure PDL ${body}`,
           });
-          //EmailProducer(email, metadata.title, trueURI, false);
         }
       }
     )
@@ -131,6 +143,7 @@ PDLQueue.process(async (job, done) => {
     job.data.details,
     byteLength,
     job.data.details.email,
+    trueURI,
     job
   );
   job.progress(100);
