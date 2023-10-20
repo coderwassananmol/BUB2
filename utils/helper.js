@@ -25,7 +25,12 @@ module.exports = {
     return title.replace(/[ \(\)\[\],:]/g, "");
   },
 
-  customFetch: async (URI, method = "GET", headers = new Headers()) => {
+  customFetch: async (
+    URI,
+    method = "GET",
+    headers = new Headers(),
+    contentType = "other"
+  ) => {
     return fetch(URI, {
       method: method,
       headers: headers,
@@ -34,7 +39,10 @@ module.exports = {
         (res) => {
           if (res.status === 404) {
             return 404;
-          } else return res.json();
+          } else {
+            const result = contentType === "pdf" ? res : res.json();
+            return result;
+          }
         },
         (err) => {
           logger.log({
@@ -105,7 +113,8 @@ module.exports = {
     let PNdetails = {};
     const keys = $(".ubhypers");
     const values = $(".dhypers");
-
+    const downloadPdfLink = $("#downloadpdf a")[0]?.attribs.href;
+    let contentType = "zip";
     function addOtherMetaData(limit, keys, values, PNdetails) {
       let value;
       for (let i = 0; i < values.length; i++) {
@@ -173,6 +182,11 @@ module.exports = {
     src = src.match(/pdl.*/gm);
     PNdetails.coverImage = `http://panjabdigilib.org/${src}`;
 
+    if (downloadPdfLink?.length) {
+      contentType = "pdf";
+      PNdetails.pdfUrl = `http://www.panjabdigilib.org/webuser/searches/${downloadPdfLink}`;
+    }
+    PNdetails.contentType = contentType;
     delete PNdetails[""];
 
     return PNdetails;
