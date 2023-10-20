@@ -35,7 +35,6 @@ const ShowUploadQueue = (props) => {
       marginTop: "20px",
       width: "100%",
       zIndex: 0,
-      cursor: "pointer",
     },
     row: {
       "&:nth-of-type(odd)": {
@@ -47,10 +46,6 @@ const ShowUploadQueue = (props) => {
     },
     container: {
       maxHeight: 330,
-    },
-    id: {
-      cursor: "pointer",
-      color: "#36c",
     },
     toolbar: {
       marginTop: "8px",
@@ -80,7 +75,7 @@ const ShowUploadQueue = (props) => {
       minWidth: 50,
       align: "left",
       format: (value) => (
-        <a sx={styles.id} onClick={() => onClick(value)}>
+        <a style={{ cursor: "pointer" }} onClick={() => onClick(value)}>
           {value}
         </a>
       ),
@@ -91,7 +86,7 @@ const ShowUploadQueue = (props) => {
       minWidth: 300,
       align: "left",
       format: (value, label) => (
-        <a sx={styles.id} onClick={() => onClick(value)}>
+        <a style={{ cursor: "pointer" }} onClick={() => onClick(value)}>
           {label}
         </a>
       ),
