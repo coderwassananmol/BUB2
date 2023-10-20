@@ -18,12 +18,20 @@ const ShowJobInformation = (props) => {
   const styles = {
     root: {
       maxWidth: 365,
+      height: "fit-content",
+    },
+    cardContentContainer: {
+      height: "200px",
+      overflow: "auto",
     },
     cardContainer: {
       display: "flex",
       justifyContent: "center",
       alignContent: "center",
       marginTop: "0px",
+    },
+    uploadProgress: {
+      marginLeft: "16.5px",
     },
     button: {
       fontSize: "11px",
@@ -86,17 +94,27 @@ const ShowJobInformation = (props) => {
               title={data.title}
               sx={styles.cardImage}
             />
-            <CardContent>
+            <CardContent
+              sx={
+                data.description && data.description.length > 0
+                  ? styles.cardContentContainer
+                  : null
+              }
+            >
               <Typography gutterBottom variant="h2">
                 {data.title}
               </Typography>
               <Typography variant="h5" color="textSecondary">
                 {data.description}
               </Typography>
-              <Typography variant="h5" color="textSecondary">
-                <strong>Upload Progress:</strong> {progress}%
-              </Typography>
             </CardContent>
+            <Typography
+              variant="h5"
+              color="textSecondary"
+              sx={styles.uploadProgress}
+            >
+              <strong>Upload Progress:</strong> {progress}%
+            </Typography>
           </CardActionArea>
 
           <CardActions>
