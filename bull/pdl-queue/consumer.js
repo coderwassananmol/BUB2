@@ -142,7 +142,7 @@ PDLQueue.process(async (job, done) => {
     job.progress(100);
     done(
       new Error(
-        `Upload to Internet Archive failed because ${errorFlag.page} is not reachable. Please try again or contact Panjab Digital Library for more details.`
+        `Upload to Internet Archive failed because <a href=${errorFlag.page} target='_blank'>${errorFlag.page}</a>  is not reachable. Please try again or contact Panjab Digital Library for more details.`
       )
     );
   } else {
