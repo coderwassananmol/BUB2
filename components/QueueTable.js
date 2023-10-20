@@ -117,6 +117,22 @@ const ShowUploadQueue = (props) => {
       label: "Status",
       minWidth: 30,
       align: "left",
+      format: (value) => {
+        const isPDLMissingPage = /<a [^>]*>([^<]+)<\/a>/;
+        const missingPageLink = isPDLMissingPage.exec(value);
+        return missingPageLink ? (
+          <span>
+            Failed! (Reason: Upload to Internet Archive failed because {""}
+            <a href={missingPageLink[1]} target="_blank">
+              {missingPageLink[1]}
+            </a>{" "}
+            is not reachable. Please try again or contact Panjab Digital Library
+            for more details. )
+          </span>
+        ) : (
+          value
+        );
+      },
     },
     {
       id: "upload_progress",
@@ -153,6 +169,8 @@ const ShowUploadQueue = (props) => {
     } else if (column.id === "userName") {
       return column.format((value === "-" ? "" : "User:") + value);
     } else if (column.id === "date") {
+      return column.format(value);
+    } else if (column.id === "status") {
       return column.format(value);
     } else {
       return value;
