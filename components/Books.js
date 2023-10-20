@@ -15,6 +15,7 @@ const Books = () => {
   const [IATitle, setIATitle] = useState("");
   const [IAIdentifier, setIAIdentifier] = useState("");
   const [inputDisabled, setInputDisabled] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
 
   const handleChange = (event) => {
     setOption(event.target.value);
@@ -114,7 +115,7 @@ const Books = () => {
     return urlPattren.test(urlString);
   };
 
-  const onSubmit = (event) => {
+  const onSubmit = async (event) => {
     event.preventDefault();
 
     if (!session.user.name || session.user.name === "") {
@@ -244,6 +245,25 @@ const Books = () => {
           });
         break;
     }
+
+    if (isChecked) {
+      const response = await fetch("/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+          subject: "Upload Status",
+          text: "Your upload was successful!",
+        }),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to send email:", response.statusText);
+      }
+      setEmail(event.target.email.value);
+    }
   };
 
   return (
@@ -267,6 +287,7 @@ const Books = () => {
               <option value="trove">Trove Digital Library</option>
             </select>
           </div>
+
           <div className="section">{renderContent(option)}</div>
           {isDuplicate ? (
             <ChangeIdentifier
@@ -324,6 +345,32 @@ const Books = () => {
           )}
           {!session && (
             <div style={{ marginTop: 20 }}>
+              {/* email check box */}
+              <div className="cdx-label">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={(event) => setIsChecked(event.target.checked)}
+                    style={{ marginRight: "10px" }}
+                  />
+                  Notify updates via e-mail
+                </label>
+                {isChecked && (
+                  <span
+                    id="cdx-description-css-1"
+                    className="cdx-label__description"
+                  >
+                    <p>
+                      <span className="cdx-css-icon--info-icon"></span>
+                      &nbsp; BUB2 will send an email to your email ID associated
+                      with your Wikimedia account regarding the success or
+                      failure of the upload. If no email is added to the
+                      account, email will not be sent.
+                    </p>
+                  </span>
+                )}
+              </div>
               <div className="cdx-label">
                 <span className="cdx-label__description">
                   Upload restricted. Login with Wikimedia Account to continue.

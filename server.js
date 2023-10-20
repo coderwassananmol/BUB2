@@ -6,6 +6,7 @@ const cors = require("cors");
 const open = require("open");
 const compression = require("compression");
 require("dotenv").config();
+const nodemailer = require("nodemailer");
 const dev = process.env.NODE_ENV !== "production";
 const PORT = process.env.PORT || 5000;
 const GB_KEY = process.env.GB_KEY;
@@ -66,6 +67,40 @@ app
         extended: true,
       })
     );
+
+    //SendEmail function
+    const SendEmail = (recipient, content) => {
+      let transporter = nodemailer.createTransport({
+        service: process.env.EMAIL_SERVICE,
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      });
+
+      let mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: recipient,
+        subject: subject,
+        text: text,
+      };
+
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log("Email sent: " + info.response);
+        }
+      });
+    };
+
+    server.post("/submit", async (req, res) => {
+      SendEmail(
+        req.body.email,
+        "Form Submitted",
+        "Your form has been submitted successfully."
+      );
+    });
 
     //Parse application/json
     server.use(bodyParser.json());
