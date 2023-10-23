@@ -225,19 +225,19 @@ const ShowUploadQueue = (props) => {
         </TableContainer>
         <TablePagination
           rowsPerPageOptions={[10, 25, 100]}
-          component="div"
           SelectProps={styles.selectIcon}
+          count={rows.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
           labelRowsPerPage={<div style={styles.toolbar}>Rows per page</div>}
           labelDisplayedRows={({ from, to, count }) => (
             <div style={styles.toolbar}>
               {`${from}–${to} of ${count !== -1 ? count : `more than ${to}`}`}
             </div>
           )}
-          count={rows.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
+          sx={{ display: "flex", justifyContent: "end" }}
         />
       </Paper>
       <Backdrop sx={styles.backdrop} open={open} onClick={handleClose}>
