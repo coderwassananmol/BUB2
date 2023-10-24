@@ -47,10 +47,6 @@ const ShowUploadQueue = (props) => {
     container: {
       maxHeight: 330,
     },
-    id: {
-      cursor: "pointer",
-      color: "#36c",
-    },
     toolbar: {
       marginTop: "8px",
       fontSize: "12px",
@@ -79,7 +75,7 @@ const ShowUploadQueue = (props) => {
       minWidth: 50,
       align: "left",
       format: (value) => (
-        <a sx={styles.id} onClick={() => onClick(value)}>
+        <a style={{ cursor: "pointer" }} onClick={() => onClick(value)}>
           {value}
         </a>
       ),
@@ -90,7 +86,7 @@ const ShowUploadQueue = (props) => {
       minWidth: 300,
       align: "left",
       format: (value, label) => (
-        <a sx={styles.id} onClick={() => onClick(value)}>
+        <a style={{ cursor: "pointer" }} onClick={() => onClick(value)}>
           {label}
         </a>
       ),
@@ -121,6 +117,22 @@ const ShowUploadQueue = (props) => {
       label: "Status",
       minWidth: 30,
       align: "left",
+      format: (value) => {
+        const isPDLMissingPage = /<a [^>]*>([^<]+)<\/a>/;
+        const missingPageLink = isPDLMissingPage.exec(value);
+        return missingPageLink ? (
+          <span>
+            Failed! (Reason: Upload to Internet Archive failed because {""}
+            <a href={missingPageLink[1]} target="_blank">
+              {missingPageLink[1]}
+            </a>{" "}
+            is not reachable. Please try again or contact Panjab Digital Library
+            for more details. )
+          </span>
+        ) : (
+          value
+        );
+      },
     },
     {
       id: "upload_progress",
@@ -157,6 +169,8 @@ const ShowUploadQueue = (props) => {
     } else if (column.id === "userName") {
       return column.format((value === "-" ? "" : "User:") + value);
     } else if (column.id === "date") {
+      return column.format(value);
+    } else if (column.id === "status") {
       return column.format(value);
     } else {
       return value;
