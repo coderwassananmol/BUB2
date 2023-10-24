@@ -29,16 +29,16 @@ export const faq_data = [
   {
     que: "What are the future enhancements?",
     ans:
-      "Bulk upload future, MediaWiki OAuth integration and Direct uploading to Commons.",
+      "Bulk upload feature, direct upload to Wikimedia Commons and addition of newer libraries are some features being actively worked upon.",
   },
   {
     que: "Can I upload my own book?",
     ans:
-      "If an appropriate license is attached to the book which allows it to be archived(which doesn't allow copyright infringement suits, etc.), then book can be uploaded.",
+      "If an appropriate license is attached to the book which allows it to be archived (which doesn't allow copyright infringement suits, etc.), then book can be uploaded.",
   },
   {
     que: "Can I delete or undo an upload?",
     ans:
-      "Archives are supposed to be read-only and deleting is a 'write' operation. So it doesn't support.",
+      "Archives are supposed to be read-only and deleting is a 'write' operation. So it is not supported.",
   },
 ];
