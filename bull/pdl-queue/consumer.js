@@ -87,12 +87,16 @@ async function getPdfAndBytelength(pdfUrl, job) {
         byteLength: buffer.byteLength,
       };
     } else {
-      throw new Error(
-        `Failed to download PDF. Status Code: ${response.status} `
-      );
+      logger.log({
+        level: "error",
+        message: `Failure PDL: Failed to download PDF. Status Code: ${response.status}`,
+      });
     }
   } catch (error) {
-    console.error("Error:", error);
+    logger.log({
+      level: "error",
+      message: `Failure PDL: ${error}`,
+    });
     return null;
   }
 }
