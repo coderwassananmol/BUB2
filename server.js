@@ -368,6 +368,7 @@ app
     });
 
     let GBdetails = {};
+    let GBreq;
     const isAlphanumericLess50 = /^[a-zA-Z0-9]{1,50}$/;
     server.get("/check", async (req, res) => {
       const {
@@ -407,6 +408,7 @@ app
                 });
               } else {
                 GBdetails = data;
+                GBreq = req;
                 res.send({
                   error: false,
                   message: "In public domain.",
@@ -580,7 +582,7 @@ app
           GBdetails,
           emailaddr,
           authUserName,
-          isEmailNotification
+          GBreq.query.isEmailNotification
         );
       } else {
         res.send({

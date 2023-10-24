@@ -42,10 +42,11 @@ async function mediawikiEmail(username, title, trueURI, success, done) {
       .request({
         action: "emailuser",
         target: username,
-        subject: "Bub2 Upload Status Update",
+        subject: "BUB2 upload status",
         text: success
-          ? `Your file "${title}" has been uploaded to Internet Archive successfully!. View here - ${trueURI}`
-          : `Your file "${title}" was not uploaded to Internet Archive!`,
+          ? `Your file "${title}" has been uploaded to Internet Archive successfully! Take a look at ${trueURI}`
+          : `Your file "${title}" was not uploaded to Internet Archive! Please try again later.
+          `,
         token: csrf_token,
         format: "json",
       })
