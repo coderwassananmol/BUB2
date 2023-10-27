@@ -12,7 +12,7 @@ import {
   Backdrop,
 } from "@mui/material";
 import { host } from "../utils/constants";
-import ShowJobInformation from "../components/ShowJobInformation";
+import ShowJobInformation from "./ShowJobInformation";
 
 const ShowUploadQueue = (props) => {
   const styles = {
