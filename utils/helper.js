@@ -40,7 +40,7 @@ module.exports = {
           if (res.status === 404) {
             return 404;
           } else {
-            const result = contentType === "pdf" ? res : res.json();
+            const result = contentType === "file" ? res : res.json();
             return result;
           }
         },

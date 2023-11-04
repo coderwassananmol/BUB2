@@ -76,7 +76,7 @@ async function getPdfAndBytelength(pdfUrl, job) {
       new Headers({
         "Content-Type": "application/pdf",
       }),
-      "pdf"
+      "file"
     );
     if (response.status === 200) {
       job.progress(30);
