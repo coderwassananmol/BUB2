@@ -54,6 +54,7 @@ const TroveProducer = require("./bull/trove-queue/producer");
 const { exec } = require("child_process");
 const config = require("./utils/bullconfig");
 const _ = require("lodash");
+const handlePolling = require("./polling.js");
 
 app
   .prepare()
@@ -277,15 +278,15 @@ app
                     .toString()
                     .padStart(2, "0") +
                   "-" +
-                  date
-                    .getUTCDate()
-                    .toLocaleString(undefined, { minimumIntegerDigits: 2 }) +
+                  date.getUTCDate().toLocaleString(undefined, {
+                    minimumIntegerDigits: 2,
+                  }) +
                   " " +
                   date.getUTCHours() +
                   ":" +
-                  date
-                    .getUTCMinutes()
-                    .toLocaleString(undefined, { minimumIntegerDigits: 2 }) +
+                  date.getUTCMinutes().toLocaleString(undefined, {
+                    minimumIntegerDigits: 2,
+                  }) +
                   " (UTC)",
                 upload_progress: job.progress(),
                 status: returnJobStatus(
@@ -590,6 +591,7 @@ app
         })();
       }
     });
+    setInterval(handlePolling, 30 * 60 * 1000);
   })
   .catch((ex) => {
     console.error(ex.stack);
