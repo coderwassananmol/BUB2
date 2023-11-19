@@ -2,7 +2,9 @@ const { customFetch } = require("./utils/helper");
 const config = require("./utils/bullconfig");
 const { Mwn } = require("mwn");
 const winston = require("winston");
+const handleZipToCommons = require("./utils/handleZipToCommons");
 const logger = winston.loggers.get("defaultLogger");
+const fs = require("fs").promises;
 
 const IACountQueue = config.getNewQueue("ia-current-item");
 const IACountQueueJobId = "currentIAItemIndex";
@@ -45,32 +47,29 @@ async function getIAMetadataAndDownloadUrl() {
       const IAPdfFileName = IAItemMetaData.files.find((item) =>
         item.name.endsWith(".pdf")
       );
-      const IATorrentFileName = IAItemMetaData.files.find((item) =>
+      const IAZipFileName = IAItemMetaData.files.find((item) =>
         item.name.endsWith(".zip")
       );
-      const IADownloadFileName = IAPdfFileName
-        ? IAPdfFileName
-        : IATorrentFileName;
-      const IADownloadURL_PDF = `https://archive.org/download/${IACurrentIdentifier}/${IADownloadFileName.name}`;
+      const IADownloadFileName = IAPdfFileName ? IAPdfFileName : IAZipFileName;
+      const IADownloadURL_File = `https://archive.org/download/${IACurrentIdentifier}/${IADownloadFileName.name}`;
       return {
         IAItemMetaData,
-        IADownloadURL_PDF,
+        IADownloadURL_File,
       };
     }
   }
 }
 
 /**
- * The Wikimedia Commons API allows uploads directly from a URL.
- * The function `uploadToCommons` uploads the file and metadata returned from `getIAMetadataAndDownloadUrl` to Wikimedia Commons using the Mwn toolforge package. After successful upload, it updates the `count` variable stored on redis (via Bull)
+ * The function `uploadToCommons` uploads the file and metadata returned from `getIAMetadataAndDownloadUrl` to Wikimedia Commons using the Mwn toolforge package. After successful upload, it updates the `count` variable stored on redis (via Bull). For PDF format, the file is uploaded directly from the URL, For ZIP format, `handleZipToCommons` utility fn is used to save and convert the ZIP file to PDF , and then uploaded from local file
  * @param IAItemMetaData  `IAItemMetaData` is an object that contains metadata information about an item from IA.
- * @param IADownloadURL_PDF  The `IADownloadURL_PDF` parameter is the URL of the PDF/ZIP file
+ * @param IADownloadURL_File  The `IADownloadURL_File` parameter is the URL of the PDF/ZIP file
  * that you want to upload to Wikimedia Commons. It should be a valid URL pointing to the location of the PDF/ZIP file.
  * @returns The function `uploadToCommons` returns the Commons filename of the uploaded file if the upload is successful.
  * @docs MWN TOOLFORGE PACKAGE - https://github.com/siddharthvp/mwn
  * Wikimedia Commons Upload File - https://www.mediawiki.org/wiki/API:Upload#JavaScript_2
  */
-async function uploadToCommons(IAItemMetaData, IADownloadURL_PDF) {
+async function uploadToCommons(IAItemMetaData, IADownloadURL_File) {
   const bot = await Mwn.init({
     apiUrl: "https://commons.wikimedia.org/w/api.php",
     username: process.env.EMAIL_BOT_USERNAME,
@@ -85,14 +84,24 @@ async function uploadToCommons(IAItemMetaData, IADownloadURL_PDF) {
 
   async function upload_file() {
     try {
+      let response;
       const IAItemPermission = IAItemMetaData.metadata.licenseurl
         ? `CCO No Rights Reserved ${IAItemMetaData.metadata.licenseurl}`
         : "CC0 No Rights Reserved. Provided at no cost and free to use https://archive.org/about/terms.php";
+      if (IADownloadURL_File.includes(".zip")) {
+        const fileReadyRes = await handleZipToCommons(IADownloadURL_File);
+        if (fileReadyRes !== 200) {
+          logger.log({
+            level: "error",
+            message: `Polling - uploadToCommons/handleZipToCommons: fileReadyRes failed`,
+          });
+          return fileReadyRes;
+        }
 
-      const res = await bot.uploadFromUrl(
-        IADownloadURL_PDF,
-        IAItemMetaData.metadata.title,
-        `{{Book
+        response = await bot.upload(
+          "commonsPayload.pdf",
+          IAItemMetaData.metadata.title,
+          `{{Book
 |Author=${IAItemMetaData.metadata.author}
 |Title=${IAItemMetaData.metadata.title}
 |Description=${IAItemMetaData.metadata.description}
@@ -106,7 +115,30 @@ async function uploadToCommons(IAItemMetaData, IADownloadURL_PDF) {
 {{cc-zero}}
 [[Category:bub.wikimedia]]
 `
-      );
+        );
+
+        await fs.unlink("commonsPayload.pdf");
+      } else {
+        response = await bot.uploadFromUrl(
+          IADownloadURL_File,
+          IAItemMetaData.metadata.title,
+          `{{Book
+|Author=${IAItemMetaData.metadata.author}
+|Title=${IAItemMetaData.metadata.title}
+|Description=${IAItemMetaData.metadata.description}
+|Language=${IAItemMetaData.metadata.language}
+|Publication Date=${IAItemMetaData.metadata.addeddate}
+|Source=${IAItemMetaData.metadata["identifier-access"]}
+|Publisher=${IAItemMetaData.metadata.publisher}
+|Permission=${IAItemPermission}
+|Other_fields_1={{Information field|name=Contributor|value=${IAItemMetaData.metadata.contributor}|name=Pages|value=${IAItemMetaData.metadata.pages}|name=Internet_Archive_Identifier|value=${IAItemMetaData.metadata.identifier}}}
+}}
+{{cc-zero}}
+[[Category:bub.wikimedia]]
+`
+        );
+      }
+
       getIACountQueue?.remove();
       IACountQueue.add(
         {
@@ -118,13 +150,13 @@ async function uploadToCommons(IAItemMetaData, IADownloadURL_PDF) {
       );
       logger.log({
         level: "info",
-        message: `Polling - uploadToCommons: Upload of ${IADownloadURL_PDF} to commons successful`,
+        message: `Polling - uploadToCommons: Upload of ${IADownloadURL_File} to commons successful`,
       });
-      return res.filename;
+      return response.filename;
     } catch (error) {
       logger.log({
         level: "error",
-        message: `Polling - uploadToCommons: Failed to upload ${IADownloadURL_PDF} to commons: ${error}`,
+        message: `Polling - uploadToCommons: Failed to upload ${IADownloadURL_File} to commons: ${error}`,
       });
       return 404;
     }
@@ -452,11 +484,11 @@ async function updateCommons(commonsItemFilename, wikidataId, IAItemMetaData) {
 async function handlePolling() {
   const {
     IAItemMetaData,
-    IADownloadURL_PDF,
+    IADownloadURL_File,
   } = await getIAMetadataAndDownloadUrl();
   const commonsItemFilename = await uploadToCommons(
     IAItemMetaData,
-    IADownloadURL_PDF
+    IADownloadURL_File
   );
   if (commonsItemFilename !== 404) {
     const wikidataId = await uploadToWikidata(

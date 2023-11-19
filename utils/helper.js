@@ -25,7 +25,12 @@ module.exports = {
     return title.replace(/[ \(\)\[\],:]/g, "");
   },
 
-  customFetch: async (URI, method = "GET", headers = new Headers()) => {
+  customFetch: async (
+    URI,
+    method = "GET",
+    headers = new Headers(),
+    contentType = "other"
+  ) => {
     return fetch(URI, {
       method: method,
       headers: headers,
@@ -34,7 +39,10 @@ module.exports = {
         (res) => {
           if (res.status === 404) {
             return 404;
-          } else return res.json();
+          } else {
+            const result = contentType === "file" ? res : res.json();
+            return result;
+          }
         },
         (err) => {
           logger.log({
