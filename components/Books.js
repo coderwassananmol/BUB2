@@ -12,6 +12,7 @@ const Books = () => {
   const [loader, setLoader] = useState(false);
   const [isDuplicate, setIsDuplicate] = useState(false);
   const [isInValidIdentifier, setIsInValidIdentifier] = useState(false);
+  const [isUploadCommons, setIsUploadCommons] = useState(false);
   const [IATitle, setIATitle] = useState("");
   const [IAIdentifier, setIAIdentifier] = useState("");
   const [inputDisabled, setInputDisabled] = useState(false);
@@ -24,6 +25,7 @@ const Books = () => {
     setIATitle("");
     setIAIdentifier("");
     setInputDisabled(false);
+    setIsUploadCommons(false);
   };
 
   const onResetButtonClicked = () => {
@@ -32,6 +34,7 @@ const Books = () => {
     setInputDisabled(false);
     setIATitle("");
     setIAIdentifier("");
+    setIsUploadCommons(false);
   };
 
   const onSwalClosed = () => {
@@ -39,7 +42,6 @@ const Books = () => {
     setIAIdentifier("");
     setIATitle("");
   };
-
   const renderContent = (option) => {
     switch (option) {
       case "gb":
@@ -131,7 +133,9 @@ const Books = () => {
       case "gb":
         url = `${host}/check?bookid=${bookid}&option=${
           option + (email ? "&email=" + email : "")
-        }&userName=${session.user.name}&IAtitle=${IAIdentifier}`;
+        }&userName=${
+          session.user.name
+        }&IAtitle=${IAIdentifier}&isUploadCommons=${isUploadCommons}`;
         fetch(url)
           .then((response) => response.json())
           .then(async (response) => {
@@ -224,7 +228,9 @@ const Books = () => {
       case "trove":
         url = `${host}/check?bookid=${bookid}&option=${
           option + (email ? "&email=" + email : "")
-        }&userName=${session.user.name}&IAtitle=${IAIdentifier}`;
+        }&userName=${
+          session.user.name
+        }&IAtitle=${IAIdentifier}&isUploadCommons=${isUploadCommons}`;
         fetch(url)
           .then((res) => res.json())
           .then((response) => {
@@ -268,6 +274,38 @@ const Books = () => {
             </select>
           </div>
           <div className="section">{renderContent(option)}</div>
+
+          <div className="section">
+            <span class="cdx-checkbox">
+              <input
+                id="checkbox-description-css-only-1"
+                class="cdx-checkbox__input"
+                type="checkbox"
+                aria-describedby="cdx-description-css-1"
+                onChange={(event) => setIsUploadCommons(event.target.checked)}
+              />
+              <span class="cdx-checkbox__icon"></span>
+              <div class="cdx-checkbox__label cdx-label">
+                <label
+                  for="checkbox-description-css-only-1"
+                  class="cdx-label__label"
+                >
+                  Upload To Commons
+                </label>
+              </div>
+            </span>
+
+            {isUploadCommons && (
+              <span id="cdx-description-css-1" class="cdx-label__description">
+                <p>
+                  <span class="cdx-css-icon--info-filled"></span>
+                  &nbsp; BUB2 will also upload book to Commons and link to
+                  Wikidata
+                </p>
+              </span>
+            )}
+          </div>
+
           {isDuplicate ? (
             <ChangeIdentifier
               description={
@@ -306,14 +344,22 @@ const Books = () => {
 
           {session && (
             <div>
-              <div style={{ marginTop: 20, marginRight: 20 }}>
+              <div
+                style={{
+                  marginTop: 20,
+                  marginRight: 20,
+                }}
+              >
                 <button className="cdx-button cdx-button--action-progressive cdx-button--weight-primary">
                   Submit
                 </button>
                 {isDuplicate === true || isInValidIdentifier === true ? (
                   <button
                     onClick={onResetButtonClicked}
-                    style={{ marginLeft: 40 }}
+                    style={{
+                      marginLeft: 40,
+                      marginBottom: "100px",
+                    }}
                     className="cdx-button cdx-button--action-progressive cdx-button--weight-primary"
                   >
                     Reset

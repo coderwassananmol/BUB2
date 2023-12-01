@@ -4,7 +4,11 @@ const config = require("../../utils/bullconfig");
 const GoogleBooksQueue = config.getNewQueue("google-books-queue");
 const winston = require("winston");
 const logger = winston.loggers.get("defaultLogger");
-const { logUserData } = require("./../../utils/helper");
+const {
+  logUserData,
+  uploadToCommons,
+  downloadFile,
+} = require("./../../utils/helper");
 
 let responseSize,
   dataSize = 0;
@@ -60,7 +64,7 @@ GoogleBooksQueue.process((job, done) => {
           "X-Amz-Auto-Make-Bucket": "1",
           "X-Archive-Meta-Collection": "opensource",
           "X-Archive-Ignore-Preexisting-Bucket": 1,
-          "X-archive-meta-title": title.trim(),
+          "X-archive-meta-title": title ? title.trim() : "",
           "X-archive-meta-date": publishedDate.trim(),
           "X-archive-meta-language": language.trim(),
           "X-archive-meta-mediatype": "texts",
@@ -82,8 +86,42 @@ GoogleBooksQueue.process((job, done) => {
           done(new Error(body));
           //EmailProducer(job.data.email, title, trueURI, false);
         } else {
-          done(null, true);
-          //EmailProducer(job.data.email, title, trueURI, true);
+          if (job.data.isUploadCommons === "true") {
+            job.progress({
+              step: "uploadTocommons",
+              value: 0,
+            });
+            const downloadFileRes = await downloadFile(
+              requestURI,
+              "commonsFilePayload.pdf"
+            );
+            job.progress({
+              step: "uploadTocommons",
+              value: 50,
+            });
+            if (downloadFileRes.writeFileStatus !== 200) {
+              done(new Error(`downloadFile: ${downloadFileRes}`));
+            }
+            const commonsResponse = await uploadToCommons(job.data);
+            job.progress({
+              step: "uploadTocommons",
+              value: 80,
+            });
+            if (commonsResponse.fileUploadStatus !== 200) {
+              done(new Error(`uploadToCommons: ${commonsResponse}`));
+            }
+            job.progress({
+              step: "uploadTocommons",
+              value: 100,
+              wikiLinks: {
+                commons: commonsResponse.filename,
+              },
+            });
+            done(null, true);
+          } else {
+            //EmailProducer(job.data.email, title, trueURI, true);
+            done(null, true);
+          }
         }
       }
     )
@@ -96,6 +134,9 @@ GoogleBooksQueue.process((job, done) => {
 
   requestURI.on("data", function (chunk) {
     dataSize += Number(chunk.length);
-    job.progress(Math.round((dataSize / responseSize) * 100));
+    job.progress({
+      step: "uploadToIA",
+      value: Math.round((dataSize / responseSize) * 100),
+    });
   });
 });

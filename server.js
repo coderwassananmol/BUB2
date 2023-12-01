@@ -150,7 +150,7 @@ app
               );
             }
             const obj = {
-              progress: progress,
+              progress: progress.value,
               queueName: queueName,
               previewLink: getPreviewLink(
                 req.query.queue_name,
@@ -158,7 +158,7 @@ app
                 categoryID
               ),
               uploadStatus: {
-                uploadLink: progress === 100 && trueURI ? trueURI : "",
+                uploadLink: progress.value === 100 && trueURI ? trueURI : "",
                 isUploaded: jobState === "completed" ? true : false,
               },
             };
@@ -212,7 +212,7 @@ app
       if (req.query.job_id) {
         const job = await queue.getJob(req.query.job_id);
         if (job) {
-          return job.progress();
+          return job.progress().value;
         }
         return null;
       }
@@ -277,22 +277,27 @@ app
                     .toString()
                     .padStart(2, "0") +
                   "-" +
-                  date
-                    .getUTCDate()
-                    .toLocaleString(undefined, { minimumIntegerDigits: 2 }) +
+                  date.getUTCDate().toLocaleString(undefined, {
+                    minimumIntegerDigits: 2,
+                  }) +
                   " " +
                   date.getUTCHours() +
                   ":" +
-                  date
-                    .getUTCMinutes()
-                    .toLocaleString(undefined, { minimumIntegerDigits: 2 }) +
+                  date.getUTCMinutes().toLocaleString(undefined, {
+                    minimumIntegerDigits: 2,
+                  }) +
                   " (UTC)",
-                upload_progress: job.progress(),
+                upload_progress: `${job.progress().step}:${
+                  job.progress().value
+                }`,
                 status: returnJobStatus(
                   job.failedReason,
                   job.finishedOn,
                   job.processedOn
                 ),
+                wikimedia_links: job.progress().wikiLinks?.commons
+                  ? job.progress().wikiLinks.commons
+                  : "Not Integrated",
               };
             });
             res.send(_.orderBy(filteredJobs, "id", "desc"));
@@ -368,9 +373,17 @@ app
     });
 
     let GBdetails = {};
+    let GBreq;
     const isAlphanumericLess50 = /^[a-zA-Z0-9]{1,50}$/;
     server.get("/check", async (req, res) => {
-      const { bookid, option, email, userName, IAtitle } = req.query;
+      const {
+        bookid,
+        option,
+        email,
+        userName,
+        IAtitle,
+        isUploadCommons,
+      } = req.query;
       emailaddr = email;
       authUserName = userName;
       switch (option) {
@@ -400,6 +413,7 @@ app
                 });
               } else {
                 GBdetails = data;
+                GBreq = req;
                 res.send({
                   error: false,
                   message: "In public domain.",
@@ -513,7 +527,14 @@ app
                   error: false,
                   message: "You will be mailed with the details soon!",
                 });
-                TroveProducer(bookid, titleInIA, troveData, email, userName);
+                TroveProducer(
+                  bookid,
+                  titleInIA,
+                  troveData,
+                  email,
+                  userName,
+                  isUploadCommons
+                );
               }
             }
           });
@@ -558,7 +579,8 @@ app
           req.body.titleInIA,
           GBdetails,
           emailaddr,
-          authUserName
+          authUserName,
+          GBreq.query.isUploadCommons
         );
       } else {
         res.send({

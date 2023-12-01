@@ -6,7 +6,11 @@ const request = require("request");
 const _ = require("lodash");
 const winston = require("winston");
 const logger = winston.loggers.get("defaultLogger");
-const { logUserData } = require("./../../utils/helper");
+const {
+  logUserData,
+  downloadFile,
+  uploadToCommons,
+} = require("./../../utils/helper");
 
 let responseSize,
   dataSize = 0;
@@ -83,8 +87,44 @@ TroveQueue.process((job, done) => {
                 done(new Error(body));
                 //EmailProducer(job.data.details.email, name, trueURI, false);
               } else {
-                done(null, true);
-                //EmailProducer(job.data.details.email, name, trueURI, true);
+                if (job.data.details.isUploadCommons === "true") {
+                  job.progress({
+                    step: "uploadTocommons",
+                    value: 0,
+                  });
+                  const downloadFileRes = await downloadFile(
+                    requestURI,
+                    "commonsFilePayload.pdf"
+                  );
+                  job.progress({
+                    step: "uploadTocommons",
+                    value: 50,
+                  });
+                  if (downloadFileRes.writeFileStatus !== 200) {
+                    done(new Error(`downloadFile: ${downloadFileRes}`));
+                  }
+                  const commonsResponse = await uploadToCommons(
+                    job.data.details
+                  );
+                  job.progress({
+                    step: "uploadTocommons",
+                    value: 80,
+                  });
+                  if (commonsResponse.fileUploadStatus !== 200) {
+                    done(new Error(`uploadToCommons: ${commonsResponse}`));
+                  }
+                  job.progress({
+                    step: "uploadTocommons",
+                    value: 100,
+                    wikiLinks: {
+                      commons: commonsResponse.filename,
+                    },
+                  });
+                  done(null, true);
+                } else {
+                  done(null, true);
+                  //EmailProducer(job.data.details.email, name, trueURI, true);
+                }
               }
             }
           )
@@ -97,7 +137,11 @@ TroveQueue.process((job, done) => {
         requestURI.on("data", function (chunk) {
           dataSize += Number(chunk.length);
           const progress = Math.round((dataSize / responseSize) * 100);
-          if (progress !== null) job.progress(progress);
+          if (progress !== null)
+            job.progress({
+              step: "uploadToIA",
+              value: progress,
+            });
         });
       }
     }

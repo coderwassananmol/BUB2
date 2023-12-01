@@ -5,6 +5,8 @@ const _ = require("lodash");
 const winston = require("winston");
 const { truncate } = require("fs");
 const logger = winston.loggers.get("defaultLogger");
+const fs = require("fs");
+const { Mwn } = require("mwn");
 
 module.exports = {
   checkIfFileExistsAtIA: async (ID) => {
@@ -237,5 +239,94 @@ module.exports = {
       level: "info",
       message: `User ${userName} uploaded using ${libraryName}`,
     });
+  },
+  downloadFile: async (downloadUrl, localFilepath) => {
+    try {
+      const fileRes = await fetch(downloadUrl, {
+        method: "GET",
+        headers: new Headers({
+          "Content-Type": "application/pdf",
+        }),
+      });
+      const fileBuffer = await fileRes.buffer();
+      await fs.promises.writeFile(localFilepath, fileBuffer);
+      return {
+        writeFileStatus: 200,
+      };
+    } catch (error) {
+      logger.log({
+        level: "error",
+        message: `downloadFile: ${error}`,
+      });
+      return error;
+    }
+  },
+  uploadToCommons: async (metadata) => {
+    try {
+      const bot = await Mwn.init({
+        apiUrl: "https://commons.wikimedia.org/w/api.php",
+        username: process.env.EMAIL_BOT_USERNAME,
+        password: process.env.EMAIL_BOT_PASSWORD,
+        userAgent: "bub2.toolforge ([[https://bub2.toolforge.org]])",
+        defaultParams: {
+          assert: "user",
+        },
+      });
+
+      const commonsFilePayload = "commonsFilePayload.pdf";
+      let {
+        title,
+        subtitle,
+        authors,
+        publisher,
+        publishedDate,
+        language,
+        pageCount,
+        infoLink,
+      } = metadata.details.volumeInfo;
+      console.log("metadata.details.volumeInfo:", metadata.details.volumeInfo);
+      console.log(
+        "metadata.details.volumeInfo.subtitle:",
+        metadata.details.volumeInfo.subtitle
+      );
+      const permission = `CCO No Rights Reserved https://creativecommons.org/publicdomain/mark/1.0/`;
+      const authorsFormatted = authors ? authors.join().trim() : "";
+      const response = await bot.upload(
+        commonsFilePayload,
+        title,
+        `{{Book
+|Author=${authorsFormatted}
+|Title=${title}
+|Description=${subtitle}
+|Language=${language}
+|Publication Date=${publishedDate}
+|Source=${infoLink}
+|Publisher=${publisher}
+|Permission=${permission}
+|Other_fields_1={{Information field|name=Rights|value=${metadata.details.accessInfo.accessViewStatus}|name=Pages|value=${pageCount}|name=Internet_Archive_Identifier|value=${metadata.IAIdentifier}}}
+}}
+{{cc-zero}}
+[[Category:bub.wikimedia]]
+`
+      );
+      if (await response.filename) {
+        await fs.promises.unlink(commonsFilePayload);
+      }
+      logger.log({
+        level: "info",
+        message: `Polling - uploadToCommons: Upload of ${metadata.IAIdentifier} to commons successful`,
+      });
+      return {
+        fileUploadStatus: 200,
+        filename: response.filename,
+      };
+    } catch (error) {
+      await fs.promises.unlink("commonsFilePayload.pdf");
+      logger.log({
+        level: "error",
+        message: `Polling - uploadToCommons: ${error}`,
+      });
+      return error;
+    }
   },
 };

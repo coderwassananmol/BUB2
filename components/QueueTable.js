@@ -141,6 +141,23 @@ const ShowUploadQueue = (props) => {
       align: "left",
       format: (value) => value + "%",
     },
+    {
+      id: "wikimedia_links",
+      label: "Wikimedia Links",
+      minWidth: 50,
+      align: "left",
+      format: (value) =>
+        value !== "Not Integrated" ? (
+          <a
+            href={`https://commons.wikimedia.org/wiki/File:${value}`}
+            target="_blank"
+          >
+            Commons
+          </a>
+        ) : (
+          value
+        ),
+    },
   ];
 
   const [open, setOpen] = useState(false);
@@ -171,6 +188,8 @@ const ShowUploadQueue = (props) => {
     } else if (column.id === "date") {
       return column.format(value);
     } else if (column.id === "status") {
+      return column.format(value);
+    } else if (column.id === "wikimedia_links") {
       return column.format(value);
     } else {
       return value;

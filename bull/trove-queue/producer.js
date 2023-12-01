@@ -4,7 +4,14 @@ const { getTroveMetaData } = require("../../utils/helper.js");
 const cheerio = require("cheerio"); // Basically jQuery for node.js
 
 require("./consumer");
-module.exports = async (bookid, IAIdentifier, metaData, email, userName) => {
+module.exports = async (
+  bookid,
+  IAIdentifier,
+  metaData,
+  email,
+  userName,
+  isUploadCommons
+) => {
   const uri = `https://trove.nla.gov.au/newspaper/article/${bookid}`;
   var options = {
     uri,
@@ -19,6 +26,7 @@ module.exports = async (bookid, IAIdentifier, metaData, email, userName) => {
   metaData["issueRenditionId"] = issueRenditionId;
   metaData["userName"] = userName;
   metaData["IAIdentifier"] = IAIdentifier;
+  metaData["isUploadCommons"] = isUploadCommons;
 
   const details = {
     details: metaData,
