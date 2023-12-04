@@ -116,17 +116,26 @@ async function uploadToIA(zip, metadata, byteLength, email, trueURI, job) {
             metadata.isEmailNotification
           );
         } else {
-          EmailProducer(
-            metadata.userName,
-            metadata.title,
-            trueURI,
-            false,
-            metadata.isEmailNotification
-          );
-          logger.log({
-            level: "error",
-            message: `IA Failure PDL ${body}`,
-          });
+          if (!body) {
+            logger.log({
+              level: "error",
+              message: `IA Failure PDL ${error}`,
+            });
+            done(new Error(error));
+          } else {
+            EmailProducer(
+              metadata.userName,
+              metadata.title,
+              trueURI,
+              false,
+              metadata.isEmailNotification
+            );
+            logger.log({
+              level: "error",
+              message: `IA Failure PDL ${body}`,
+            });
+            done(new Error(body));
+          }
         }
       }
     )
