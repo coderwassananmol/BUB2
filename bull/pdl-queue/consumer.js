@@ -106,7 +106,7 @@ function setHeaders(metadata, byteLength, title, contentType) {
   headers[
     "Authorization"
   ] = `LOW ${process.env.access_key}:${process.env.secret_key}`;
-  headers["Content-type"] = "application/zip";
+  headers["Content-type"] = `application/${contentType}`;
   headers["Content-length"] = byteLength;
   headers["X-Amz-Auto-Make-Bucket"] = 1;
   headers["X-Archive-meta-collection"] = "opensource";
