@@ -161,7 +161,14 @@ async function uploadZipToIA(zip, metadata, byteLength, email, job) {
   );
 }
 
-async function uploadPdfToIA(pdfBuffer, metadata, byteLength, email, job) {
+async function uploadPdfToIA(
+  pdfBuffer,
+  metadata,
+  byteLength,
+  email,
+  job,
+  onError
+) {
   const bucketTitle = metadata.IAIdentifier;
   const IAuri = `http://s3.us.archive.org/${bucketTitle}/${bucketTitle}.pdf`;
   let headers = setHeaders(
@@ -177,7 +184,7 @@ async function uploadPdfToIA(pdfBuffer, metadata, byteLength, email, job) {
   };
   const readableStream = Readable.from(pdfBuffer);
   readableStream.pipe(
-    request(options, async (error, response, body) => {
+    request(options, (error, response, body) => {
       if (response.statusCode === 200) {
         // EmailProducer(email, metadata.title, IAuri, true);
       } else {
@@ -185,6 +192,7 @@ async function uploadPdfToIA(pdfBuffer, metadata, byteLength, email, job) {
           level: "error",
           message: `IA Failure PDL ${body}`,
         });
+        onError(true, body || error);
       }
     })
   );
@@ -209,7 +217,12 @@ PDLQueue.process(async (job, done) => {
         job.data.details,
         byteLength,
         job.data.details.email,
-        job
+        job,
+        (isError, error) => {
+          if (isError) {
+            done(new Error(error));
+          }
+        }
       );
       job.progress(100);
       done(null, true);
