@@ -98,21 +98,21 @@ function Header(props) {
                 </label>
               </li>
             </Link>
-            {/* <Link href="/faq">
-                <li
-                  id="form-tabs-3-label"
-                  className="cdx-tabs__list__item"
-                  role="presentation"
+            <Link href="/faqs">
+              <li
+                id="form-tabs-3-label"
+                className="cdx-tabs__list__item"
+                role="presentation"
+              >
+                <label
+                  htmlFor="form-tabs-3-input"
+                  role="tab"
+                  aria-selected={props.page === "faqs" ? "true" : "false"}
                 >
-                  <label
-                    for="form-tabs-3-input"
-                    role="tab"
-                    aria-selected={this.props.page === "faq" ? "true" : "false"}
-                  >
-                    FAQ
-                  </label>
-                </li>
-              </Link> */}
+                  FAQs
+                </label>
+              </li>
+            </Link>
           </ul>
           {session && (
             <div className="user-info__right">

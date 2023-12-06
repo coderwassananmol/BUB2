@@ -150,10 +150,19 @@ async function uploadZipToIA(zip, metadata, byteLength, email, job) {
         if (response.statusCode === 200) {
           //EmailProducer(email, metadata.title, trueURI, true);
         } else {
-          logger.log({
-            level: "error",
-            message: `IA Failure PDL ${body}`,
-          });
+          if (!body) {
+            logger.log({
+              level: "error",
+              message: `IA Failure PDL ${error}`,
+            });
+            done(new Error(error));
+          } else {
+            logger.log({
+              level: "error",
+              message: `IA Failure PDL ${body}`,
+            });
+            done(new Error(body));
+          }
           //EmailProducer(email, metadata.title, trueURI, false);
         }
       }
