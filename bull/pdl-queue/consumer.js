@@ -70,6 +70,7 @@ async function getZipAndBytelength(no_of_pages, id, title, job) {
 
 async function getPdfAndBytelength(pdfUrl, job) {
   try {
+    let errorFlag = { status: false, page: "" };
     const response = await customFetch(
       pdfUrl,
       "GET",
@@ -85,19 +86,31 @@ async function getPdfAndBytelength(pdfUrl, job) {
       return {
         pdfBuffer: buffer,
         byteLength: buffer.byteLength,
+        errorFlag,
       };
     } else {
       logger.log({
         level: "error",
         message: `Failure PDL: Failed to download PDF. Status Code: ${response.status}`,
       });
+      errorFlag = { status: true, page: pdfUrl };
+      return {
+        pdfBuffer: null,
+        byteLength: null,
+        errorFlag,
+      };
     }
   } catch (error) {
     logger.log({
       level: "error",
       message: `Failure PDL: ${error}`,
     });
-    return null;
+    let errorFlag = { status: true, page: pdfUrl };
+    return {
+      pdfBuffer: null,
+      byteLength: null,
+      errorFlag,
+    };
   }
 }
 
@@ -124,10 +137,13 @@ function setHeaders(metadata, byteLength, title, contentType) {
     headers[`X-archive-meta-${meta_key}`] = metadata[key];
   }
   headers["X-archive-meta-title"] = metadata["title"];
+  headers[`X-archive-meta-description`] = `uri(${encodeURI(
+    metadata.description?.trim()
+  )})`;
   return headers;
 }
 
-async function uploadZipToIA(zip, metadata, byteLength, email, job) {
+async function uploadZipToIA(zip, metadata, byteLength, email, job, onError) {
   const bucketTitle = metadata.IAIdentifier;
   const IAuri = `http://s3.us.archive.org/${bucketTitle}/${bucketTitle}_images.zip`;
   metadata = _.omit(metadata, "coverImage");
@@ -155,13 +171,13 @@ async function uploadZipToIA(zip, metadata, byteLength, email, job) {
               level: "error",
               message: `IA Failure PDL ${error}`,
             });
-            done(new Error(error));
+            onError(true, error);
           } else {
             logger.log({
               level: "error",
               message: `IA Failure PDL ${body}`,
             });
-            done(new Error(body));
+            onError(true, body);
           }
           //EmailProducer(email, metadata.title, trueURI, false);
         }
@@ -199,7 +215,7 @@ async function uploadPdfToIA(
       } else {
         logger.log({
           level: "error",
-          message: `IA Failure PDL ${body}`,
+          message: `IA Failure PDL ${body || error}`,
         });
         onError(true, body || error);
       }
@@ -217,10 +233,17 @@ PDLQueue.process(async (job, done) => {
     logUserData(jobLogs["userName"], "Panjab Digital Library");
 
     if (job.data.details.pdfUrl) {
-      const { pdfBuffer, byteLength } = await getPdfAndBytelength(
+      const { pdfBuffer, byteLength, errorFlag } = await getPdfAndBytelength(
         job.data.details.pdfUrl,
         job
       );
+      if (errorFlag.status) {
+        logger.log({
+          level: "error",
+          message: `Failure PDL: Failed to download ${errorFlag.page}`,
+        });
+        done(new Error(`Failure PDL: Failed to download ${errorFlag.page}`));
+      }
       await uploadPdfToIA(
         pdfBuffer,
         job.data.details,
@@ -236,19 +259,31 @@ PDLQueue.process(async (job, done) => {
       job.progress(100);
       done(null, true);
     } else {
-      const [zip, byteLength] = await getZipAndBytelength(
+      const [zip, byteLength, errorFlag] = await getZipAndBytelength(
         job.data.details.Pages,
         job.data.details.bookID,
         job.data.details.title,
         job
       );
+      if (errorFlag.status) {
+        logger.log({
+          level: "error",
+          message: `Failure PDL: Failed to download ${errorFlag.page}`,
+        });
+        done(new Error(`Failure PDL: Failed to download ${errorFlag.page}`));
+      }
       job.progress(90);
       await uploadZipToIA(
         zip,
         job.data.details,
         byteLength,
         job.data.details.email,
-        job
+        job,
+        (isError, error) => {
+          if (isError) {
+            done(new Error(error));
+          }
+        }
       );
       job.progress(100);
       done(null, true);
