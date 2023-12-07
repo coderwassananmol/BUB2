@@ -135,7 +135,9 @@ const Books = () => {
           option + (email ? "&email=" + email : "")
         }&userName=${
           session.user.name
-        }&IAtitle=${IAIdentifier}&isUploadCommons=${isUploadCommons}`;
+        }&IAtitle=${IAIdentifier}&isUploadCommons=${isUploadCommons}&oauthToken=${
+          session?.accessToken
+        }`;
         fetch(url)
           .then((response) => response.json())
           .then(async (response) => {
@@ -230,7 +232,9 @@ const Books = () => {
           option + (email ? "&email=" + email : "")
         }&userName=${
           session.user.name
-        }&IAtitle=${IAIdentifier}&isUploadCommons=${isUploadCommons}`;
+        }&IAtitle=${IAIdentifier}&isUploadCommons=${isUploadCommons}&oauthToken=${
+          session?.accessToken
+        }`;
         fetch(url)
           .then((res) => res.json())
           .then((response) => {

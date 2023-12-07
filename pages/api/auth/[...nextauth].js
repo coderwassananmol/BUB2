@@ -7,8 +7,8 @@ export const authOptions = {
   providers: [
     WikimediaProvider({
       clientId: process.env.WIKIMEDIA_CLIENT_ID,
-      clientSecret: process.env.WIKIMEDIA_CLIENT_SECRET
-    })
+      clientSecret: process.env.WIKIMEDIA_CLIENT_SECRET,
+    }),
   ],
   session: {
     jwt: true,
@@ -35,6 +35,23 @@ export const authOptions = {
           message: `[${code}] ${metadata.error_description}`,
         });
       }
+    },
+  },
+
+  callbacks: {
+    async jwt({ token, user, account, profile, isNewUser }) {
+      // This is called whenever a user signs in
+      if (account) {
+        // Add the access token to the token object
+        token.accessToken = account.access_token;
+      }
+      return token;
+    },
+    async session({ session, token, user }) {
+      // This is called whenever a session is accessed
+      // Add the access token to the session object
+      session.accessToken = token.accessToken;
+      return session;
     },
   },
 };

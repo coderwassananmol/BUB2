@@ -383,6 +383,7 @@ app
         userName,
         IAtitle,
         isUploadCommons,
+        oauthToken,
       } = req.query;
       emailaddr = email;
       authUserName = userName;
@@ -533,7 +534,8 @@ app
                   troveData,
                   email,
                   userName,
-                  isUploadCommons
+                  isUploadCommons,
+                  oauthToken
                 );
               }
             }
@@ -580,7 +582,8 @@ app
           GBdetails,
           emailaddr,
           authUserName,
-          GBreq.query.isUploadCommons
+          GBreq.query.isUploadCommons,
+          GBreq.query.oauthToken
         );
       } else {
         res.send({

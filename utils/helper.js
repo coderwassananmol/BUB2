@@ -265,8 +265,7 @@ module.exports = {
     try {
       const bot = await Mwn.init({
         apiUrl: "https://commons.wikimedia.org/w/api.php",
-        username: process.env.EMAIL_BOT_USERNAME,
-        password: process.env.EMAIL_BOT_PASSWORD,
+        OAuth2AccessToken: metadata.oauthToken,
         userAgent: "bub2.toolforge ([[https://bub2.toolforge.org]])",
         defaultParams: {
           assert: "user",
