@@ -80,11 +80,19 @@ TroveQueue.process((job, done) => {
             },
             async (error, response, body) => {
               if (error || response.statusCode != 200) {
-                logger.log({
-                  level: "error",
-                  message: `IA Failure Trove ${body}`,
-                });
-                done(new Error(body));
+                if (!body) {
+                  logger.log({
+                    level: "error",
+                    message: `IA Failure Trove ${error}`,
+                  });
+                  done(new Error(error));
+                } else {
+                  logger.log({
+                    level: "error",
+                    message: `IA Failure Trove ${body}`,
+                  });
+                  done(new Error(body));
+                }
                 //EmailProducer(job.data.details.email, name, trueURI, false);
               } else {
                 if (job.data.details.isUploadCommons === "true") {
