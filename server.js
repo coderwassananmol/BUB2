@@ -384,6 +384,7 @@ app
         IAtitle,
         isUploadCommons,
         oauthToken,
+        commonsMetadata,
       } = req.query;
       emailaddr = email;
       authUserName = userName;
@@ -583,7 +584,8 @@ app
           emailaddr,
           authUserName,
           GBreq.query.isUploadCommons,
-          GBreq.query.oauthToken
+          GBreq.query.oauthToken,
+          GBreq.query.commonsMetadata
         );
       } else {
         res.send({

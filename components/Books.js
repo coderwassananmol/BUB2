@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { host } from "../utils/constants";
 import { useSession, signIn } from "next-auth/react";
 import ChangeIdentifier from "./ChangeIdentifier";
+import useMetadataForUI from "../hooks/useMetadataForUI";
+import BooksWrapper from "./BooksWrapper";
+import { Box } from "@mui/material";
 
 const Books = () => {
   const { data: session } = useSession();
@@ -16,6 +19,12 @@ const Books = () => {
   const [IATitle, setIATitle] = useState("");
   const [IAIdentifier, setIAIdentifier] = useState("");
   const [inputDisabled, setInputDisabled] = useState(false);
+  const [isCommonsMetadataReady, setIsCommonsMetadataReady] = useState(false);
+  const [hasCommonsMetadataUpdated, setHasCommonsMetadataUpdated] = useState(
+    false
+  );
+  const [commonsMetadata, setCommonsMetadata] = useState();
+  const { getMetadataForUI } = useMetadataForUI();
 
   const handleChange = (event) => {
     setOption(event.target.value);
@@ -116,8 +125,8 @@ const Books = () => {
     return urlPattren.test(urlString);
   };
 
-  const onSubmit = (event) => {
-    event.preventDefault();
+  const onSubmit = async (event) => {
+    event?.preventDefault();
 
     if (!session.user.name || session.user.name === "") {
       Swal("Error!", "Log in with Wikimedia to continue", "error");
@@ -131,69 +140,77 @@ const Books = () => {
     let url = "";
     switch (option) {
       case "gb":
-        url = `${host}/check?bookid=${bookid}&option=${
-          option + (email ? "&email=" + email : "")
-        }&userName=${
-          session.user.name
-        }&IAtitle=${IAIdentifier}&isUploadCommons=${isUploadCommons}&oauthToken=${
-          session?.accessToken
-        }`;
-        fetch(url)
-          .then((response) => response.json())
-          .then(async (response) => {
-            setLoader(false);
-            if (response.isDuplicate) {
-              setIsDuplicate(true);
-              setIATitle(response.titleInIA);
-              setInputDisabled(true);
-            } else if (response.isInValidIdentifier) {
-              setIsInValidIdentifier(true);
-              setIATitle(response.titleInIA);
-              setInputDisabled(true);
-            } else {
-              if (response.error) {
-                Swal("Error!", response.message, "error");
+        if (isUploadCommons && !hasCommonsMetadataUpdated) {
+          const commonsMetadata = await getMetadataForUI("gb", bookid);
+          setCommonsMetadata(commonsMetadata);
+          setIsCommonsMetadataReady(true);
+        } else {
+          url = `${host}/check?bookid=${bookid}&option=${
+            option + (email ? "&email=" + email : "")
+          }&userName=${
+            session.user.name
+          }&IAtitle=${IAIdentifier}&isUploadCommons=${isUploadCommons}&oauthToken=${
+            session?.accessToken
+          }&commonsMetadata=${commonsMetadata}`;
+          fetch(url)
+            .then((response) => response.json())
+            .then(async (response) => {
+              setLoader(false);
+              if (response.isDuplicate) {
+                setIsDuplicate(true);
+                setIATitle(response.titleInIA);
+                setInputDisabled(true);
+              } else if (response.isInValidIdentifier) {
+                setIsInValidIdentifier(true);
+                setIATitle(response.titleInIA);
+                setInputDisabled(true);
               } else {
-                const { value: url } = await Swal({
-                  input: "url",
-                  backdrop: true,
-                  width: "50%",
-                  allowEscapeKey: false,
-                  allowOutsideClick: false,
-                  showCloseButton: true,
-                  onClose: onSwalClosed,
-                  title: '<h4">Just a few more steps...</h4>',
-                  html:
-                    `<ol style="text-align: left; font-size: 16px; line-height: 1.5;">` +
-                    `<li>Go to this link: <a href = "${response.url}" target="_blank">${response.title}</a></li>` +
-                    `<li>Enter the captcha.</li>` +
-                    `<li>Enter the URL below (<i>https://books.googleusercontent.com/books/content?req=xxx</i>)</li>`,
-                });
+                if (response.error) {
+                  Swal("Error!", response.message, "error");
+                } else {
+                  setIsCommonsMetadataReady(false);
+                  const { value: url } = await Swal({
+                    input: "url",
+                    backdrop: true,
+                    width: "50%",
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    showCloseButton: true,
+                    onClose: onSwalClosed,
+                    title: '<h4">Just a few more steps...</h4>',
+                    html:
+                      `<ol style="text-align: left; font-size: 16px; line-height: 1.5;">` +
+                      `<li>Go to this link: <a href = "${response.url}" target="_blank">${response.title}</a></li>` +
+                      `<li>Enter the captcha.</li>` +
+                      `<li>Enter the URL below (<i>https://books.googleusercontent.com/books/content?req=xxx</i>)</li>`,
+                  });
 
-                if (url && typeof url !== "object") {
-                  setLoader(true);
-                  fetch(`${host}/download`, {
-                    body: JSON.stringify({
-                      url: url,
-                      titleInIA: response.IAIdentifier,
-                    }),
-                    headers: {
-                      "Content-Type": "application/json",
-                      "Access-Control-Allow-Origin": "*",
-                    },
-                    method: "POST",
-                  })
-                    .then((response) => response.json())
-                    .then((response) => {
-                      setLoader(false);
-                      if (response.error)
-                        Swal("Error!", response.message, "error");
-                      else Swal("Voila!", response.message, "success");
-                    });
+                  if (url && typeof url !== "object") {
+                    setLoader(true);
+                    fetch(`${host}/download`, {
+                      body: JSON.stringify({
+                        url: url,
+                        titleInIA: response.IAIdentifier,
+                      }),
+                      headers: {
+                        "Content-Type": "application/json",
+                        "Access-Control-Allow-Origin": "*",
+                      },
+                      method: "POST",
+                    })
+                      .then((response) => response.json())
+                      .then((response) => {
+                        setLoader(false);
+                        if (response.error)
+                          Swal("Error!", response.message, "error");
+                        else Swal("Voila!", response.message, "success");
+                      });
+                  }
                 }
               }
-            }
-          });
+            });
+        }
+
         break;
       case "pn":
         if (isPDLValidUrl(bookid)) {
@@ -228,190 +245,279 @@ const Books = () => {
         }
         break;
       case "trove":
-        url = `${host}/check?bookid=${bookid}&option=${
-          option + (email ? "&email=" + email : "")
-        }&userName=${
-          session.user.name
-        }&IAtitle=${IAIdentifier}&isUploadCommons=${isUploadCommons}&oauthToken=${
-          session?.accessToken
-        }`;
-        fetch(url)
-          .then((res) => res.json())
-          .then((response) => {
-            setLoader(false);
-            if (response.isDuplicate) {
-              setIsDuplicate(true);
-              setIATitle(response.titleInIA);
-              setInputDisabled(true);
-            } else if (response.isInValidIdentifier) {
-              setIsInValidIdentifier(true);
-              setIATitle(response.titleInIA);
-              setInputDisabled(true);
-            } else {
-              if (response.error) Swal("Error!", response.message, "error");
-              else Swal("Voila!", response.message, "success");
-            }
-          });
+        if (isUploadCommons && !hasCommonsMetadataUpdated) {
+          const commonsMetadata = await getMetadataForUI("trove", bookid);
+          setCommonsMetadata(commonsMetadata);
+          setIsCommonsMetadataReady(true);
+        } else {
+          url = `${host}/check?bookid=${bookid}&option=${
+            option + (email ? "&email=" + email : "")
+          }&userName=${
+            session.user.name
+          }&IAtitle=${IAIdentifier}&isUploadCommons=${isUploadCommons}&oauthToken=${
+            session?.accessToken
+          }`;
+          fetch(url)
+            .then((res) => res.json())
+            .then((response) => {
+              setLoader(false);
+              if (response.isDuplicate) {
+                setIsDuplicate(true);
+                setIATitle(response.titleInIA);
+                setInputDisabled(true);
+              } else if (response.isInValidIdentifier) {
+                setIsInValidIdentifier(true);
+                setIATitle(response.titleInIA);
+                setInputDisabled(true);
+              } else {
+                if (response.error) {
+                  Swal("Error!", response.message, "error");
+                } else {
+                  setIsCommonsMetadataReady(false);
+                  Swal("Voila!", response.message, "success");
+                }
+              }
+            });
+        }
+
         break;
     }
   };
 
+  useEffect(() => {
+    getMetadataForUI("trove", "257198001");
+    if (hasCommonsMetadataUpdated) {
+      onSubmit(null, session.user.name);
+    }
+  }, [hasCommonsMetadataUpdated]);
+
   return (
     <React.Fragment>
-      <div className="main-content">
-        <h2>Book Uploader Bot</h2>
-        <div className="cdx-label">
-          <span className="cdx-label__description">
-            Upload books, newspapers, magazines etc. from public libraries to
-            Internet Archive
-          </span>
-        </div>
-        <form onSubmit={(e) => onSubmit(e, session.user.name)}>
-          <div className="section">
-            <h4>1. Select a library</h4>
-            <select className="cdx-select" onChange={handleChange}>
-              <option value="gb" selected>
-                Google Books
-              </option>
-              <option value="pn">Panjab Digital Library</option>
-              <option value="trove">Trove Digital Library</option>
-            </select>
-          </div>
-          <div className="section">{renderContent(option)}</div>
-
-          <div className="section">
-            <span class="cdx-checkbox">
-              <input
-                id="checkbox-description-css-only-1"
-                class="cdx-checkbox__input"
-                type="checkbox"
-                aria-describedby="cdx-description-css-1"
-                onChange={(event) => setIsUploadCommons(event.target.checked)}
-              />
-              <span class="cdx-checkbox__icon"></span>
-              <div class="cdx-checkbox__label cdx-label">
-                <label
-                  for="checkbox-description-css-only-1"
-                  class="cdx-label__label"
-                >
-                  Upload To Commons
-                </label>
-              </div>
+      <BooksWrapper isCommonsMetadataReady={isCommonsMetadataReady}>
+        <Box
+          sx={{
+            width: "540px",
+            "@media (max-width: 600px)": {
+              width: "100%",
+            },
+          }}
+          className="main-content"
+        >
+          <h2>Book Uploader Bot</h2>
+          <div className="cdx-label">
+            <span className="cdx-label__description">
+              Upload books, newspapers, magazines etc. from public libraries to
+              Internet Archive
             </span>
-
-            {isUploadCommons && (
-              <span id="cdx-description-css-1" class="cdx-label__description">
-                <p>
-                  <span class="cdx-css-icon--info-filled"></span>
-                  &nbsp; BUB2 will also upload book to Commons and link to
-                  Wikidata
-                </p>
-              </span>
-            )}
           </div>
+          <form onSubmit={(e) => onSubmit(e, session.user.name)}>
+            <div className="section">
+              <h4>1. Select a library</h4>
+              <select className="cdx-select" onChange={handleChange}>
+                <option value="gb" selected>
+                  Google Books
+                </option>
+                <option value="pn">Panjab Digital Library</option>
+                <option value="trove">Trove Digital Library</option>
+              </select>
+            </div>
+            <div className="section">{renderContent(option)}</div>
 
-          {isDuplicate ? (
-            <ChangeIdentifier
-              description={
-                <>
-                  A file with this identifier{" "}
-                  <a href={`https://archive.org/details/${IATitle}`}>
-                    (https://archive.org/{IATitle})
-                  </a>{" "}
-                  already exists at Internet Archive. Please enter a different
-                  identifier to proceed.
-                </>
-              }
-              inputPlaceholder="Enter unique file identifier"
-              onIdentifierChange={(event) =>
-                setIAIdentifier(event.target.value)
-              }
-            />
-          ) : null}
+            <div className="section">
+              <span class="cdx-checkbox">
+                <input
+                  id="checkbox-description-css-only-1"
+                  class="cdx-checkbox__input"
+                  type="checkbox"
+                  aria-describedby="cdx-description-css-1"
+                  checked={isUploadCommons}
+                  onChange={(event) => setIsUploadCommons(event.target.checked)}
+                />
+                <span class="cdx-checkbox__icon"></span>
+                <div class="cdx-checkbox__label cdx-label">
+                  <label
+                    for="checkbox-description-css-only-1"
+                    class="cdx-label__label"
+                  >
+                    Upload To Commons
+                  </label>
+                </div>
+              </span>
 
-          {isInValidIdentifier === true ? (
-            <ChangeIdentifier
-              description={
-                <>
-                  The file you want to upload with title - {IATitle} either
-                  contains special characters or exceeds 50 characters in
-                  length. Please provide an identifier that consists only of
-                  letters (A-Z) and numbers (0-9).
-                </>
-              }
-              inputPlaceholder="Enter valid identifier"
-              onIdentifierChange={(event) =>
-                setIAIdentifier(event.target.value)
-              }
-            />
-          ) : null}
+              {isUploadCommons && (
+                <span id="cdx-description-css-1" class="cdx-label__description">
+                  <p>
+                    <span class="cdx-css-icon--info-filled"></span>
+                    &nbsp; BUB2 will also upload book to Commons and link to
+                    Wikidata
+                  </p>
+                </span>
+              )}
+            </div>
 
-          {session && (
-            <div>
-              <div
-                style={{
-                  marginTop: 20,
-                  marginRight: 20,
-                }}
-              >
-                <button className="cdx-button cdx-button--action-progressive cdx-button--weight-primary">
-                  Submit
-                </button>
-                {isDuplicate === true || isInValidIdentifier === true ? (
+            {isDuplicate ? (
+              <ChangeIdentifier
+                description={
+                  <>
+                    A file with this identifier{" "}
+                    <a href={`https://archive.org/details/${IATitle}`}>
+                      (https://archive.org/{IATitle})
+                    </a>{" "}
+                    already exists at Internet Archive. Please enter a different
+                    identifier to proceed.
+                  </>
+                }
+                inputPlaceholder="Enter unique file identifier"
+                onIdentifierChange={(event) =>
+                  setIAIdentifier(event.target.value)
+                }
+              />
+            ) : null}
+
+            {isInValidIdentifier === true ? (
+              <ChangeIdentifier
+                description={
+                  <>
+                    The file you want to upload with title - {IATitle} either
+                    contains special characters or exceeds 50 characters in
+                    length. Please provide an identifier that consists only of
+                    letters (A-Z) and numbers (0-9).
+                  </>
+                }
+                inputPlaceholder="Enter valid identifier"
+                onIdentifierChange={(event) =>
+                  setIAIdentifier(event.target.value)
+                }
+              />
+            ) : null}
+
+            {session && (
+              <div>
+                <div
+                  style={{
+                    marginTop: 20,
+                    marginRight: 20,
+                  }}
+                >
                   <button
-                    onClick={onResetButtonClicked}
-                    style={{
-                      marginLeft: 40,
-                      marginBottom: "100px",
-                    }}
+                    disabled={
+                      isCommonsMetadataReady && !hasCommonsMetadataUpdated
+                        ? true
+                        : false
+                    }
                     className="cdx-button cdx-button--action-progressive cdx-button--weight-primary"
                   >
-                    Reset
+                    Submit
                   </button>
-                ) : null}
+                  {isDuplicate === true || isInValidIdentifier === true ? (
+                    <button
+                      onClick={onResetButtonClicked}
+                      style={{
+                        marginLeft: 40,
+                        marginBottom: "100px",
+                      }}
+                      className="cdx-button cdx-button--action-progressive cdx-button--weight-primary"
+                    >
+                      Reset
+                    </button>
+                  ) : null}
+                </div>
               </div>
-            </div>
-          )}
-          {!session && (
-            <div style={{ marginTop: 20 }}>
-              <div className="cdx-label">
-                <span className="cdx-label__description">
-                  Upload restricted. Login with Wikimedia Account to continue.
-                </span>
+            )}
+            {!session && (
+              <div style={{ marginTop: 20 }}>
+                <div className="cdx-label">
+                  <span className="cdx-label__description">
+                    Upload restricted. Login with Wikimedia Account to continue.
+                  </span>
+                </div>
+                <button
+                  className="cdx-button"
+                  style={{ padding: "1rem" }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    signIn("wikimedia");
+                  }}
+                >
+                  <span
+                    className="cdx-button__icon cdx-css-icon--wikimedia-icon"
+                    aria-hidden="true"
+                  ></span>
+                  Login with Wikimedia
+                </button>
               </div>
-              <button
-                className="cdx-button"
-                style={{ padding: "1rem" }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  signIn("wikimedia");
-                }}
+            )}
+          </form>
+          {loader ? (
+            <div className="loader">
+              <span className="cdx-label__description">
+                Fetching information. Please wait..
+              </span>
+              <div
+                className="cdx-progress-bar cdx-progress-bar--inline"
+                role="progressbar"
+                aria-valuemin="0"
+                aria-valuemax="100"
               >
-                <span
-                  className="cdx-button__icon cdx-css-icon--wikimedia-icon"
-                  aria-hidden="true"
-                ></span>
-                Login with Wikimedia
-              </button>
+                <div className="cdx-progress-bar__bar" />
+              </div>
             </div>
-          )}
-        </form>
-        {loader ? (
-          <div className="loader">
-            <span className="cdx-label__description">
-              Fetching information. Please wait..
-            </span>
-            <div
-              className="cdx-progress-bar cdx-progress-bar--inline"
-              role="progressbar"
-              aria-valuemin="0"
-              aria-valuemax="100"
+          ) : null}
+        </Box>
+
+        {isCommonsMetadataReady && (
+          <Box
+            sx={{
+              width: "540px",
+              height: "100%",
+              "@media (max-width: 600px)": {
+                height: "auto",
+              },
+            }}
+            className="main-content"
+          >
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setHasCommonsMetadataUpdated(true);
+              }}
             >
-              <div className="cdx-progress-bar__bar" />
-            </div>
-          </div>
-        ) : null}
-      </div>
+              <textarea
+                disabled={hasCommonsMetadataUpdated ? true : false}
+                className="cdx-text-input__input"
+                id="commonsMetadata"
+                name="commonsMetadata"
+                value={commonsMetadata}
+                onChange={(event) => setCommonsMetadata(event.target.value)}
+                required
+              />
+              <style jsx>{`
+                .cdx-text-input__input {
+                  width: 100%;
+                  min-height: 450px;
+                  font-size: 13px;
+                  line-height: 2.5;
+                  letter-spacing: 2px;
+                }
+                @media (max-width: 600px) {
+                  .cdx-text-input__input {
+                    min-height: 350px;
+                  }
+                }
+              `}</style>
+              <button
+                style={{
+                  marginTop: 20,
+                }}
+                disabled={hasCommonsMetadataUpdated ? true : false}
+                className="cdx-button cdx-button--action-progressive cdx-button--weight-primary"
+              >
+                Submit
+              </button>
+            </form>
+          </Box>
+        )}
+      </BooksWrapper>
     </React.Fragment>
   );
 };

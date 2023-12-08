@@ -148,7 +148,7 @@ TroveQueue.process((job, done) => {
           if (progress !== null)
             job.progress({
               step: "uploadToIA",
-              value: progress,
+              value: progress || 0,
             });
         });
       }

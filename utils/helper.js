@@ -273,40 +273,11 @@ module.exports = {
       });
 
       const commonsFilePayload = "commonsFilePayload.pdf";
-      let {
-        title,
-        subtitle,
-        authors,
-        publisher,
-        publishedDate,
-        language,
-        pageCount,
-        infoLink,
-      } = metadata.details.volumeInfo;
-      console.log("metadata.details.volumeInfo:", metadata.details.volumeInfo);
-      console.log(
-        "metadata.details.volumeInfo.subtitle:",
-        metadata.details.volumeInfo.subtitle
-      );
-      const permission = `CCO No Rights Reserved https://creativecommons.org/publicdomain/mark/1.0/`;
-      const authorsFormatted = authors ? authors.join().trim() : "";
+      const title = metadata.details.volumeInfo.title || metadata.name;
       const response = await bot.upload(
         commonsFilePayload,
         title,
-        `{{Book
-|Author=${authorsFormatted}
-|Title=${title}
-|Description=${subtitle}
-|Language=${language}
-|Publication Date=${publishedDate}
-|Source=${infoLink}
-|Publisher=${publisher}
-|Permission=${permission}
-|Other_fields_1={{Information field|name=Rights|value=${metadata.details.accessInfo.accessViewStatus}|name=Pages|value=${pageCount}|name=Internet_Archive_Identifier|value=${metadata.IAIdentifier}}}
-}}
-{{cc-zero}}
-[[Category:bub.wikimedia]]
-`
+        metadata.commonsMetadata
       );
       if (await response.filename) {
         await fs.promises.unlink(commonsFilePayload);

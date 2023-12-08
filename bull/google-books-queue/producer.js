@@ -8,7 +8,8 @@ module.exports = async (
   email,
   userName,
   isUploadCommons,
-  oauthToken
+  oauthToken,
+  commonsMetadata
 ) => {
   GoogleBooksQueue.add({
     uri,
@@ -18,5 +19,6 @@ module.exports = async (
     userName,
     isUploadCommons,
     oauthToken,
+    commonsMetadata,
   });
 };
