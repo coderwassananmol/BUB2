@@ -348,8 +348,7 @@ const Books = () => {
                 <span id="cdx-description-css-1" class="cdx-label__description">
                   <p>
                     <span class="cdx-css-icon--info-filled"></span>
-                    &nbsp; BUB2 will also upload book to Commons and link to
-                    Wikidata
+                    &nbsp; BUB2 will also upload book and metadata to Commons
                   </p>
                 </span>
               )}
