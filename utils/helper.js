@@ -114,6 +114,8 @@ module.exports = {
     const keys = $(".ubhypers");
     const values = $(".dhypers");
     const downloadPdfLink = $("#downloadpdf a")[0]?.attribs.href;
+    let pagesLabel = $(".ubhypers:contains('Pages')");
+    let pagesValue = pagesLabel.parent().next().find(".dhypers").text();
     let contentType = "zip";
     function addOtherMetaData(limit, keys, values, PNdetails) {
       let value;
@@ -187,8 +189,8 @@ module.exports = {
       PNdetails.pdfUrl = `http://www.panjabdigilib.org/webuser/searches/${downloadPdfLink}`;
     }
     PNdetails.contentType = contentType;
+    PNdetails.Pages = pagesValue;
     delete PNdetails[""];
-
     return PNdetails;
   },
 
