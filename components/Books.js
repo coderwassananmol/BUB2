@@ -44,6 +44,8 @@ const Books = () => {
     setIATitle("");
     setIAIdentifier("");
     setIsUploadCommons(false);
+    setIsCommonsMetadataReady(false);
+    setHasCommonsMetadataUpdated(false);
   };
 
   const onSwalClosed = () => {
@@ -296,9 +298,9 @@ const Books = () => {
       <BooksWrapper isCommonsMetadataReady={isCommonsMetadataReady}>
         <Box
           sx={{
-            width: "540px",
+            width: "300px !important",
             "@media (max-width: 600px)": {
-              width: "100%",
+              width: "100% !important",
             },
           }}
           className="main-content"
@@ -400,13 +402,19 @@ const Books = () => {
                 >
                   <button
                     disabled={
-                      isCommonsMetadataReady && !hasCommonsMetadataUpdated
+                      isCommonsMetadataReady &&
+                      !isDuplicate &&
+                      !isInValidIdentifier
                         ? true
                         : false
                     }
                     className="cdx-button cdx-button--action-progressive cdx-button--weight-primary"
                   >
-                    Submit
+                    {hasCommonsMetadataUpdated
+                      ? "Upload book"
+                      : isUploadCommons
+                      ? "Fetch metadata"
+                      : "Upload book"}
                   </button>
                   {isDuplicate === true || isInValidIdentifier === true ? (
                     <button
@@ -447,7 +455,7 @@ const Books = () => {
               </div>
             )}
           </form>
-          {loader ? (
+          {loader && (!isCommonsMetadataReady || hasCommonsMetadataUpdated) ? (
             <div className="loader">
               <span className="cdx-label__description">
                 Fetching information. Please wait..
@@ -467,10 +475,11 @@ const Books = () => {
         {isCommonsMetadataReady && (
           <Box
             sx={{
-              width: "540px",
+              width: "540px !important",
               height: "100%",
               "@media (max-width: 600px)": {
-                height: "auto",
+                height: "auto !important",
+                width: "100% !important",
               },
             }}
             className="main-content"
@@ -511,7 +520,7 @@ const Books = () => {
                 disabled={hasCommonsMetadataUpdated ? true : false}
                 className="cdx-button cdx-button--action-progressive cdx-button--weight-primary"
               >
-                Submit
+                Confirm metadata
               </button>
             </form>
           </Box>

@@ -1,9 +1,8 @@
+import { GB_KEY, TROVE_KEY, permission } from "../utils/constants";
+
 export default function useMetadataForUI() {
   const getMetadataForUI = async (library, id) => {
     try {
-      const GB_KEY = process.env.NEXT_PUBLIC_GB_KEY;
-      const TROVE_KEY = process.env.NEXT_PUBLIC_trove_key;
-      const permission = `CCO No Rights Reserved https://creativecommons.org/publicdomain/mark/1.0/`;
       switch (library) {
         case "gb":
           const gbRes = await fetch(
@@ -26,17 +25,38 @@ export default function useMetadataForUI() {
             : "";
           const gb_commonsMetadata = `{{Book
 |Author=${gb_authorsFormatted}
+|Translator=
+|Editor=
+|Illustrator=
 |Title=${gb_title}
-|Description=${gb_subtitle}
-|Language=${gb_language}
-|Publication Date=${gb_publishedDate}
-|Source=${gb_infoLink}
+|Series title=
+|Volume=
+|Edition=
 |Publisher=${gb_publisher}
+|Printer=
+|Publication date=${gb_publishedDate}
+|City=
+|Language=${gb_language}
+|Description=${gb_subtitle}
+|Source=${gb_infoLink}
 |Permission=${permission}
+|Image=
+|Image page=
+|Pageoverview=
+|Wikisource=
+|Homecat=
+|Other_versions=
+|ISBN=
+|LCCN=
+|OCLC=
+|References=
+|Linkback=
+|Wikidata=
+|noimage=
 |Other_fields_1={{Information field|name=Rights|value=${gbMetadata.accessInfo.accessViewStatus}|name=Pages|value=${gb_pageCount}}}
 }}
 {{cc-zero}}
-[[Category:bub.wikimedia]]
+[[Category:Files uploaded with BUB2]]
 `;
           return gb_commonsMetadata.replace(/&/g, "_");
         case "trove":
@@ -56,15 +76,39 @@ export default function useMetadataForUI() {
           } = troveMetadata;
 
           const trove_commonsMetadata = `{{Book
+|Author=
+|Translator=
+|Editor=
+|Illustrator=
 |Title=${trove_heading}
+|Series title=
+|Volume=
+|Edition=
+|Publisher=
+|Printer=
+|Publication date=${trove_date}
+|City=
+|Language=
 |Description=${trove_title.value}
-|Publication Date=${trove_date}
 |Source=${trove_url}
 |Permission=${permission}
+|Image=
+|Image page=
+|Pageoverview=
+|Wikisource=
+|Homecat=
+|Other_versions=
+|ISBN=
+|LCCN=
+|OCLC=
+|References=
+|Linkback=
+|Wikidata=
+|noimage=
 |Other_fields_1={{Information field|name=Identifier|value=${trove_identifier}|name=Pages|value=${trove_page}|name=Category|value=${trove_category}}}
 }}
 {{cc-zero}}
-[[Category:bub.wikimedia]]
+[[Category:Files uploaded with BUB2]]
 `;
           return trove_commonsMetadata;
       }

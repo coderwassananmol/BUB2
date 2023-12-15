@@ -51,7 +51,7 @@ Rename `.env.example` to `.env`. Then, to fill the credentials,
 - Make an account on [archive.org](https://archive.org).
 - Go to https://archive.org/account/s3.php . Generate the **access** and **secret** keys and fill
   them in the `.env` file in the corresponding fields.
-- Go to [Google Developers console](https://console.developers.google.com/getting-started). Make a new project to run the app. In that Google Developers project, search for 'Books API' in the Google API console, then **enable** the API for the project, then generate the **API keys**, and then copy and paste the API key in the `GB_Key` field.
+- Go to [Google Developers console](https://console.developers.google.com/getting-started). Make a new project to run the app. In that Google Developers project, search for 'Books API' in the Google API console, then **enable** the API for the project, then generate the **API keys**, and then copy and paste the API key in the `GB_Key` and `NEXT_PUBLIC_GB_KEY` fields.
 - Enter the `redishost` field. If it's hosted locally, enter **127.0.0.1**, which is the default localhost.
 - Enter the `redisport` field with **6379**, which is the default port number for redis.
   
@@ -71,6 +71,7 @@ Rename `.env.example` to `.env`. Then, to fill the credentials,
       ```
 - Enter the client application key and client application secret in the `WIKIMEDIA_CLIENT_ID` and `WIKIMEDIA_CLIENT_SECRET` respectively.
 - Enter the `NEXTAUTH_URL` with http://localhost:5000.
+- Go to [Trove API](https://trove.nla.gov.au/about/create-something/using-api) and follow the instructions on how to get a trove key. Fill in `trove_key` and `NEXT_PUBLIC_trove_key` with the trove key you generated.
 <a id="runRedisServer"></a>
 ### Run Redis server
 

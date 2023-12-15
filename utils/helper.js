@@ -284,7 +284,7 @@ module.exports = {
       }
       logger.log({
         level: "info",
-        message: `Polling - uploadToCommons: Upload of ${metadata.IAIdentifier} to commons successful`,
+        message: `uploadToCommons: Upload of ${metadata.IAIdentifier} to commons successful`,
       });
       return {
         fileUploadStatus: 200,
@@ -294,7 +294,7 @@ module.exports = {
       await fs.promises.unlink("commonsFilePayload.pdf");
       logger.log({
         level: "error",
-        message: `Polling - uploadToCommons: ${error}`,
+        message: `uploadToCommons: ${error}`,
       });
       return error;
     }

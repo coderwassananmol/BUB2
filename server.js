@@ -287,9 +287,9 @@ app
                     minimumIntegerDigits: 2,
                   }) +
                   " (UTC)",
-                upload_progress: `${job.progress().step}:${
-                  job.progress().value
-                }`,
+                upload_progress: job.progress().step
+                  ? `${job.progress().step}:${job.progress().value}`
+                  : job.progress(),
                 status: returnJobStatus(
                   job.failedReason,
                   job.finishedOn,
