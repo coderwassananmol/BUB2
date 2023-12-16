@@ -53,6 +53,7 @@ const ShowJobInformation = (props) => {
       uploadLink: "",
     },
     queueName: props.queue_name,
+    wikimedia_links: "",
   });
 
   const [progress, setProgress] = useState(0);
@@ -140,6 +141,21 @@ const ShowJobInformation = (props) => {
                 View on {data.queueName}
               </Button>
             </Link>
+            {data.wikimedia_links !== "Not Integrated" ? (
+              <Link
+                passHref
+                href={`https://commons.wikimedia.org/wiki/File:${data.wikimedia_links}`}
+              >
+                <Button
+                  sx={styles.button}
+                  target="_blank"
+                  size="large"
+                  color="primary"
+                >
+                  View on Wikimedia Commons
+                </Button>
+              </Link>
+            ) : null}
           </CardActions>
         </Card>
       </div>

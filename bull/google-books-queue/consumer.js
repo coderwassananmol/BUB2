@@ -98,31 +98,31 @@ GoogleBooksQueue.process((job, done) => {
         } else {
           if (job.data.isUploadCommons === "true") {
             job.progress({
-              step: "uploadTocommons",
-              value: 0,
+              step: "Uploading to Wikimedia Commons",
+              value: `(${0}%)`,
             });
             const downloadFileRes = await downloadFile(
               requestURI,
               "commonsFilePayload.pdf"
             );
             job.progress({
-              step: "uploadTocommons",
-              value: 50,
+              step: "Uploading to Wikimedia Commons",
+              value: `(${50}%)`,
             });
             if (downloadFileRes.writeFileStatus !== 200) {
               done(new Error(`downloadFile: ${downloadFileRes}`));
             }
             const commonsResponse = await uploadToCommons(job.data);
             job.progress({
-              step: "uploadTocommons",
-              value: 80,
+              step: "Uploading to Wikimedia Commons",
+              value: `(${80}%)`,
             });
             if (commonsResponse.fileUploadStatus !== 200) {
               done(new Error(`uploadToCommons: ${commonsResponse}`));
             }
             job.progress({
-              step: "uploadTocommons",
-              value: 100,
+              step: "Uploading to Wikimedia Commons",
+              value: `(${100}%)`,
               wikiLinks: {
                 commons: commonsResponse.filename,
               },
@@ -145,8 +145,8 @@ GoogleBooksQueue.process((job, done) => {
   requestURI.on("data", function (chunk) {
     dataSize += Number(chunk.length);
     job.progress({
-      step: "uploadToIA",
-      value: Math.round((dataSize / responseSize) * 100),
+      step: "Uploading to Internet Archive",
+      value: `(${Math.round((dataSize / responseSize) * 100)}%)`,
     });
   });
 });

@@ -106,9 +106,9 @@ const ShowUploadQueue = (props) => {
         ),
     },
     {
-      id: "timestamp",
-      label: "Timestamp",
-      minWidth: 150,
+      id: "upload_progress",
+      label: "Upload Progress",
+      minWidth: 50,
       align: "left",
       format: (value) => value,
     },
@@ -135,28 +135,11 @@ const ShowUploadQueue = (props) => {
       },
     },
     {
-      id: "upload_progress",
-      label: "Upload Progress",
-      minWidth: 50,
+      id: "timestamp",
+      label: "Timestamp",
+      minWidth: 150,
       align: "left",
-      format: (value) => value + "%",
-    },
-    {
-      id: "wikimedia_links",
-      label: "Wikimedia Links",
-      minWidth: 50,
-      align: "left",
-      format: (value) =>
-        value !== "Not Integrated" ? (
-          <a
-            href={`https://commons.wikimedia.org/wiki/File:${value}`}
-            target="_blank"
-          >
-            Commons
-          </a>
-        ) : (
-          value
-        ),
+      format: (value) => value,
     },
   ];
 

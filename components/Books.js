@@ -5,7 +5,7 @@ import { useSession, signIn } from "next-auth/react";
 import ChangeIdentifier from "./ChangeIdentifier";
 import useMetadataForUI from "../hooks/useMetadataForUI";
 import BooksWrapper from "./BooksWrapper";
-import { Box } from "@mui/material";
+import { Box, Tooltip } from "@mui/material";
 
 const Books = () => {
   const { data: session } = useSession();
@@ -287,20 +287,23 @@ const Books = () => {
   };
 
   useEffect(() => {
-    getMetadataForUI("trove", "257198001");
     if (hasCommonsMetadataUpdated) {
       onSubmit(null, session.user.name);
     }
-  }, [hasCommonsMetadataUpdated]);
-
+    if (isUploadCommons === false && isCommonsMetadataReady) {
+      setIsCommonsMetadataReady(false);
+      setLoader(false);
+    }
+  }, [hasCommonsMetadataUpdated, isUploadCommons]);
   return (
     <React.Fragment>
       <BooksWrapper isCommonsMetadataReady={isCommonsMetadataReady}>
         <Box
           sx={{
-            width: "300px !important",
+            minHeight: "auto !important",
+            paddingBottom: "0 !important",
             "@media (max-width: 600px)": {
-              width: "100% !important",
+              paddingX: "0 !important",
             },
           }}
           className="main-content"
@@ -309,7 +312,7 @@ const Books = () => {
           <div className="cdx-label">
             <span className="cdx-label__description">
               Upload books, newspapers, magazines etc. from public libraries to
-              Internet Archive
+              Internet Archive and Wikimedia Commons.
             </span>
           </div>
           <form onSubmit={(e) => onSubmit(e, session.user.name)}>
@@ -325,7 +328,7 @@ const Books = () => {
             </div>
             <div className="section">{renderContent(option)}</div>
 
-            <div className="section">
+            <div style={{ marginTop: "25px" }} className="section">
               <span class="cdx-checkbox">
                 <input
                   id="checkbox-description-css-only-1"
@@ -336,24 +339,36 @@ const Books = () => {
                   onChange={(event) => setIsUploadCommons(event.target.checked)}
                 />
                 <span class="cdx-checkbox__icon"></span>
-                <div class="cdx-checkbox__label cdx-label">
+
+                <div
+                  style={{ display: "flex", gap: "10px" }}
+                  class="cdx-checkbox__label cdx-label"
+                >
                   <label
                     for="checkbox-description-css-only-1"
                     class="cdx-label__label"
                   >
-                    Upload To Commons
+                    Upload to Wikimedia Commons
                   </label>
+
+                  <Tooltip
+                    placement="right"
+                    arrow={true}
+                    title={
+                      <span style={{ fontSize: "14px" }}>
+                        BUB2 will also upload book and metadata to Commons
+                      </span>
+                    }
+                  >
+                    <span
+                      id="cdx-description-css-1"
+                      class="cdx-label__description"
+                    >
+                      <span class="cdx-css-icon--info-filled"></span>
+                    </span>
+                  </Tooltip>
                 </div>
               </span>
-
-              {isUploadCommons && (
-                <span id="cdx-description-css-1" class="cdx-label__description">
-                  <p>
-                    <span class="cdx-css-icon--info-filled"></span>
-                    &nbsp; BUB2 will also upload book and metadata to Commons
-                  </p>
-                </span>
-              )}
             </div>
 
             {isDuplicate ? (
@@ -421,7 +436,9 @@ const Books = () => {
                       onClick={onResetButtonClicked}
                       style={{
                         marginLeft: 40,
-                        marginBottom: "100px",
+                        marginBottom: hasCommonsMetadataUpdated
+                          ? "0px"
+                          : "100px",
                       }}
                       className="cdx-button cdx-button--action-progressive cdx-button--weight-primary"
                     >
@@ -476,10 +493,10 @@ const Books = () => {
           <Box
             sx={{
               width: "540px !important",
-              height: "100%",
+              marginBottom: "50px",
               "@media (max-width: 600px)": {
-                height: "auto !important",
                 width: "100% !important",
+                paddingX: "0 !important",
               },
             }}
             className="main-content"
@@ -520,7 +537,7 @@ const Books = () => {
                 disabled={hasCommonsMetadataUpdated ? true : false}
                 className="cdx-button cdx-button--action-progressive cdx-button--weight-primary"
               >
-                Confirm metadata
+                Start Upload
               </button>
             </form>
           </Box>

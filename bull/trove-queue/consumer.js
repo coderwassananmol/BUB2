@@ -97,16 +97,16 @@ TroveQueue.process((job, done) => {
               } else {
                 if (job.data.details.isUploadCommons === "true") {
                   job.progress({
-                    step: "uploadTocommons",
-                    value: 0,
+                    step: "Uploading to Wikimedia Commons",
+                    value: `(${0}%)`,
                   });
                   const downloadFileRes = await downloadFile(
                     requestURI,
                     "commonsFilePayload.pdf"
                   );
                   job.progress({
-                    step: "uploadTocommons",
-                    value: 50,
+                    step: "Uploading to Wikimedia Commons",
+                    value: `(${50}%)`,
                   });
                   if (downloadFileRes.writeFileStatus !== 200) {
                     done(new Error(`downloadFile: ${downloadFileRes}`));
@@ -115,15 +115,15 @@ TroveQueue.process((job, done) => {
                     job.data.details
                   );
                   job.progress({
-                    step: "uploadTocommons",
-                    value: 80,
+                    step: "Uploading to Wikimedia Commons",
+                    value: `(${80}%)`,
                   });
                   if (commonsResponse.fileUploadStatus !== 200) {
                     done(new Error(`uploadToCommons: ${commonsResponse}`));
                   }
                   job.progress({
-                    step: "uploadTocommons",
-                    value: 100,
+                    step: "Uploading to Wikimedia Commons",
+                    value: `(${100}%)`,
                     wikiLinks: {
                       commons: commonsResponse.filename,
                     },
@@ -147,8 +147,8 @@ TroveQueue.process((job, done) => {
           const progress = Math.round((dataSize / responseSize) * 100);
           if (progress !== null)
             job.progress({
-              step: "uploadToIA",
-              value: progress || 0,
+              step: "Uploading to Internet Archive",
+              value: `(${progress || 0}%)`,
             });
         });
       }

@@ -28,17 +28,17 @@ export default function useMetadataForUI() {
 |Translator=
 |Editor=
 |Illustrator=
-|Title=${gb_title}
+|Title=${gb_title || ""}
 |Series title=
 |Volume=
 |Edition=
-|Publisher=${gb_publisher}
+|Publisher=${gb_publisher || ""}
 |Printer=
-|Publication date=${gb_publishedDate}
+|Publication date=${gb_publishedDate || ""}
 |City=
-|Language=${gb_language}
-|Description=${gb_subtitle}
-|Source=${gb_infoLink}
+|Language=${gb_language || ""}
+|Description=${gb_subtitle || ""}
+|Source=${gb_infoLink || ""}
 |Permission=${permission}
 |Image=
 |Image page=
@@ -53,7 +53,9 @@ export default function useMetadataForUI() {
 |Linkback=
 |Wikidata=
 |noimage=
-|Other_fields_1={{Information field|name=Rights|value=${gbMetadata.accessInfo.accessViewStatus}|name=Pages|value=${gb_pageCount}}}
+|Other_fields_1={{Information field|name=Rights|value=${
+            gbMetadata.accessInfo.accessViewStatus || ""
+          }|name=Pages|value=${gb_pageCount || ""}}}
 }}
 {{cc-zero}}
 [[Category:Files uploaded with BUB2]]
@@ -80,17 +82,17 @@ export default function useMetadataForUI() {
 |Translator=
 |Editor=
 |Illustrator=
-|Title=${trove_heading}
+|Title=${trove_heading || ""}
 |Series title=
 |Volume=
 |Edition=
 |Publisher=
 |Printer=
-|Publication date=${trove_date}
+|Publication date=${trove_date || ""}
 |City=
 |Language=
-|Description=${trove_title.value}
-|Source=${trove_url}
+|Description=${trove_title.value || ""}
+|Source=${trove_url || ""}
 |Permission=${permission}
 |Image=
 |Image page=
@@ -105,7 +107,11 @@ export default function useMetadataForUI() {
 |Linkback=
 |Wikidata=
 |noimage=
-|Other_fields_1={{Information field|name=Identifier|value=${trove_identifier}|name=Pages|value=${trove_page}|name=Category|value=${trove_category}}}
+|Other_fields_1={{Information field|name=Identifier|value=${
+            trove_identifier || ""
+          }|name=Pages|value=${trove_page || ""}|name=Category|value=${
+            trove_category || ""
+          }}}
 }}
 {{cc-zero}}
 [[Category:Files uploaded with BUB2]]

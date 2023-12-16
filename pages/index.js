@@ -3,7 +3,7 @@ import Books from "../components/Books";
 const init = () => (
   <div style={{ overflowX: "hidden" }}>
     <Header page="index" />
-    <div className="p-0">
+    <div className="container p-0">
       <div className="col-md-6">
         <Books />
       </div>

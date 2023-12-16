@@ -98,6 +98,10 @@ app
         gb: google_books_queue,
         trove: trove_queue,
       };
+      const commonsRes = await customFetch(
+        "https://commons.wikimedia.org/w/api.php?action=query&prop=categoryinfo&titles=Category:Files_uploaded_with_BUB2&format=json",
+        "GET"
+      );
       customFetch(
         `https://archive.org/advancedsearch.php?q=bub.wikimedia+&rows=0&output=json`,
         "GET"
@@ -106,6 +110,10 @@ app
           res.send({
             queueStats: queueStats,
             totalUploadedCount: resp.response.numFound,
+            commonsUploadedCount: commonsRes?.query?.pages["142217311"]
+              ?.categoryinfo?.files
+              ? commonsRes.query.pages["142217311"].categoryinfo.files
+              : "0",
           });
         }
       });
@@ -161,6 +169,9 @@ app
                 uploadLink: progress.value === 100 && trueURI ? trueURI : "",
                 isUploaded: jobState === "completed" ? true : false,
               },
+              wikimedia_links: job.progress().wikiLinks?.commons
+                ? job.progress().wikiLinks.commons
+                : "Not Integrated",
             };
             res.send(
               Object.assign(

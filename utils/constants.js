@@ -11,7 +11,7 @@ export const library = {
   trove: "Trove Digital Library",
 };
 export const GB_KEY = process.env.NEXT_PUBLIC_GB_KEY;
-export const TROVE_KEY = process.env.NEXT_PUBLIC_trove_key;
+export const TROVE_KEY = process.env.NEXT_PUBLIC_TROVE_KEY;
 export const permission = `CCO No Rights Reserved https://creativecommons.org/publicdomain/mark/1.0/`;
 export const faq_data = [
   {

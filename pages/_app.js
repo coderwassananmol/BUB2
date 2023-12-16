@@ -13,7 +13,7 @@ function MyApp({ Component, pageProps }) {
             width: 100%;
             min-height: 80vh;
             display: flex;
-            padding: 3vw;
+            padding: 2.8vw;
             flex-flow: column;
             flex-grow: 1;
           }

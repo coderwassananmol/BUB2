@@ -54,8 +54,8 @@ async function getZipAndBytelength(no_of_pages, id, title, job) {
     const str = `http://www.panjabdigilib.org/images?ID=${id}&page=${i}&pagetype=null&Searched=W3GX`;
     downloadImageStatus = await download_image(str, `${title}_${i}.jpeg`);
     job.progress({
-      step: "uploadToIA",
-      value: Math.round((i / temp_pages) * 82),
+      step: "Uploading to Internet Archive",
+      value: `(${Math.round((i / temp_pages) * 82)}%)`,
     });
     if (downloadImageStatus >= 200 && downloadImageStatus < 300) {
       continue;
@@ -152,10 +152,9 @@ PDLQueue.process(async (job, done) => {
       message: `Upload to Internet Archive failed because ${errorFlag.page} is not reachable. Please try again or contact Panjab Digital Library for more details.`,
     });
     job.progress({
-      step: "uploadToIA",
-      value: 100,
+      step: "Uploading to Internet Archive",
+      value: `(${100}%)`,
     });
-
     done(
       new Error(
         `Upload to Internet Archive failed because <a href=${errorFlag.page} target='_blank'>${errorFlag.page}</a>  is not reachable. Please try again or contact Panjab Digital Library for more details.`
@@ -165,8 +164,8 @@ PDLQueue.process(async (job, done) => {
     job.log(JSON.stringify(jobLogs));
     logUserData(jobLogs["userName"], "Panjab Digital Library");
     job.progress({
-      step: "uploadToIA",
-      value: 90,
+      step: "Uploading to Internet Archive",
+      value: `(${90}%)`,
     });
     await uploadToIA(
       zip,
@@ -176,8 +175,8 @@ PDLQueue.process(async (job, done) => {
       job
     );
     job.progress({
-      step: "uploadToIA",
-      value: 100,
+      step: "Uploading to Internet Archive",
+      value: `(${100}%)`,
     });
     done(null, true);
   }
