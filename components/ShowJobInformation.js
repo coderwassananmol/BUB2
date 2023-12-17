@@ -141,6 +141,9 @@ const ShowJobInformation = (props) => {
                 View on {data.queueName}
               </Button>
             </Link>
+          </CardActions>
+
+          <CardActions sx={{ marginTop: "-15px" }}>
             {data.wikimedia_links !== "Not Integrated" ? (
               <Link
                 passHref

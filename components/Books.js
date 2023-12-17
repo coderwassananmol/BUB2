@@ -287,11 +287,15 @@ const Books = () => {
   };
 
   useEffect(() => {
-    if (hasCommonsMetadataUpdated) {
+    if (
+      hasCommonsMetadataUpdated &&
+      isUploadCommons &&
+      isCommonsMetadataReady
+    ) {
       onSubmit(null, session.user.name);
     }
     if (isUploadCommons === false && isCommonsMetadataReady) {
-      setIsCommonsMetadataReady(false);
+      onResetButtonClicked();
       setLoader(false);
     }
   }, [hasCommonsMetadataUpdated, isUploadCommons]);
