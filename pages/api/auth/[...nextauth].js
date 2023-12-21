@@ -3,6 +3,32 @@ import WikimediaProvider from "next-auth/providers/wikimedia";
 import winston from "winston";
 const logger = winston.loggers.get("defaultLogger");
 
+async function refetchAccessToken(refreshToken) {
+  try {
+    const response = await fetch(
+      "https://meta.wikimedia.org/w/rest.php/oauth2/access_token",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          grant_type: "refresh_token",
+          refresh_token: refreshToken,
+          client_id: process.env.WIKIMEDIA_CLIENT_ID,
+          client_secret: process.env.WIKIMEDIA_CLIENT_SECRET,
+        }),
+      }
+    );
+    return await response.json();
+  } catch (error) {
+    logger.log({
+      level: "error",
+      message: `refetchAccessToken: ${error}`,
+    });
+  }
+}
+
 export const authOptions = {
   providers: [
     WikimediaProvider({
@@ -40,15 +66,28 @@ export const authOptions = {
 
   callbacks: {
     async jwt({ token, user, account, profile, isNewUser }) {
-      // This is called whenever a user signs in
       if (account) {
-        // Add the access token to the token object
         token.accessToken = account.access_token;
+        token.refreshToken = account.refresh_token;
+        token.expiresIn = Date.now() + account.expires_at * 1000;
+      }
+      // Refresh the token if it's expired
+      if (Date.now() > token.expiresIn) {
+        try {
+          const new_session = await refetchAccessToken(token.refreshToken);
+          token.accessToken = new_session?.access_token;
+          token.refreshToken = new_session?.refresh_token;
+          token.expiresIn = Date.now() + new_session.expires_in * 1000;
+        } catch (error) {
+          logger.log({
+            level: "error",
+            message: `jwt callback: ${error}`,
+          });
+        }
       }
       return token;
     },
     async session({ session, token, user }) {
-      // This is called whenever a session is accessed
       // Add the access token to the session object
       session.accessToken = token.accessToken;
       return session;
