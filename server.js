@@ -145,7 +145,9 @@ app
           const job = await queue.getJob(req.query.job_id);
           if (job) {
             const queue_data = await queueData(job, queue);
-            const progress = job.progress();
+            const progress = job.progress().value
+              ? job.progress().value
+              : job.progress();
             const jobState = await job.getState();
             const book_id = job.data.details.id || job.data.details.bookID;
             const categoryID = job.data.details.categoryID;
@@ -300,7 +302,7 @@ app
                   " (UTC)",
                 upload_progress: job.progress().step
                   ? `${job.progress().step}:${job.progress().value}`
-                  : job.progress(),
+                  : `${job.progress()}%`,
                 status: returnJobStatus(
                   job.failedReason,
                   job.finishedOn,
