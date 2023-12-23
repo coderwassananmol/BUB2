@@ -558,6 +558,26 @@ app
       }
     });
 
+    server.get("/getMetadata", async (req, res) => {
+      const { option, id } = req.query;
+      switch (option) {
+        case "gb":
+          const gbRes = await customFetch(
+            `https://www.googleapis.com/books/v1/volumes/${id}?key=${GB_KEY}`,
+            "GET"
+          );
+          res.send(gbRes);
+          break;
+        case "trove":
+          const troveRes = await customFetch(
+            `https://api.trove.nla.gov.au/v2/newspaper/${id}?key=${trove_key}&encoding=json&reclevel=full`,
+            "GET"
+          );
+          res.send(troveRes);
+          break;
+      }
+    });
+
     server.post("/webhook", async (req, res) => {
       exec(
         "cd www/js; git pull origin master; yes | npm install; webservice --backend kubernetes node16 restart",

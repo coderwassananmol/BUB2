@@ -429,11 +429,7 @@ const Books = () => {
                     }
                     className="cdx-button cdx-button--action-progressive cdx-button--weight-primary"
                   >
-                    {hasCommonsMetadataUpdated
-                      ? "Upload book"
-                      : isUploadCommons
-                      ? "Fetch metadata"
-                      : "Upload book"}
+                    Upload Book
                   </button>
                   {isDuplicate === true || isInValidIdentifier === true ? (
                     <button

@@ -1,4 +1,4 @@
-import { GB_KEY, TROVE_KEY, permission } from "../utils/constants";
+import { host, permission } from "../utils/constants";
 
 export default function useMetadataForUI() {
   const getMetadataForUI = async (library, id) => {
@@ -6,7 +6,7 @@ export default function useMetadataForUI() {
       switch (library) {
         case "gb":
           const gbRes = await fetch(
-            `https://www.googleapis.com/books/v1/volumes/${id}?key=${GB_KEY}`
+            `${host}/getMetadata?option=${"gb"}&id=${id}`
           );
           const gbMetadata = await gbRes.json();
           let {
@@ -63,7 +63,7 @@ export default function useMetadataForUI() {
           return gb_commonsMetadata.replace(/&/g, "_");
         case "trove":
           const troveRes = await fetch(
-            `https://api.trove.nla.gov.au/v2/newspaper/${id}?key=${TROVE_KEY}&encoding=json&reclevel=full`
+            `${host}/getMetadata?option=${"trove"}&id=${id}`
           );
           const troveJson = await troveRes.json();
           const troveMetadata = troveJson.article;
