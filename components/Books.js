@@ -3,6 +3,7 @@ import Swal from "sweetalert2";
 import { host } from "../utils/constants";
 import { useSession, signIn } from "next-auth/react";
 import ChangeIdentifier from "./ChangeIdentifier";
+import { useEffect } from "react";
 
 const Books = () => {
   const { data: session } = useSession();
@@ -16,6 +17,7 @@ const Books = () => {
   const [IATitle, setIATitle] = useState("");
   const [IAIdentifier, setIAIdentifier] = useState("");
   const [inputDisabled, setInputDisabled] = useState(false);
+  const [isUserEmailable, setIsUserEmailable] = useState(false);
 
   const handleChange = (event) => {
     setOption(event.target.value);
@@ -115,6 +117,14 @@ const Books = () => {
       "((http|https)\\:\\/\\/)(www.)?(panjabdigilib\\.org\\/webuser\\/searches\\/displayPage\\.jsp\\?ID\\=)([0-9]*)(\\&page\\=)([0-9]*)(\\&CategoryID\\=)([0-9]*)(\\&Searched\\=)([a-zA-Z0-9@:%._+~#?&//=]*)"
     );
     return urlPattren.test(urlString);
+  };
+
+  const checkEmailableStatus = async (username) => {
+    const response = await fetch(
+      `${host}/checkEmailableStatus?username=${username}`
+    );
+    const isEmailable = await response.json();
+    return isEmailable;
   };
 
   const onSubmit = (event) => {
@@ -253,6 +263,11 @@ const Books = () => {
     }
   };
 
+  useEffect(async () => {
+    const isEmailable = await checkEmailableStatus(session?.user?.name);
+    setIsUserEmailable(isEmailable);
+  }, [session]);
+
   return (
     <React.Fragment>
       <div className="main-content">
@@ -286,9 +301,22 @@ const Books = () => {
                 onChange={(event) =>
                   setIsEmailNotification(event.target.checked)
                 }
+                disabled={!isUserEmailable}
+                title={
+                  isUserEmailable
+                    ? ""
+                    : "No email associated with this user account"
+                }
               />
               <span class="cdx-checkbox__icon"></span>
-              <div class="cdx-checkbox__label cdx-label">
+              <div
+                class="cdx-checkbox__label cdx-label"
+                title={
+                  isUserEmailable
+                    ? ""
+                    : "No email associated with this user account"
+                }
+              >
                 <label
                   for="checkbox-description-css-only-1"
                   class="cdx-label__label"

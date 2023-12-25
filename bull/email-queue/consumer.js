@@ -24,7 +24,7 @@ async function mediawikiEmail(username, title, trueURI, success) {
       },
     });
 
-    const csrf_token = bot.getCsrfToken();
+    const csrf_token = await bot.getCsrfToken();
 
     bot
       .request({
@@ -62,18 +62,18 @@ async function mediawikiEmail(username, title, trueURI, success) {
 }
 
 EmailQueue.process(async (job, done) => {
-  if (job.data.isEmailNotification === "true") {
-    const emailResponse = mediawikiEmail(
-      job.data.userName,
-      job.data.title,
-      job.data.trueURI,
-      job.data.success
-    );
-    if (emailResponse !== 200) {
-      done(new Error(`mediawikiEmail: ${emailResponse}`));
-    }
-    done(null, true);
-  } else {
-    done(null, true);
+  const emailResponse = mediawikiEmail(
+    job.data.userName,
+    job.data.title,
+    job.data.trueURI,
+    job.data.success
+  );
+  if (emailResponse !== 200) {
+    logger.log({
+      level: "error",
+      message: `EmailQueue: ${emailResponse}`,
+    });
+    done(new Error(`EmailQueue: ${emailResponse}`));
   }
+  done(null, true);
 });

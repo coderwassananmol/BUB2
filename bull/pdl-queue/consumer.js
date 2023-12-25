@@ -171,33 +171,30 @@ async function uploadZipToIA(
         headers: headers,
       },
       (error, response, body) => {
-        if (response.statusCode === 200) {
-          EmailProducer(
-            metadata.userName,
-            metadata.title,
-            trueURI,
-            true,
-            metadata.isEmailNotification
-          );
+        if (
+          response.statusCode === 200 &&
+          metadata.isEmailNotification === "true"
+        ) {
+          EmailProducer(metadata.userName, metadata.title, trueURI, true);
+          onError(false, null);
         } else {
           if (!body) {
             logger.log({
               level: "error",
               message: `IA Failure PDL ${error}`,
             });
+            if (metadata.isEmailNotification === "true") {
+              EmailProducer(metadata.userName, metadata.title, trueURI, false);
+            }
             onError(true, error);
           } else {
-            EmailProducer(
-              metadata.userName,
-              metadata.title,
-              trueURI,
-              false,
-              metadata.isEmailNotification
-            );
             logger.log({
               level: "error",
               message: `IA Failure PDL ${body}`,
             });
+            if (metadata.isEmailNotification === "true") {
+              EmailProducer(metadata.userName, metadata.title, trueURI, false);
+            }
             onError(true, body);
           }
         }
@@ -212,7 +209,8 @@ async function uploadPdfToIA(
   byteLength,
   email,
   job,
-  onError
+  onError,
+  trueURI
 ) {
   const bucketTitle = metadata.IAIdentifier;
   const IAuri = `http://s3.us.archive.org/${bucketTitle}/${bucketTitle}.pdf`;
@@ -231,12 +229,14 @@ async function uploadPdfToIA(
   readableStream.pipe(
     request(options, (error, response, body) => {
       if (response.statusCode === 200) {
-        // EmailProducer(email, metadata.title, IAuri, true);
+        EmailProducer(metadata.userName, metadata.title, trueURI, true);
+        onError(false, null);
       } else {
         logger.log({
           level: "error",
           message: `IA Failure PDL ${body || error}`,
         });
+        EmailProducer(metadata.userName, metadata.title, trueURI, false);
         onError(true, body || error);
       }
     })
@@ -273,11 +273,13 @@ PDLQueue.process(async (job, done) => {
         (isError, error) => {
           if (isError) {
             done(new Error(error));
+          } else {
+            job.progress(100);
+            done(null, true);
           }
-        }
+        },
+        trueURI
       );
-      job.progress(100);
-      done(null, true);
     } else {
       const [zip, byteLength, errorFlag] = await getZipAndBytelength(
         job.data.details.Pages,
@@ -302,14 +304,19 @@ PDLQueue.process(async (job, done) => {
         (isError, error) => {
           if (isError) {
             done(new Error(error));
+          } else {
+            job.progress(100);
+            done(null, true);
           }
-        }
+        },
+        trueURI
       );
-      job.progress(100);
-      done(null, true);
     }
   } catch (error) {
-    console.error("Error processing job:", error);
+    logger.log({
+      level: "error",
+      message: `Failure PDL Queue: ${error}`,
+    });
     done(new Error(error));
   }
 });

@@ -89,29 +89,24 @@ TroveQueue.process((job, done) => {
                     level: "error",
                     message: `IA Failure Trove ${error}`,
                   });
+                  if (isEmailNotification === "true") {
+                    EmailProducer(userName, name, trueURI, false);
+                  }
                   done(new Error(error));
                 } else {
                   logger.log({
                     level: "error",
                     message: `IA Failure Trove ${body}`,
                   });
-                  EmailProducer(
-                    userName,
-                    name,
-                    trueURI,
-                    false,
-                    isEmailNotification
-                  );
+                  if (isEmailNotification === "true") {
+                    EmailProducer(userName, name, trueURI, false);
+                  }
                   done(new Error(body));
                 }
               } else {
-                EmailProducer(
-                  userName,
-                  name,
-                  trueURI,
-                  true,
-                  isEmailNotification
-                );
+                if (isEmailNotification === "true") {
+                  EmailProducer(userName, name, trueURI, true);
+                }
                 done(null, true);
               }
             }

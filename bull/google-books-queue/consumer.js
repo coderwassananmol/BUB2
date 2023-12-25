@@ -88,23 +88,15 @@ GoogleBooksQueue.process((job, done) => {
               level: "error",
               message: `IA Failure GB ${body}`,
             });
-            EmailProducer(
-              job.data.userName,
-              title,
-              trueURI,
-              false,
-              job.data.isEmailNotification
-            );
+            if (job.data.isEmailNotification === "true") {
+              EmailProducer(job.data.userName, title, trueURI, false);
+            }
             done(new Error(body));
           }
         } else {
-          EmailProducer(
-            job.data.userName,
-            title,
-            trueURI,
-            true,
-            job.data.isEmailNotification
-          );
+          if (job.data.isEmailNotification === "true") {
+            EmailProducer(job.data.userName, title, trueURI, true);
+          }
           done(null, true);
         }
       }

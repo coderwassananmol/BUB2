@@ -544,6 +544,17 @@ app
       }
     });
 
+    server.get("/checkEmailableStatus", async (req, res) => {
+      const { username } = req.query;
+      const usersQuery = await customFetch(
+        `https://wikisource.org/w/api.php?action=query&list=users&ususers=${username}&usprop=emailable&format=json`,
+        "GET"
+      );
+      const emailableStatus =
+        usersQuery.query.users[0].emailable === undefined ? false : true;
+      res.send(emailableStatus);
+    });
+
     server.post("/webhook", async (req, res) => {
       exec(
         "cd www/js; git pull origin master; yes | npm install; webservice --backend kubernetes node16 restart",
