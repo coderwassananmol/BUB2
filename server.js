@@ -547,7 +547,7 @@ app
     server.get("/checkEmailableStatus", async (req, res) => {
       const { username } = req.query;
       const usersQuery = await customFetch(
-        `https://meta.wikimedia.org/w/api.php?action=query&list=users&ususers=${username}&usprop=emailable&format=json`,
+        `${process.env.EMAIL_SOURCE_URL}?action=query&list=users&ususers=${username}&usprop=emailable&format=json`,
         "GET"
       );
       const emailableStatus =
