@@ -105,7 +105,16 @@ GoogleBooksQueue.process((job, done) => {
               value: `(${50}%)`,
             });
             if (downloadFileRes.writeFileStatus !== 200) {
-              return done(new Error(`downloadFile: ${downloadFileRes}`));
+              job.progress({
+                step: "Upload To IA (100%), Upload To Commons",
+                value: `(Failed)`,
+              });
+              logger.log({
+                level: "error",
+                message: `downloadFile: ${downloadFileRes}`,
+              });
+              return done(null, true);
+              // return done(new Error(`downloadFile: ${downloadFileRes}`));
             }
             const commonsResponse = await uploadToCommons(job.data);
             job.progress({
@@ -113,7 +122,16 @@ GoogleBooksQueue.process((job, done) => {
               value: `(${80}%)`,
             });
             if (commonsResponse.fileUploadStatus !== 200) {
-              return done(new Error(`uploadToCommons: ${commonsResponse}`));
+              job.progress({
+                step: "Upload To IA (100%), Upload To Commons",
+                value: `(Failed)`,
+              });
+              logger.log({
+                level: "error",
+                message: `uploadToCommons: ${commonsResponse}`,
+              });
+              return done(null, true);
+              // return done(new Error(`uploadToCommons: ${commonsResponse}`));
             }
             job.progress({
               step: "Uploading to Wikimedia Commons",

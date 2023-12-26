@@ -51,7 +51,7 @@ Rename `.env.example` to `.env`. Then, to fill the credentials,
 - Make an account on [archive.org](https://archive.org).
 - Go to https://archive.org/account/s3.php . Generate the **access** and **secret** keys and fill
   them in the `.env` file in the corresponding fields.
-- Go to [Google Developers console](https://console.developers.google.com/getting-started). Make a new project to run the app. In that Google Developers project, search for 'Books API' in the Google API console, then **enable** the API for the project, then generate the **API keys**, and then copy and paste the API key in the `GB_Key` and `NEXT_PUBLIC_GB_KEY` fields.
+- Go to [Google Developers console](https://console.developers.google.com/getting-started). Make a new project to run the app. In that Google Developers project, search for 'Books API' in the Google API console, then **enable** the API for the project, then generate the **API keys**, and then copy and paste the API key in the `GB_Key` fields.
 - Enter the `redishost` field. If it's hosted locally, enter **127.0.0.1**, which is the default localhost.
 - Enter the `redisport` field with **6379**, which is the default port number for redis.
   
