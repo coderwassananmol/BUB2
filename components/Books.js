@@ -15,10 +15,12 @@ const Books = () => {
   const [loader, setLoader] = useState(false);
   const [isDuplicate, setIsDuplicate] = useState(false);
   const [isInValidIdentifier, setIsInValidIdentifier] = useState(false);
+  const [isEmailNotification, setIsEmailNotification] = useState(false);
   const [isUploadCommons, setIsUploadCommons] = useState(false);
   const [IATitle, setIATitle] = useState("");
   const [IAIdentifier, setIAIdentifier] = useState("");
   const [inputDisabled, setInputDisabled] = useState(false);
+  const [isUserEmailable, setIsUserEmailable] = useState(false);
   const [isCommonsMetadataReady, setIsCommonsMetadataReady] = useState(false);
   const [hasCommonsMetadataUpdated, setHasCommonsMetadataUpdated] = useState(
     false
@@ -30,6 +32,7 @@ const Books = () => {
     setOption(event.target.value);
     setBookId("");
     setIsDuplicate(false);
+    setIsEmailNotification(false);
     setIsInValidIdentifier(false);
     setIATitle("");
     setIAIdentifier("");
@@ -39,6 +42,7 @@ const Books = () => {
 
   const onResetButtonClicked = () => {
     setIsDuplicate(false);
+    setIsEmailNotification(false);
     setIsInValidIdentifier(false);
     setInputDisabled(false);
     setIATitle("");
@@ -127,6 +131,14 @@ const Books = () => {
     return urlPattren.test(urlString);
   };
 
+  const checkEmailableStatus = async (username) => {
+    const response = await fetch(
+      `${host}/checkEmailableStatus?username=${username}`
+    );
+    const isEmailable = await response.json();
+    return isEmailable;
+  };
+
   const onSubmit = async (event) => {
     event?.preventDefault();
 
@@ -150,8 +162,8 @@ const Books = () => {
           url = `${host}/check?bookid=${bookid}&option=${
             option + (email ? "&email=" + email : "")
           }&userName=${
-            session.user.name
-          }&IAtitle=${IAIdentifier}&isUploadCommons=${isUploadCommons}&oauthToken=${
+            session?.user?.name
+          }&IAtitle=${IAIdentifier}&isEmailNotification=${isEmailNotification}&isUploadCommons=${isUploadCommons}&oauthToken=${
             session?.accessToken
           }&commonsMetadata=${commonsMetadata}`;
           fetch(url)
@@ -223,7 +235,7 @@ const Books = () => {
             option + (email ? "&email=" + email : "")
           }&categoryID=${categoryID}&userName=${
             session.user.name
-          }&IAtitle=${IAIdentifier}`;
+          }&IAtitle=${IAIdentifier}&isEmailNotification=${isEmailNotification}`;
           fetch(url)
             .then((res) => res.json())
             .then((response) => {
@@ -258,7 +270,7 @@ const Books = () => {
             session.user.name
           }&IAtitle=${IAIdentifier}&isUploadCommons=${isUploadCommons}&oauthToken=${
             session?.accessToken
-          }`;
+          }&isEmailNotification=${isEmailNotification}`;
           fetch(url)
             .then((res) => res.json())
             .then((response) => {
@@ -286,6 +298,11 @@ const Books = () => {
     }
   };
 
+  useEffect(async () => {
+    const isEmailable = await checkEmailableStatus(session?.user?.name);
+    setIsUserEmailable(isEmailable);
+  }, [session]);
+
   useEffect(() => {
     if (
       hasCommonsMetadataUpdated &&
@@ -299,6 +316,7 @@ const Books = () => {
       setLoader(false);
     }
   }, [hasCommonsMetadataUpdated, isUploadCommons]);
+
   return (
     <React.Fragment>
       <BooksWrapper isCommonsMetadataReady={isCommonsMetadataReady}>
@@ -373,6 +391,53 @@ const Books = () => {
                   </Tooltip>
                 </div>
               </span>
+            </div>
+
+            <div style={{ marginTop: "10px" }} className="section">
+              <span class="cdx-checkbox">
+                <input
+                  id="checkbox-description-css-only-1"
+                  class="cdx-checkbox__input"
+                  type="checkbox"
+                  aria-describedby="cdx-description-css-1"
+                  onChange={(event) =>
+                    setIsEmailNotification(event.target.checked)
+                  }
+                  disabled={!isUserEmailable}
+                  title={
+                    isUserEmailable
+                      ? ""
+                      : "No email associated with this user account or the user has disabled email access."
+                  }
+                />
+                <span class="cdx-checkbox__icon"></span>
+                <div
+                  class="cdx-checkbox__label cdx-label"
+                  title={
+                    isUserEmailable
+                      ? ""
+                      : "No email associated with this user account or the user has disabled email access."
+                  }
+                >
+                  <label
+                    for="checkbox-description-css-only-1"
+                    class="cdx-label__label"
+                  >
+                    Notify updates via e-mail
+                  </label>
+                </div>
+              </span>
+
+              {isEmailNotification && (
+                <span id="cdx-description-css-1" class="cdx-label__description">
+                  <p>
+                    <span class="cdx-css-icon--info-filled"></span>
+                    &nbsp; BUB2 will send an email to your email ID associated
+                    with your Wikimedia account regarding the success or failure
+                    of the upload.
+                  </p>
+                </span>
+              )}
             </div>
 
             {isDuplicate ? (

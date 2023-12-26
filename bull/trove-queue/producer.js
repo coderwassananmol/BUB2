@@ -6,10 +6,15 @@ const cheerio = require("cheerio"); // Basically jQuery for node.js
 require("./consumer");
 module.exports = async (
   bookid,
+
   IAIdentifier,
+
   metaData,
+
   email,
+
   userName,
+  isEmailNotification,
   isUploadCommons,
   oauthToken
 ) => {
@@ -27,6 +32,7 @@ module.exports = async (
   metaData["issueRenditionId"] = issueRenditionId;
   metaData["userName"] = userName;
   metaData["IAIdentifier"] = IAIdentifier;
+  metaData["isEmailNotification"] = isEmailNotification;
   metaData["isUploadCommons"] = isUploadCommons;
   metaData["oauthToken"] = oauthToken;
 

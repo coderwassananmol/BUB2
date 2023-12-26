@@ -45,7 +45,15 @@ TroveQueue.process((job, done) => {
           `https://trove.nla.gov.au/newspaper/rendition/nla.news-issue${job.data.details.issueRenditionId}.pdf?followup=${body}`
         );
         const jobLogs = job.data.details;
-        let { name, date, id, troveUrl, IAIdentifier } = job.data.details;
+        let {
+          name,
+          date,
+          id,
+          troveUrl,
+          IAIdentifier,
+          userName,
+          isEmailNotification,
+        } = job.data.details;
         const bucketTitle = IAIdentifier;
         const IAuri = `http://s3.us.archive.org/${bucketTitle}/${bucketTitle}.pdf`;
         const trueURI = `http://archive.org/details/${bucketTitle}`;
@@ -80,20 +88,15 @@ TroveQueue.process((job, done) => {
             },
             async (error, response, body) => {
               if (error || response.statusCode != 200) {
-                if (!body) {
-                  logger.log({
-                    level: "error",
-                    message: `IA Failure Trove ${error}`,
-                  });
-                  done(new Error(error));
-                } else {
-                  logger.log({
-                    level: "error",
-                    message: `IA Failure Trove ${body}`,
-                  });
-                  done(new Error(body));
+                const errorMessage = !body ? error : body;
+                logger.log({
+                  level: "error",
+                  message: `IA Failure Trove ${errorMessage}`,
+                });
+                if (isEmailNotification === "true") {
+                  EmailProducer(userName, name, trueURI, false);
                 }
-                //EmailProducer(job.data.details.email, name, trueURI, false);
+                done(new Error(errorMessage));
               } else {
                 if (job.data.details.isUploadCommons === "true") {
                   job.progress({
@@ -109,7 +112,7 @@ TroveQueue.process((job, done) => {
                     value: `(${50}%)`,
                   });
                   if (downloadFileRes.writeFileStatus !== 200) {
-                    done(new Error(`downloadFile: ${downloadFileRes}`));
+                    return done(new Error(`downloadFile: ${downloadFileRes}`));
                   }
                   const commonsResponse = await uploadToCommons(
                     job.data.details
@@ -119,7 +122,9 @@ TroveQueue.process((job, done) => {
                     value: `(${80}%)`,
                   });
                   if (commonsResponse.fileUploadStatus !== 200) {
-                    done(new Error(`uploadToCommons: ${commonsResponse}`));
+                    return done(
+                      new Error(`uploadToCommons: ${commonsResponse}`)
+                    );
                   }
                   job.progress({
                     step: "Uploading to Wikimedia Commons",
@@ -128,11 +133,11 @@ TroveQueue.process((job, done) => {
                       commons: commonsResponse.filename,
                     },
                   });
-                  done(null, true);
-                } else {
-                  done(null, true);
-                  //EmailProducer(job.data.details.email, name, trueURI, true);
                 }
+                if (isEmailNotification === "true") {
+                  EmailProducer(userName, name, trueURI, true);
+                }
+                done(null, true);
               }
             }
           )

@@ -81,20 +81,15 @@ GoogleBooksQueue.process((job, done) => {
       },
       async (error, response, body) => {
         if (error || response.statusCode != 200) {
-          if (!body) {
-            logger.log({
-              level: "error",
-              message: `IA Failure GB ${error}`,
-            });
-            done(new Error(error));
-          } else {
-            logger.log({
-              level: "error",
-              message: `IA Failure GB ${body}`,
-            });
-            done(new Error(body));
+          const errorMessage = !body ? error : body;
+          logger.log({
+            level: "error",
+            message: `IA Failure GB ${errorMessage}`,
+          });
+          if (job.data.isEmailNotification === "true") {
+            EmailProducer(job.data.userName, title, trueURI, false);
           }
-          //EmailProducer(job.data.email, title, trueURI, false);
+          done(new Error(errorMessage));
         } else {
           if (job.data.isUploadCommons === "true") {
             job.progress({
@@ -110,7 +105,7 @@ GoogleBooksQueue.process((job, done) => {
               value: `(${50}%)`,
             });
             if (downloadFileRes.writeFileStatus !== 200) {
-              done(new Error(`downloadFile: ${downloadFileRes}`));
+              return done(new Error(`downloadFile: ${downloadFileRes}`));
             }
             const commonsResponse = await uploadToCommons(job.data);
             job.progress({
@@ -118,7 +113,7 @@ GoogleBooksQueue.process((job, done) => {
               value: `(${80}%)`,
             });
             if (commonsResponse.fileUploadStatus !== 200) {
-              done(new Error(`uploadToCommons: ${commonsResponse}`));
+              return done(new Error(`uploadToCommons: ${commonsResponse}`));
             }
             job.progress({
               step: "Uploading to Wikimedia Commons",
@@ -127,11 +122,11 @@ GoogleBooksQueue.process((job, done) => {
                 commons: commonsResponse.filename,
               },
             });
-            done(null, true);
-          } else {
-            //EmailProducer(job.data.email, title, trueURI, true);
-            done(null, true);
           }
+          if (job.data.isEmailNotification === "true") {
+            EmailProducer(job.data.userName, title, trueURI, true);
+          }
+          done(null, true);
         }
       }
     )

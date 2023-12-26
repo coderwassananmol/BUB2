@@ -71,7 +71,9 @@ Rename `.env.example` to `.env`. Then, to fill the credentials,
       ```
 - Enter the client application key and client application secret in the `WIKIMEDIA_CLIENT_ID` and `WIKIMEDIA_CLIENT_SECRET` respectively.
 - Enter the `NEXTAUTH_URL` with http://localhost:5000.
-- Go to [Trove API](https://trove.nla.gov.au/about/create-something/using-api) and follow the instructions on how to get a trove key. Fill in `trove_key` and `NEXT_PUBLIC_TROVE_KEY` with the trove key you generated.
+- Go to [wikisource Bot] (https://meta.wikimedia.beta.wmflabs.org/wiki/Special:BotPasswords) to generate your `EMAIL_BOT_USERNAME` and `EMAIL_BOT_PASSWORD`. When creating your bot, tick 'send email to users' under the Applicable Grants section. Go ahead and enter the generated credentials in the `.env` file.
+- Enter the `EMAIL_SOURCE_URL` which is the name to be displayed as the sender in Emails - https://meta.wikimedia.beta.wmflabs.org/w/api.php
+- Go to [Trove API](https://trove.nla.gov.au/about/create-something/using-api) and follow the instructions on how to get a trove key. Fill in `trove_key` with the trove key you generated.
 <a id="runRedisServer"></a>
 ### Run Redis server
 

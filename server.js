@@ -391,10 +391,16 @@ app
     server.get("/check", async (req, res) => {
       const {
         bookid,
+
         option,
+
         email,
+
         userName,
+
         IAtitle,
+        isEmailNotification,
+
         isUploadCommons,
         oauthToken,
         commonsMetadata,
@@ -482,7 +488,14 @@ app
                 error: false,
                 message: "You will be mailed with the details soon!",
               });
-              PDLProducer(bookid, titleInIA, categoryID, email, authUserName);
+              PDLProducer(
+                bookid,
+                titleInIA,
+                categoryID,
+                email,
+                authUserName,
+                isEmailNotification
+              );
             }
           }
           // const isDuplicate = checkForDuplicatesFromIA(`bub_pn_${bookid}`);
@@ -544,10 +557,15 @@ app
                 });
                 TroveProducer(
                   bookid,
+
                   titleInIA,
+
                   troveData,
+
                   email,
+
                   userName,
+                  isEmailNotification,
                   isUploadCommons,
                   oauthToken
                 );
@@ -556,6 +574,17 @@ app
           });
           break;
       }
+    });
+
+    server.get("/checkEmailableStatus", async (req, res) => {
+      const { username } = req.query;
+      const usersQuery = await customFetch(
+        `${process.env.EMAIL_SOURCE_URL}?action=query&list=users&ususers=${username}&usprop=emailable&format=json`,
+        "GET"
+      );
+      const emailableStatus =
+        usersQuery?.query?.users[0]?.emailable === undefined ? false : true;
+      res.send(emailableStatus);
     });
 
     server.get("/getMetadata", async (req, res) => {
@@ -616,6 +645,7 @@ app
           GBdetails,
           emailaddr,
           authUserName,
+          GBreq.query.isEmailNotification,
           GBreq.query.isUploadCommons,
           GBreq.query.oauthToken,
           GBreq.query.commonsMetadata
