@@ -77,23 +77,20 @@ GoogleBooksQueue.process((job, done) => {
       },
       async (error, response, body) => {
         if (error || response.statusCode != 200) {
-          if (!body) {
-            logger.log({
-              level: "error",
-              message: `IA Failure GB ${error}`,
-            });
-            done(new Error(error));
-          } else {
-            logger.log({
-              level: "error",
-              message: `IA Failure GB ${body}`,
-            });
-            done(new Error(body));
+          const errorMessage = !body ? error : body;
+          logger.log({
+            level: "error",
+            message: `IA Failure GB ${errorMessage}`,
+          });
+          if (job.data.isEmailNotification === "true") {
+            EmailProducer(job.data.userName, title, trueURI, false);
           }
-          //EmailProducer(job.data.email, title, trueURI, false);
+          done(new Error(errorMessage));
         } else {
+          if (job.data.isEmailNotification === "true") {
+            EmailProducer(job.data.userName, title, trueURI, true);
+          }
           done(null, true);
-          //EmailProducer(job.data.email, title, trueURI, true);
         }
       }
     )

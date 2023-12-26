@@ -7,6 +7,7 @@ export default () => (
           background-color: #f5f5f5;
           margin-top: auto;
           padding: 1em;
+          position: relative;
           left: 0;
           bottom: 0;
         }
