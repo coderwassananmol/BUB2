@@ -71,6 +71,8 @@ Rename `.env.example` to `.env`. Then, to fill the credentials,
       ```
 - Enter the client application key and client application secret in the `WIKIMEDIA_CLIENT_ID` and `WIKIMEDIA_CLIENT_SECRET` respectively.
 - Enter the `NEXTAUTH_URL` with http://localhost:5000.
+- Go to [wikisource Bot] (https://meta.wikimedia.beta.wmflabs.org/wiki/Special:BotPasswords) to generate your `EMAIL_BOT_USERNAME` and `EMAIL_BOT_PASSWORD`. When creating your bot, tick 'send email to users' under the Applicable Grants section. Go ahead and enter the generated credentials in the `.env` file.
+- Enter the `EMAIL_SOURCE_URL` which is the name to be displayed as the sender in Emails - https://meta.wikimedia.beta.wmflabs.org/w/api.php
 <a id="runRedisServer"></a>
 ### Run Redis server
 

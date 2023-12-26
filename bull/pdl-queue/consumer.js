@@ -7,6 +7,8 @@ const _ = require("lodash");
 const winston = require("winston");
 const logger = winston.loggers.get("defaultLogger");
 const { logUserData } = require("./../../utils/helper");
+const { customFetch } = require("../../utils/helper");
+const { Readable } = require("stream");
 
 var JSZip = require("jszip");
 PDLQueue.on("active", (job, jobPromise) => {
@@ -28,41 +30,96 @@ async function getZipAndBytelength(no_of_pages, id, title, job) {
   title = title.replace(/ /g, "_");
   var img = zip.folder(`${title}_images`);
   let temp_pages = no_of_pages;
+  let downloadImageStatus;
+  let errorFlag = { status: false, page: "" };
   var download_image = async function (uri, filename) {
-    await rp({
-      method: "GET",
-      uri,
-      encoding: null,
-      transform: function (body, response) {
-        return { headers: response.headers, data: body };
-      },
-    })
-      .then(async function (body) {
-        if (/image/.test(body.headers["content-type"])) {
-          var data = new Buffer(body.data);
-          img.file(filename, data.toString("base64"), { base64: true });
-        }
-      })
-      .catch(function (err) {
-        --no_of_pages;
+    try {
+      const body = await rp({
+        method: "GET",
+        uri,
+        encoding: null,
+        transform: function (body, response) {
+          return { headers: response.headers, data: body };
+        },
       });
+      if (/image/.test(body.headers["content-type"])) {
+        var data = new Buffer(body.data);
+        img.file(filename, data.toString("base64"), { base64: true });
+      }
+      return 200;
+    } catch (err) {
+      --no_of_pages;
+      return err.statusCode;
+    }
   };
   for (let i = 1; i <= temp_pages; ++i) {
     const str = `http://www.panjabdigilib.org/images?ID=${id}&page=${i}&pagetype=null&Searched=W3GX`;
-    await download_image(str, `${title}_${i}.jpeg`);
+    downloadImageStatus = await download_image(str, `${title}_${i}.jpeg`);
     job.progress(Math.round((i / temp_pages) * 82));
+    if (downloadImageStatus >= 200 && downloadImageStatus < 300) {
+      continue;
+    } else {
+      errorFlag = { status: true, page: str };
+      break;
+    }
   }
   let { byteLength } = await zip.generateAsync({ type: "nodebuffer" });
   byteLength = Number(byteLength + no_of_pages * 16); //No. of pages * 16
-  return [zip, byteLength];
+  return [zip, byteLength, errorFlag];
 }
 
-function setHeaders(metadata, byteLength, title) {
+async function getPdfAndBytelength(pdfUrl, job) {
+  try {
+    let errorFlag = { status: false, page: "" };
+    const response = await customFetch(
+      pdfUrl,
+      "GET",
+      new Headers({
+        "Content-Type": "application/pdf",
+      }),
+      "file"
+    );
+    if (response.status === 200) {
+      job.progress(30);
+      const buffer = await response.buffer();
+      job.progress(60);
+      return {
+        pdfBuffer: buffer,
+        byteLength: buffer.byteLength,
+        errorFlag,
+      };
+    } else {
+      logger.log({
+        level: "error",
+        message: `Failure PDL: Failed to download PDF. Status Code: ${response.status}`,
+      });
+      errorFlag = { status: true, page: pdfUrl };
+      return {
+        pdfBuffer: null,
+        byteLength: null,
+        errorFlag,
+      };
+    }
+  } catch (error) {
+    logger.log({
+      level: "error",
+      message: `Failure PDL: ${error}`,
+    });
+    let errorFlag = { status: true, page: pdfUrl };
+    return {
+      pdfBuffer: null,
+      byteLength: null,
+      errorFlag,
+    };
+  }
+}
+
+function setHeaders(metadata, byteLength, title, contentType) {
   let headers = {};
   headers[
     "Authorization"
   ] = `LOW ${process.env.access_key}:${process.env.secret_key}`;
-  headers["Content-type"] = "application/zip";
+  headers["Content-type"] = `application/${contentType}`;
   headers["Content-length"] = byteLength;
   headers["X-Amz-Auto-Make-Bucket"] = 1;
   headers["X-Archive-meta-collection"] = "opensource";
@@ -80,14 +137,30 @@ function setHeaders(metadata, byteLength, title) {
     headers[`X-archive-meta-${meta_key}`] = metadata[key];
   }
   headers["X-archive-meta-title"] = metadata["title"];
+  headers[`X-archive-meta-description`] = `uri(${encodeURI(
+    metadata.description?.trim()
+  )})`;
   return headers;
 }
 
-async function uploadToIA(zip, metadata, byteLength, email, job) {
+async function uploadZipToIA(
+  zip,
+  metadata,
+  byteLength,
+  email,
+  job,
+  onError,
+  trueURI
+) {
   const bucketTitle = metadata.IAIdentifier;
   const IAuri = `http://s3.us.archive.org/${bucketTitle}/${bucketTitle}_images.zip`;
   metadata = _.omit(metadata, "coverImage");
-  let headers = setHeaders(metadata, byteLength, metadata.title);
+  let headers = setHeaders(
+    metadata,
+    byteLength,
+    metadata.title,
+    job.data.details.contentType
+  );
   await zip.generateNodeStream({ type: "nodebuffer", streamFiles: true }).pipe(
     request(
       {
@@ -99,40 +172,140 @@ async function uploadToIA(zip, metadata, byteLength, email, job) {
       },
       (error, response, body) => {
         if (response.statusCode === 200) {
-          //EmailProducer(email, metadata.title, trueURI, true);
+          if (metadata.isEmailNotification === "true") {
+            EmailProducer(metadata.userName, metadata.title, trueURI, true);
+          }
+          onError(false, null);
         } else {
+          const errorMessage = !body ? error : body;
           logger.log({
             level: "error",
-            message: `IA Failure PDL ${body}`,
+            message: `IA Failure PDL ${errorMessage}`,
           });
-          //EmailProducer(email, metadata.title, trueURI, false);
+          if (metadata.isEmailNotification === "true") {
+            EmailProducer(metadata.userName, metadata.title, trueURI, false);
+          }
+          onError(true, errorMessage);
         }
       }
     )
   );
 }
 
-PDLQueue.process(async (job, done) => {
-  const jobLogs = job.data.details;
-  const trueURI = `http://archive.org/details/${job.data.details.IAIdentifier}`;
-  jobLogs["trueURI"] = trueURI;
-  jobLogs["userName"] = job.data.details.userName;
-  job.log(JSON.stringify(jobLogs));
-  logUserData(jobLogs["userName"], "Panjab Digital Library");
-  const [zip, byteLength] = await getZipAndBytelength(
-    job.data.details.Pages,
-    job.data.details.bookID,
-    job.data.details.title,
-    job
-  );
-  job.progress(90);
-  await uploadToIA(
-    zip,
-    job.data.details,
+async function uploadPdfToIA(
+  pdfBuffer,
+  metadata,
+  byteLength,
+  email,
+  job,
+  onError,
+  trueURI
+) {
+  const bucketTitle = metadata.IAIdentifier;
+  const IAuri = `http://s3.us.archive.org/${bucketTitle}/${bucketTitle}.pdf`;
+  let headers = setHeaders(
+    metadata,
     byteLength,
-    job.data.details.email,
-    job
+    metadata.title,
+    job.data.details.contentType
   );
-  job.progress(100);
-  done(null, true);
+  const options = {
+    method: "PUT",
+    uri: IAuri,
+    headers: headers,
+  };
+  const readableStream = Readable.from(pdfBuffer);
+  readableStream.pipe(
+    request(options, (error, response, body) => {
+      if (response.statusCode === 200) {
+        EmailProducer(metadata.userName, metadata.title, trueURI, true);
+        onError(false, null);
+      } else {
+        logger.log({
+          level: "error",
+          message: `IA Failure PDL ${body || error}`,
+        });
+        EmailProducer(metadata.userName, metadata.title, trueURI, false);
+        onError(true, body || error);
+      }
+    })
+  );
+}
+
+PDLQueue.process(async (job, done) => {
+  try {
+    const jobLogs = job.data.details;
+    const trueURI = `http://archive.org/details/${job.data.details.IAIdentifier}`;
+    jobLogs["trueURI"] = trueURI;
+    jobLogs["userName"] = job.data.details.userName;
+    job.log(JSON.stringify(jobLogs));
+    logUserData(jobLogs["userName"], "Panjab Digital Library");
+
+    if (job.data.details.pdfUrl) {
+      const { pdfBuffer, byteLength, errorFlag } = await getPdfAndBytelength(
+        job.data.details.pdfUrl,
+        job
+      );
+      if (errorFlag.status) {
+        logger.log({
+          level: "error",
+          message: `Failure PDL: Failed to download ${errorFlag.page}`,
+        });
+        done(new Error(`Failure PDL: Failed to download ${errorFlag.page}`));
+      }
+      await uploadPdfToIA(
+        pdfBuffer,
+        job.data.details,
+        byteLength,
+        job.data.details.email,
+        job,
+        (isError, error) => {
+          if (isError) {
+            done(new Error(error));
+          } else {
+            job.progress(100);
+            done(null, true);
+          }
+        },
+        trueURI
+      );
+    } else {
+      const [zip, byteLength, errorFlag] = await getZipAndBytelength(
+        job.data.details.Pages,
+        job.data.details.bookID,
+        job.data.details.title,
+        job
+      );
+      if (errorFlag.status) {
+        logger.log({
+          level: "error",
+          message: `Failure PDL: Failed to download ${errorFlag.page}`,
+        });
+        done(new Error(`Failure PDL: Failed to download ${errorFlag.page}`));
+      }
+      job.progress(90);
+      await uploadZipToIA(
+        zip,
+        job.data.details,
+        byteLength,
+        job.data.details.email,
+        job,
+        (isError, error) => {
+          if (isError) {
+            done(new Error(error));
+          } else {
+            job.progress(100);
+            done(null, true);
+          }
+        },
+        trueURI
+      );
+    }
+  } catch (error) {
+    logger.log({
+      level: "error",
+      message: `Failure PDL Queue: ${error}`,
+    });
+    done(new Error(error));
+  }
 });

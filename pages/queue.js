@@ -74,7 +74,6 @@ const Queue = ({ data }) => {
                 marginTop: "2em",
               }}
             >
-              <h4>Search Book</h4>
               <div className="cdx-search-input cdx-search-input--has-end-button">
                 <div
                   className="cdx-text-input cdx-text-input--has-start-icon"

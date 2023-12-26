@@ -41,7 +41,15 @@ TroveQueue.process((job, done) => {
           `https://trove.nla.gov.au/newspaper/rendition/nla.news-issue${job.data.details.issueRenditionId}.pdf?followup=${body}`
         );
         const jobLogs = job.data.details;
-        let { name, date, id, troveUrl, IAIdentifier } = job.data.details;
+        let {
+          name,
+          date,
+          id,
+          troveUrl,
+          IAIdentifier,
+          userName,
+          isEmailNotification,
+        } = job.data.details;
         const bucketTitle = IAIdentifier;
         const IAuri = `http://s3.us.archive.org/${bucketTitle}/${bucketTitle}.pdf`;
         const trueURI = `http://archive.org/details/${bucketTitle}`;
@@ -76,15 +84,20 @@ TroveQueue.process((job, done) => {
             },
             async (error, response, body) => {
               if (error || response.statusCode != 200) {
+                const errorMessage = !body ? error : body;
                 logger.log({
                   level: "error",
-                  message: `IA Failure Trove ${body}`,
+                  message: `IA Failure Trove ${errorMessage}`,
                 });
-                done(new Error(body));
-                //EmailProducer(job.data.details.email, name, trueURI, false);
+                if (isEmailNotification === "true") {
+                  EmailProducer(userName, name, trueURI, false);
+                }
+                done(new Error(errorMessage));
               } else {
+                if (isEmailNotification === "true") {
+                  EmailProducer(userName, name, trueURI, true);
+                }
                 done(null, true);
-                //EmailProducer(job.data.details.email, name, trueURI, true);
               }
             }
           )
