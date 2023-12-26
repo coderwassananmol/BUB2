@@ -305,7 +305,7 @@ const Books = () => {
                 title={
                   isUserEmailable
                     ? ""
-                    : "No email associated with this user account"
+                    : "No email associated with this user account or the user has disabled email access."
                 }
               />
               <span class="cdx-checkbox__icon"></span>
@@ -314,7 +314,7 @@ const Books = () => {
                 title={
                   isUserEmailable
                     ? ""
-                    : "No email associated with this user account"
+                    : "No email associated with this user account or the user has disabled email access."
                 }
               >
                 <label
