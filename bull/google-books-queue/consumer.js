@@ -134,7 +134,7 @@ GoogleBooksQueue.process((job, done) => {
               // return done(new Error(`uploadToCommons: ${commonsResponse}`));
             }
             job.progress({
-              step: "Uploading to Wikimedia Commons",
+              step: "Upload to Wikimedia Commons",
               value: `(${100}%)`,
               wikiLinks: {
                 commons: commonsResponse.filename,

@@ -127,7 +127,7 @@ TroveQueue.process((job, done) => {
                     );
                   }
                   job.progress({
-                    step: "Uploading to Wikimedia Commons",
+                    step: "Upload to Wikimedia Commons",
                     value: `(${100}%)`,
                     wikiLinks: {
                       commons: commonsResponse.filename,
