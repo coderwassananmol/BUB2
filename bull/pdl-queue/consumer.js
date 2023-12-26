@@ -171,32 +171,21 @@ async function uploadZipToIA(
         headers: headers,
       },
       (error, response, body) => {
-        if (
-          response.statusCode === 200 &&
-          metadata.isEmailNotification === "true"
-        ) {
-          EmailProducer(metadata.userName, metadata.title, trueURI, true);
+        if (response.statusCode === 200) {
+          if (metadata.isEmailNotification === "true") {
+            EmailProducer(metadata.userName, metadata.title, trueURI, true);
+          }
           onError(false, null);
         } else {
-          if (!body) {
-            logger.log({
-              level: "error",
-              message: `IA Failure PDL ${error}`,
-            });
-            if (metadata.isEmailNotification === "true") {
-              EmailProducer(metadata.userName, metadata.title, trueURI, false);
-            }
-            onError(true, error);
-          } else {
-            logger.log({
-              level: "error",
-              message: `IA Failure PDL ${body}`,
-            });
-            if (metadata.isEmailNotification === "true") {
-              EmailProducer(metadata.userName, metadata.title, trueURI, false);
-            }
-            onError(true, body);
+          const errorMessage = !body ? error : body;
+          logger.log({
+            level: "error",
+            message: `IA Failure PDL ${errorMessage}`,
+          });
+          if (metadata.isEmailNotification === "true") {
+            EmailProducer(metadata.userName, metadata.title, trueURI, false);
           }
+          onError(true, errorMessage);
         }
       }
     )

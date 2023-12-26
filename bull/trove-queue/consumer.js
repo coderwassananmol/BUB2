@@ -84,25 +84,15 @@ TroveQueue.process((job, done) => {
             },
             async (error, response, body) => {
               if (error || response.statusCode != 200) {
-                if (!body) {
-                  logger.log({
-                    level: "error",
-                    message: `IA Failure Trove ${error}`,
-                  });
-                  if (isEmailNotification === "true") {
-                    EmailProducer(userName, name, trueURI, false);
-                  }
-                  done(new Error(error));
-                } else {
-                  logger.log({
-                    level: "error",
-                    message: `IA Failure Trove ${body}`,
-                  });
-                  if (isEmailNotification === "true") {
-                    EmailProducer(userName, name, trueURI, false);
-                  }
-                  done(new Error(body));
+                const errorMessage = !body ? error : body;
+                logger.log({
+                  level: "error",
+                  message: `IA Failure Trove ${errorMessage}`,
+                });
+                if (isEmailNotification === "true") {
+                  EmailProducer(userName, name, trueURI, false);
                 }
+                done(new Error(errorMessage));
               } else {
                 if (isEmailNotification === "true") {
                   EmailProducer(userName, name, trueURI, true);

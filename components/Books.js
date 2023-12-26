@@ -332,8 +332,7 @@ const Books = () => {
                   <span class="cdx-css-icon--info-filled"></span>
                   &nbsp; BUB2 will send an email to your email ID associated
                   with your Wikimedia account regarding the success or failure
-                  of the upload. If no email is added to the account, email will
-                  not be sent.
+                  of the upload.
                 </p>
               </span>
             )}
