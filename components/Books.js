@@ -3,6 +3,7 @@ import Swal from "sweetalert2";
 import { host } from "../utils/constants";
 import { useSession, signIn } from "next-auth/react";
 import ChangeIdentifier from "./ChangeIdentifier";
+import { useEffect } from "react";
 
 const Books = () => {
   const { data: session } = useSession();
@@ -12,14 +13,17 @@ const Books = () => {
   const [loader, setLoader] = useState(false);
   const [isDuplicate, setIsDuplicate] = useState(false);
   const [isInValidIdentifier, setIsInValidIdentifier] = useState(false);
+  const [isEmailNotification, setIsEmailNotification] = useState(false);
   const [IATitle, setIATitle] = useState("");
   const [IAIdentifier, setIAIdentifier] = useState("");
   const [inputDisabled, setInputDisabled] = useState(false);
+  const [isUserEmailable, setIsUserEmailable] = useState(false);
 
   const handleChange = (event) => {
     setOption(event.target.value);
     setBookId("");
     setIsDuplicate(false);
+    setIsEmailNotification(false);
     setIsInValidIdentifier(false);
     setIATitle("");
     setIAIdentifier("");
@@ -28,6 +32,7 @@ const Books = () => {
 
   const onResetButtonClicked = () => {
     setIsDuplicate(false);
+    setIsEmailNotification(false);
     setIsInValidIdentifier(false);
     setInputDisabled(false);
     setIATitle("");
@@ -114,6 +119,14 @@ const Books = () => {
     return urlPattren.test(urlString);
   };
 
+  const checkEmailableStatus = async (username) => {
+    const response = await fetch(
+      `${host}/checkEmailableStatus?username=${username}`
+    );
+    const isEmailable = await response.json();
+    return isEmailable;
+  };
+
   const onSubmit = (event) => {
     event.preventDefault();
 
@@ -131,7 +144,9 @@ const Books = () => {
       case "gb":
         url = `${host}/check?bookid=${bookid}&option=${
           option + (email ? "&email=" + email : "")
-        }&userName=${session.user.name}&IAtitle=${IAIdentifier}`;
+        }&userName=${
+          session.user.name
+        }&IAtitle=${IAIdentifier}&isEmailNotification=${isEmailNotification}`;
         fetch(url)
           .then((response) => response.json())
           .then(async (response) => {
@@ -198,7 +213,7 @@ const Books = () => {
             option + (email ? "&email=" + email : "")
           }&categoryID=${categoryID}&userName=${
             session.user.name
-          }&IAtitle=${IAIdentifier}`;
+          }&IAtitle=${IAIdentifier}&isEmailNotification=${isEmailNotification}`;
           fetch(url)
             .then((res) => res.json())
             .then((response) => {
@@ -224,7 +239,9 @@ const Books = () => {
       case "trove":
         url = `${host}/check?bookid=${bookid}&option=${
           option + (email ? "&email=" + email : "")
-        }&userName=${session.user.name}&IAtitle=${IAIdentifier}`;
+        }&userName=${
+          session.user.name
+        }&IAtitle=${IAIdentifier}&isEmailNotification=${isEmailNotification}`;
         fetch(url)
           .then((res) => res.json())
           .then((response) => {
@@ -245,6 +262,11 @@ const Books = () => {
         break;
     }
   };
+
+  useEffect(async () => {
+    const isEmailable = await checkEmailableStatus(session?.user?.name);
+    setIsUserEmailable(isEmailable);
+  }, [session]);
 
   return (
     <React.Fragment>
@@ -268,6 +290,54 @@ const Books = () => {
             </select>
           </div>
           <div className="section">{renderContent(option)}</div>
+
+          <div className="section">
+            <span class="cdx-checkbox">
+              <input
+                id="checkbox-description-css-only-1"
+                class="cdx-checkbox__input"
+                type="checkbox"
+                aria-describedby="cdx-description-css-1"
+                onChange={(event) =>
+                  setIsEmailNotification(event.target.checked)
+                }
+                disabled={!isUserEmailable}
+                title={
+                  isUserEmailable
+                    ? ""
+                    : "No email associated with this user account or the user has disabled email access."
+                }
+              />
+              <span class="cdx-checkbox__icon"></span>
+              <div
+                class="cdx-checkbox__label cdx-label"
+                title={
+                  isUserEmailable
+                    ? ""
+                    : "No email associated with this user account or the user has disabled email access."
+                }
+              >
+                <label
+                  for="checkbox-description-css-only-1"
+                  class="cdx-label__label"
+                >
+                  Notify updates via e-mail
+                </label>
+              </div>
+            </span>
+
+            {isEmailNotification && (
+              <span id="cdx-description-css-1" class="cdx-label__description">
+                <p>
+                  <span class="cdx-css-icon--info-filled"></span>
+                  &nbsp; BUB2 will send an email to your email ID associated
+                  with your Wikimedia account regarding the success or failure
+                  of the upload.
+                </p>
+              </span>
+            )}
+          </div>
+
           {isDuplicate ? (
             <ChangeIdentifier
               description={

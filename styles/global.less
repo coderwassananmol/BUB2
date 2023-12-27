@@ -2,6 +2,7 @@
 @import (reference) "@wikimedia/codex-design-tokens/theme-wikimedia-ui.less";
 @import (reference) "@wikimedia/codex/mixins/css-icon.less";
 
+
 .cdx-css-icon--wikimedia-icon {
 	.cdx-mixin-css-icon(@cdx-icon-logo-wikimedia, @param-is-button-icon: true);
 	margin: 0 5px;
@@ -23,4 +24,8 @@
 .cdx-css-icon--expand-icon {
 	.cdx-mixin-css-icon(@cdx-icon-expand, @param-is-button-icon: true, @param-size-icon: @size-icon-medium);
 	margin-left: 5px;
+}
+
+.cdx-css-icon--info-filled {
+	.cdx-mixin-css-icon(@cdx-icon-info-filled);
 }

@@ -1,49 +1,79 @@
-const emailtemp = require("../../utils/email");
 const config = require("../../utils/bullconfig");
-const nodemailer = require("nodemailer");
 const EmailQueue = config.getNewQueue("email-queue");
 const winston = require("winston");
 const logger = winston.loggers.get("defaultLogger");
-
 require("dotenv").config();
+const { Mwn } = require("mwn");
 
-const transporter = nodemailer.createTransport({
-  service: process.env.service,
-  auth: {
-    user: process.env.email,
-    pass: process.env.password,
-  },
-});
+/* 
+Mediawiki Email API DOCS - https://www.mediawiki.org/wiki/API:Emailuser#JavaScript
+MWN TOOLFORGE PACKAGE DOCS -https://github.com/siddharthvp/mwn
+*/
 
-EmailQueue.on("active", (job, jobPromise) => {});
+async function mediawikiEmail(username, title, trueURI, success) {
+  try {
+    const bot = await Mwn.init({
+      apiUrl: process.env.EMAIL_SOURCE_URL,
+      username: process.env.EMAIL_BOT_USERNAME,
+      password: process.env.EMAIL_BOT_PASSWORD,
+      // Set your user agent (required for WMF wikis, see https://meta.wikimedia.org/wiki/User-Agent_policy):
+      userAgent: "BUB2/1.0 (https://bub2.toolforge.org)",
+      // Set default parameters to be sent to be included in every API request
+      defaultParams: {
+        assert: "user", // ensure we're logged in
+      },
+    });
 
-EmailQueue.on("completed", (job, result) => {});
+    const csrf_token = await bot.getCsrfToken();
 
-EmailQueue.process((job, done) => {
-  if (job.data.email != "") {
-    const mailOptions = {
-      from: process.env.email, // sender address
-      to: job.data.email, // list of receivers
-      subject: job.data.success
-        ? 'BUB File Upload - "Successful"'
-        : 'BUB File Upload - "Error"', // Subject line
-      html: emailtemp.emailtemplate(
-        job.data.title,
-        job.data.success,
-        job.data.trueURI
-      ), // plain text body
-    };
-
-    transporter.sendMail(mailOptions, function (err, info) {
-      if (err) {
+    bot
+      .request({
+        action: "emailuser",
+        target: username,
+        subject: "BUB2 upload status",
+        text: success
+          ? `Your file "${title}" has been uploaded to Internet Archive successfully! Take a look at ${trueURI}`
+          : `Your file "${title}" was not uploaded to Internet Archive! Please try again later.
+          `,
+        token: csrf_token,
+        format: "json",
+      })
+      .then((data) => {
+        logger.log({
+          level: "info",
+          message: `Email Sent Successfully! Result : ${data}`,
+        });
+        return 200;
+      })
+      .catch((error) => {
         logger.log({
           level: "error",
-          message: `getJobInformation ${err}`,
+          message: `Failed to send email with error:  ${error}`,
         });
-        done(null, false);
-      } else {
-        done(null, true);
-      }
+        return error;
+      });
+  } catch (error) {
+    logger.log({
+      level: "error",
+      message: `mediawikiEmail:  ${error}`,
     });
+    return error;
   }
+}
+
+EmailQueue.process(async (job, done) => {
+  const emailResponse = mediawikiEmail(
+    job.data.userName,
+    job.data.title,
+    job.data.trueURI,
+    job.data.success
+  );
+  if (emailResponse !== 200) {
+    logger.log({
+      level: "error",
+      message: `EmailQueue: ${emailResponse}`,
+    });
+    done(new Error(`EmailQueue: ${emailResponse}`));
+  }
+  done(null, true);
 });

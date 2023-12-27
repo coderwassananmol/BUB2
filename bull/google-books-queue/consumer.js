@@ -60,14 +60,16 @@ GoogleBooksQueue.process((job, done) => {
           "X-Amz-Auto-Make-Bucket": "1",
           "X-Archive-Meta-Collection": "opensource",
           "X-Archive-Ignore-Preexisting-Bucket": 1,
-          "X-archive-meta-title": title.trim(),
+          "X-archive-meta-title": `uri(${encodeURI(title.trim())})`,
           "X-archive-meta-date": publishedDate.trim(),
           "X-archive-meta-language": language.trim(),
           "X-archive-meta-mediatype": "texts",
           "X-archive-meta-licenseurl":
             "https://creativecommons.org/publicdomain/mark/1.0/",
           "X-archive-meta-publisher": publisher.trim(),
-          "X-archive-meta-Author": authors ? authors.join().trim() : "",
+          "X-archive-meta-Author": authors
+            ? `uri(${encodeURI(authors.join().trim())})`
+            : "",
           "X-archive-meta-rights": accessViewStatus.trim(),
           "X-archive-meta-Google-id": id,
           "X-archive-meta-Source": infoLink.trim(),
@@ -75,15 +77,20 @@ GoogleBooksQueue.process((job, done) => {
       },
       async (error, response, body) => {
         if (error || response.statusCode != 200) {
+          const errorMessage = !body ? error : body;
           logger.log({
             level: "error",
-            message: `IA Failure GB ${body}`,
+            message: `IA Failure GB ${errorMessage}`,
           });
-          done(new Error(body));
-          //EmailProducer(job.data.email, title, trueURI, false);
+          if (job.data.isEmailNotification === "true") {
+            EmailProducer(job.data.userName, title, trueURI, false);
+          }
+          done(new Error(errorMessage));
         } else {
+          if (job.data.isEmailNotification === "true") {
+            EmailProducer(job.data.userName, title, trueURI, true);
+          }
           done(null, true);
-          //EmailProducer(job.data.email, title, trueURI, true);
         }
       }
     )
