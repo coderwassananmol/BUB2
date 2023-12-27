@@ -227,14 +227,18 @@ async function uploadPdfToIA(
   readableStream.pipe(
     request(options, (error, response, body) => {
       if (response.statusCode === 200) {
-        EmailProducer(metadata.userName, metadata.title, trueURI, true);
+        if (metadata.isEmailNotification === "true") {
+          EmailProducer(metadata.userName, metadata.title, trueURI, true);
+        }
         onError(false, null);
       } else {
         logger.log({
           level: "error",
           message: `IA Failure PDL ${body || error}`,
         });
-        EmailProducer(metadata.userName, metadata.title, trueURI, false);
+        if (metadata.isEmailNotification === "true") {
+          EmailProducer(metadata.userName, metadata.title, trueURI, false);
+        }
         onError(true, body || error);
       }
     })
