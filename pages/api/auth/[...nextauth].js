@@ -69,7 +69,7 @@ export const authOptions = {
       if (account) {
         token.accessToken = account.access_token;
         token.refreshToken = account.refresh_token;
-        token.expiresIn = Date.now() + account.expires_at * 1000;
+        token.expiresIn = account.expires_at * 1000;
       }
       // Refresh the token if it's expired
       if (Date.now() > token.expiresIn) {
@@ -77,7 +77,7 @@ export const authOptions = {
           const new_session = await refetchAccessToken(token.refreshToken);
           token.accessToken = new_session?.access_token;
           token.refreshToken = new_session?.refresh_token;
-          token.expiresIn = Date.now() + new_session.expires_in * 1000;
+          token.expiresIn = new_session.expires_in * 1000;
         } catch (error) {
           logger.log({
             level: "error",
