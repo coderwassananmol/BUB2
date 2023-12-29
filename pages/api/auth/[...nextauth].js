@@ -78,6 +78,7 @@ export const authOptions = {
           token.accessToken = new_session?.access_token;
           token.refreshToken = new_session?.refresh_token;
           token.expiresIn = new_session.expires_in * 1000;
+          return token;
         } catch (error) {
           logger.log({
             level: "error",
