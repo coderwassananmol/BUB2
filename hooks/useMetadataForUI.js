@@ -1,12 +1,17 @@
 import { host, permission } from "../utils/constants";
 
 export default function useMetadataForUI() {
-  const getMetadataForUI = async (library, id) => {
+  const getMetadataForUI = async (
+    library,
+    bookID,
+    categoryID = null,
+    IAIdentifier = ""
+  ) => {
     try {
       switch (library) {
         case "gb":
           const gbRes = await fetch(
-            `${host}/getMetadata?option=${"gb"}&id=${id}`
+            `${host}/getMetadata?option=${"gb"}&bookID=${bookID}`
           );
           const gbMetadata = await gbRes.json();
           let {
@@ -63,7 +68,7 @@ export default function useMetadataForUI() {
           return gb_commonsMetadata.replace(/&/g, "_");
         case "trove":
           const troveRes = await fetch(
-            `${host}/getMetadata?option=${"trove"}&id=${id}`
+            `${host}/getMetadata?option=${"trove"}&bookID=${bookID}`
           );
           const troveJson = await troveRes.json();
           const troveMetadata = troveJson.article;
@@ -117,6 +122,63 @@ export default function useMetadataForUI() {
 [[Category:Files uploaded with BUB2]]
 `;
           return trove_commonsMetadata;
+        case "pdl":
+          const pdlRes = await fetch(
+            `${host}/getMetadata?option=${"pdl"}&bookID=${bookID}&categoryID=${categoryID}&IAIdentifier=${IAIdentifier}`
+          );
+          const pdlMetadata = await pdlRes.json();
+          let {
+            Script: pdl_script,
+            Langauge: pdl_language,
+            Publisher: pdl_publisher,
+            Pages: pdl_pages,
+            description: pdl_description,
+            title: pdl_title,
+            coverImage: pdl_coverImage,
+            pdfUrl: pdl_pdfUrl,
+            IAIdentifier: pdl_identifier,
+          } = pdlMetadata;
+          const pdl_commonsMetadata = `{{Book
+|Author=
+|Translator=
+|Editor=
+|Illustrator=
+|Title=${pdl_title || ""}
+|Series title=
+|Volume=
+|Edition=
+|Publisher=${pdl_publisher || ""}
+|Printer=
+|Publication date=
+|City=
+|Language=${pdl_language || ""}
+|Description=${pdl_description || ""}
+|Source=${pdl_pdfUrl || ""}
+|Permission=${permission}
+|Image=${pdl_coverImage || ""}
+|Image page=
+|Pageoverview=
+|Wikisource=
+|Homecat=
+|Other_versions=
+|ISBN=
+|LCCN=
+|OCLC=
+|References=
+|Linkback=
+|Wikidata=
+|noimage=
+|Other_fields_1={{Information field|name=Identifier|value=${
+            pdl_identifier || ""
+          }|name=Pages|value=${pdl_pages || ""}|name=Script|value=${
+            pdl_script || ""
+          }}}
+}}
+{{cc-zero}}
+[[Category:Files uploaded with BUB2]]
+`;
+          return pdl_commonsMetadata;
+          break;
       }
     } catch (error) {
       return error;

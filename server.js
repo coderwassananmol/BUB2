@@ -47,6 +47,7 @@ const {
   checkIfFileExistsAtIA,
   replaceTitle,
   getPDLTitle,
+  getPDLMetaData,
 } = require("./utils/helper.js");
 const GoogleBooksProducer = require("./bull/google-books-queue/producer");
 const PDLProducer = require("./bull/pdl-queue/producer");
@@ -494,7 +495,10 @@ app
                 categoryID,
                 email,
                 authUserName,
-                isEmailNotification
+                isEmailNotification,
+                isUploadCommons,
+                oauthToken,
+                commonsMetadata
               );
             }
           }
@@ -567,7 +571,8 @@ app
                   userName,
                   isEmailNotification,
                   isUploadCommons,
-                  oauthToken
+                  oauthToken,
+                  commonsMetadata
                 );
               }
             }
@@ -588,21 +593,37 @@ app
     });
 
     server.get("/getMetadata", async (req, res) => {
-      const { option, id } = req.query;
+      const { option, bookID, categoryID, IAIdentifier } = req.query;
       switch (option) {
         case "gb":
           const gbRes = await customFetch(
-            `https://www.googleapis.com/books/v1/volumes/${id}?key=${GB_KEY}`,
+            `https://www.googleapis.com/books/v1/volumes/${bookID}?key=${GB_KEY}`,
             "GET"
           );
           res.send(gbRes);
           break;
         case "trove":
           const troveRes = await customFetch(
-            `https://api.trove.nla.gov.au/v2/newspaper/${id}?key=${trove_key}&encoding=json&reclevel=full`,
+            `https://api.trove.nla.gov.au/v2/newspaper/${bookID}?key=${trove_key}&encoding=json&reclevel=full`,
             "GET"
           );
           res.send(troveRes);
+          break;
+        case "pdl":
+          const uri = `http://www.panjabdigilib.org/webuser/searches/displayPage.jsp?ID=${bookID}&page=1&CategoryID=${categoryID}&Searched=W3GX`;
+          var options = {
+            uri,
+            transform: function (body) {
+              return cheerio.load(body);
+            },
+          };
+          const pdlRes = await getPDLMetaData(options, bookID, categoryID);
+          const titleInIA =
+            IAIdentifier?.trim() !== ""
+              ? replaceTitle(IAIdentifier?.trim())
+              : replaceTitle(await getPDLTitle(options));
+          pdlRes.IAIdentifier = titleInIA;
+          res.send(pdlRes);
           break;
       }
     });

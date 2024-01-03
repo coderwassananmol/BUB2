@@ -6,7 +6,12 @@ const request = require("request");
 const _ = require("lodash");
 const winston = require("winston");
 const logger = winston.loggers.get("defaultLogger");
-const { logUserData } = require("./../../utils/helper");
+const {
+  logUserData,
+  downloadFile,
+  uploadToCommons,
+  convertZipToPdf,
+} = require("./../../utils/helper");
 const { customFetch } = require("../../utils/helper");
 const { Readable } = require("stream");
 
@@ -276,17 +281,67 @@ PDLQueue.process(async (job, done) => {
           if (isError) {
             done(new Error(error));
           } else {
-            job.progress(100);
-            done(null, true);
+            job.progress({
+              step: "Uploading to Internet Archive",
+              value: `(${100}%)`,
+            });
+            // done(null, true);
           }
         },
         trueURI
       );
-      job.progress({
-        step: "Uploading to Internet Archive",
-        value: `(${100}%)`,
-      });
-      done(null, true);
+
+      // done(null, true);
+      if (job.data.details.isUploadCommons === "true") {
+        job.progress({
+          step: "Uploading to Wikimedia Commons",
+          value: `(${0}%)`,
+        });
+        const downloadFileRes = await downloadFile(
+          job.data.details.pdfUrl,
+          "commonsFilePayload.pdf"
+        );
+        job.progress({
+          step: "Uploading to Wikimedia Commons",
+          value: `(${50}%)`,
+        });
+        if (downloadFileRes.writeFileStatus !== 200) {
+          job.progress({
+            step: "Upload To IA (100%), Upload To Commons",
+            value: `(Failed)`,
+          });
+          logger.log({
+            level: "error",
+            message: `downloadFile: ${downloadFileRes}`,
+          });
+          return done(null, true);
+          // return done(new Error(`downloadFile: ${downloadFileRes}`));
+        }
+        const commonsResponse = await uploadToCommons(job.data.details);
+        job.progress({
+          step: "Uploading to Wikimedia Commons",
+          value: `(${80}%)`,
+        });
+        if (commonsResponse.fileUploadStatus !== 200) {
+          job.progress({
+            step: "Upload To IA (100%), Upload To Commons",
+            value: `(Failed)`,
+          });
+          logger.log({
+            level: "error",
+            message: `uploadToCommons: ${commonsResponse}`,
+          });
+          return done(null, true);
+          // return done(new Error(`uploadToCommons: ${commonsResponse}`));
+        }
+        job.progress({
+          step: "Upload to Wikimedia Commons",
+          value: `(${100}%)`,
+          wikiLinks: {
+            commons: commonsResponse.filename,
+          },
+        });
+      }
     } else {
       const [zip, byteLength, errorFlag] = await getZipAndBytelength(
         job.data.details.Pages,
@@ -311,21 +366,66 @@ PDLQueue.process(async (job, done) => {
         byteLength,
         job.data.details.email,
         job,
-        (isError, error) => {
+        async (isError, error) => {
           if (isError) {
             done(new Error(error));
           } else {
-            job.progress(100);
-            done(null, true);
+            job.progress({
+              step: "Uploading to Internet Archive",
+              value: `(${100}%)`,
+            });
+            // done(null, true);
+
+            if (job.data.details.isUploadCommons === "true") {
+              job.progress({
+                step: "Uploading to Wikimedia Commons",
+                value: `(${0}%)`,
+              });
+              const convertZipToPdfRes = await convertZipToPdf(zip);
+              if (convertZipToPdfRes.status !== 200) {
+                job.progress({
+                  step: "Upload To IA (100%), Upload To Commons",
+                  value: `(Failed)`,
+                });
+                logger.log({
+                  level: "error",
+                  message: `Failure PDL: ${convertZipToPdfRes.error} `,
+                });
+                return done(null, true);
+              }
+              job.progress({
+                step: "Uploading to Wikimedia Commons",
+                value: `(${50}%)`,
+              });
+              const commonsResponse = await uploadToCommons(job.data.details);
+              job.progress({
+                step: "Uploading to Wikimedia Commons",
+                value: `(${80}%)`,
+              });
+              if (commonsResponse.fileUploadStatus !== 200) {
+                job.progress({
+                  step: "Upload To IA (100%), Upload To Commons",
+                  value: `(Failed)`,
+                });
+                logger.log({
+                  level: "error",
+                  message: `uploadToCommons: ${commonsResponse}`,
+                });
+                return done(null, true);
+                // return done(new Error(`uploadToCommons: ${commonsResponse}`));
+              }
+              job.progress({
+                step: "Upload to Wikimedia Commons",
+                value: `(${100}%)`,
+                wikiLinks: {
+                  commons: commonsResponse.filename,
+                },
+              });
+            }
           }
         },
         trueURI
       );
-      job.progress({
-        step: "Uploading to Internet Archive",
-        value: `(${100}%)`,
-      });
-      done(null, true);
     }
   } catch (error) {
     logger.log({
