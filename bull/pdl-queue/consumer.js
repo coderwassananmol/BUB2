@@ -279,6 +279,18 @@ PDLQueue.process(async (job, done) => {
         job,
         (isError, error) => {
           if (isError) {
+            logger.log({
+              level: "error",
+              message: `IA Failure PDL: ${error}`,
+            });
+            if (job.data.isEmailNotification === "true") {
+              EmailProducer(
+                job.data.details.userName,
+                job.data.details.title,
+                trueURI,
+                false
+              );
+            }
             done(new Error(error));
           } else {
             job.progress({
@@ -342,6 +354,15 @@ PDLQueue.process(async (job, done) => {
           },
         });
       }
+      if (job.data.isEmailNotification === "true") {
+        EmailProducer(
+          job.data.details.userName,
+          job.data.details.title,
+          trueURI,
+          true
+        );
+      }
+      return done(null, true);
     } else {
       const [zip, byteLength, errorFlag] = await getZipAndBytelength(
         job.data.details.Pages,
@@ -368,6 +389,18 @@ PDLQueue.process(async (job, done) => {
         job,
         async (isError, error) => {
           if (isError) {
+            if (job.data.isEmailNotification === "true") {
+              logger.log({
+                level: "error",
+                message: `IA Failure PDL: ${error}`,
+              });
+              EmailProducer(
+                job.data.details.userName,
+                job.data.details.title,
+                trueURI,
+                false
+              );
+            }
             done(new Error(error));
           } else {
             job.progress({
@@ -422,6 +455,15 @@ PDLQueue.process(async (job, done) => {
                 },
               });
             }
+            if (job.data.isEmailNotification === "true") {
+              EmailProducer(
+                job.data.details.userName,
+                job.data.details.title,
+                trueURI,
+                true
+              );
+            }
+            return done(null, true);
           }
         },
         trueURI
