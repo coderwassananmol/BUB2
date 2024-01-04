@@ -1,5 +1,6 @@
 const request = require("request");
 const EmailProducer = require("../email-queue/producer");
+const CommonsProducer = require("../commons-queue/producer");
 const config = require("../../utils/bullconfig");
 const GoogleBooksQueue = config.getNewQueue("google-books-queue");
 const winston = require("winston");
@@ -94,51 +95,23 @@ GoogleBooksQueue.process((job, done) => {
           if (job.data.isUploadCommons === "true") {
             job.progress({
               step: "Uploading to Wikimedia Commons",
-              value: `(${0}%)`,
-            });
-            const downloadFileRes = await downloadFile(
-              requestURI,
-              "commonsFilePayload.pdf"
-            );
-            job.progress({
-              step: "Uploading to Wikimedia Commons",
               value: `(${50}%)`,
             });
-            if (downloadFileRes.writeFileStatus !== 200) {
-              job.progress({
-                step: "Upload To IA (100%), Upload To Commons",
-                value: `(Failed)`,
-              });
-              logger.log({
-                level: "error",
-                message: `downloadFile: ${downloadFileRes}`,
-              });
-              return done(null, true);
-              // return done(new Error(`downloadFile: ${downloadFileRes}`));
-            }
-            const commonsResponse = await uploadToCommons(job.data);
-            job.progress({
-              step: "Uploading to Wikimedia Commons",
-              value: `(${80}%)`,
-            });
-            if (commonsResponse.fileUploadStatus !== 200) {
-              job.progress({
-                step: "Upload To IA (100%), Upload To Commons",
-                value: `(Failed)`,
-              });
-              logger.log({
-                level: "error",
-                message: `uploadToCommons: ${commonsResponse}`,
-              });
-              return done(null, true);
-              // return done(new Error(`uploadToCommons: ${commonsResponse}`));
-            }
-            job.progress({
-              step: "Upload to Wikimedia Commons",
-              value: `(${100}%)`,
-              wikiLinks: {
-                commons: commonsResponse.filename,
-              },
+            CommonsProducer(job.data, (commonsResponse) => {
+              if (commonsResponse.status === true) {
+                job.progress({
+                  step: "Upload to Wikimedia Commons",
+                  value: `(${100}%)`,
+                  wikiLinks: {
+                    commons: commonsResponse.filename,
+                  },
+                });
+              } else {
+                job.progress({
+                  step: "Upload To IA (100%), Upload To Commons",
+                  value: `(Failed)`,
+                });
+              }
             });
           }
           if (job.data.isEmailNotification === "true") {
