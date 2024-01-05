@@ -254,7 +254,7 @@ module.exports = {
     }
   },
 
-  convertZipToPdf: async (targetZip) => {
+  convertZipToPdf: async (targetZip, localFilePath) => {
     async function mergePdf(pdfDataArray) {
       try {
         const mergedPdf = await PDFLibDocument.create();
@@ -270,7 +270,7 @@ module.exports = {
         }
 
         const mergedPdfFile = await mergedPdf.save();
-        await fs.promises.writeFile("commonsPayload.pdf", mergedPdfFile);
+        await fs.promises.writeFile(localFilePath, mergedPdfFile);
         return { status: 200 };
       } catch (error) {
         logger.log({
@@ -283,12 +283,9 @@ module.exports = {
 
     async function zipToPdf() {
       try {
-        const buffer = await targetZip.buffer();
-        const zip = await JSZip.loadAsync(buffer);
         const pdfInstances = [];
-
         await Promise.all(
-          Object.values(zip.files).map(async (file, index) => {
+          Object.values(targetZip.files).map(async (file, index) => {
             if (file.dir) return;
             if ([".jpg", ".jpeg", ".png"].includes(path.extname(file.name))) {
               const data = await file.async("nodebuffer");

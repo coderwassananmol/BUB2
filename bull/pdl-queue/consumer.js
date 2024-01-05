@@ -1,4 +1,5 @@
 const EmailProducer = require("../email-queue/producer");
+const CommonsProducer = require("../commons-queue/producer");
 const config = require("../../utils/bullconfig");
 const PDLQueue = config.getNewQueue("pdl-queue");
 const rp = require("request-promise");
@@ -283,7 +284,7 @@ PDLQueue.process(async (job, done) => {
               level: "error",
               message: `IA Failure PDL: ${error}`,
             });
-            if (job.data.isEmailNotification === "true") {
+            if (job.data.details.isEmailNotification === "true") {
               EmailProducer(
                 job.data.details.userName,
                 job.data.details.title,
@@ -297,64 +298,33 @@ PDLQueue.process(async (job, done) => {
               step: "Uploading to Internet Archive",
               value: `(${100}%)`,
             });
-            // done(null, true);
           }
         },
         trueURI
       );
-
-      // done(null, true);
       if (job.data.details.isUploadCommons === "true") {
-        job.progress({
-          step: "Uploading to Wikimedia Commons",
-          value: `(${0}%)`,
-        });
-        const downloadFileRes = await downloadFile(
-          job.data.details.pdfUrl,
-          "commonsFilePayload.pdf"
-        );
         job.progress({
           step: "Uploading to Wikimedia Commons",
           value: `(${50}%)`,
         });
-        if (downloadFileRes.writeFileStatus !== 200) {
-          job.progress({
-            step: "Upload To IA (100%), Upload To Commons",
-            value: `(Failed)`,
-          });
-          logger.log({
-            level: "error",
-            message: `downloadFile: ${downloadFileRes}`,
-          });
-          return done(null, true);
-          // return done(new Error(`downloadFile: ${downloadFileRes}`));
-        }
-        const commonsResponse = await uploadToCommons(job.data.details);
-        job.progress({
-          step: "Uploading to Wikimedia Commons",
-          value: `(${80}%)`,
-        });
-        if (commonsResponse.fileUploadStatus !== 200) {
-          job.progress({
-            step: "Upload To IA (100%), Upload To Commons",
-            value: `(Failed)`,
-          });
-          logger.log({
-            level: "error",
-            message: `uploadToCommons: ${commonsResponse}`,
-          });
-          return done(null, true);
-          // return done(new Error(`uploadToCommons: ${commonsResponse}`));
-        }
-        job.progress({
-          step: "Upload to Wikimedia Commons",
-          value: `(${100}%)`,
-          wikiLinks: {
-            commons: commonsResponse.filename,
-          },
+        CommonsProducer(null, null, job.data.details, (commonsResponse) => {
+          if (commonsResponse.status === true) {
+            job.progress({
+              step: "Upload to Wikimedia Commons",
+              value: `(${100}%)`,
+              wikiLinks: {
+                commons: commonsResponse.filename,
+              },
+            });
+          } else {
+            job.progress({
+              step: "Upload To IA (100%), Upload To Commons",
+              value: `(Failed)`,
+            });
+          }
         });
       }
-      if (job.data.isEmailNotification === "true") {
+      if (job.data.details.isEmailNotification === "true") {
         EmailProducer(
           job.data.details.userName,
           job.data.details.title,
@@ -389,7 +359,7 @@ PDLQueue.process(async (job, done) => {
         job,
         async (isError, error) => {
           if (isError) {
-            if (job.data.isEmailNotification === "true") {
+            if (job.data.details.isEmailNotification === "true") {
               logger.log({
                 level: "error",
                 message: `IA Failure PDL: ${error}`,
@@ -407,55 +377,35 @@ PDLQueue.process(async (job, done) => {
               step: "Uploading to Internet Archive",
               value: `(${100}%)`,
             });
-            // done(null, true);
-
             if (job.data.details.isUploadCommons === "true") {
-              job.progress({
-                step: "Uploading to Wikimedia Commons",
-                value: `(${0}%)`,
-              });
-              const convertZipToPdfRes = await convertZipToPdf(zip);
-              if (convertZipToPdfRes.status !== 200) {
-                job.progress({
-                  step: "Upload To IA (100%), Upload To Commons",
-                  value: `(Failed)`,
-                });
-                logger.log({
-                  level: "error",
-                  message: `Failure PDL: ${convertZipToPdfRes.error} `,
-                });
-                return done(null, true);
-              }
               job.progress({
                 step: "Uploading to Wikimedia Commons",
                 value: `(${50}%)`,
               });
-              const commonsResponse = await uploadToCommons(job.data.details);
-              job.progress({
-                step: "Uploading to Wikimedia Commons",
-                value: `(${80}%)`,
-              });
-              if (commonsResponse.fileUploadStatus !== 200) {
-                job.progress({
-                  step: "Upload To IA (100%), Upload To Commons",
-                  value: `(Failed)`,
-                });
-                logger.log({
-                  level: "error",
-                  message: `uploadToCommons: ${commonsResponse}`,
-                });
-                return done(null, true);
-                // return done(new Error(`uploadToCommons: ${commonsResponse}`));
-              }
-              job.progress({
-                step: "Upload to Wikimedia Commons",
-                value: `(${100}%)`,
-                wikiLinks: {
-                  commons: commonsResponse.filename,
-                },
-              });
+              const base64Zip = await zip.generateAsync({ type: "base64" });
+              CommonsProducer(
+                "pdlZip",
+                base64Zip,
+                job.data.details,
+                (commonsResponse) => {
+                  if (commonsResponse.status === true) {
+                    job.progress({
+                      step: "Upload to Wikimedia Commons",
+                      value: `(${100}%)`,
+                      wikiLinks: {
+                        commons: commonsResponse.filename,
+                      },
+                    });
+                  } else {
+                    job.progress({
+                      step: "Upload To IA (100%), Upload To Commons",
+                      value: `(Failed)`,
+                    });
+                  }
+                }
+              );
             }
-            if (job.data.isEmailNotification === "true") {
+            if (job.data.details.isEmailNotification === "true") {
               EmailProducer(
                 job.data.details.userName,
                 job.data.details.title,
