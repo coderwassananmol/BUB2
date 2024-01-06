@@ -97,7 +97,7 @@ GoogleBooksQueue.process((job, done) => {
               step: "Uploading to Wikimedia Commons",
               value: `(${50}%)`,
             });
-            CommonsProducer(job.data, (commonsResponse) => {
+            CommonsProducer(null, job.data, (commonsResponse) => {
               if (commonsResponse.status === true) {
                 job.progress({
                   step: "Upload to Wikimedia Commons",
