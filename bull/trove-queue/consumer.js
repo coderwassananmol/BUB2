@@ -103,18 +103,18 @@ TroveQueue.process((job, done) => {
                 if (job.data.details.isUploadCommons === "true") {
                   job.progress({
                     step: "Uploading to Wikimedia Commons",
-                    value: `(${50}%)`,
+                    value: `(50%)`,
                   });
                   CommonsProducer(
                     downloadFileUrl,
                     job.data.details,
-                    (commonsResponse) => {
+                    async (commonsResponse) => {
                       if (commonsResponse.status === true) {
                         job.progress({
                           step: "Upload to Wikimedia Commons",
-                          value: `(${100}%)`,
+                          value: `(100%)`,
                           wikiLinks: {
-                            commons: commonsResponse.filename,
+                            commons: await commonsResponse.value.filename,
                           },
                         });
                       } else {

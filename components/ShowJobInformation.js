@@ -114,7 +114,7 @@ const ShowJobInformation = (props) => {
               color="textSecondary"
               sx={styles.uploadProgress}
             >
-              <strong>Upload Progress:</strong> {progress}%
+              <strong>Upload Progress:</strong> {progress}
             </Typography>
           </CardActionArea>
 
