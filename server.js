@@ -161,7 +161,7 @@ app
               );
             }
             const obj = {
-              progress: progress.value,
+              progress: progress,
               queueName: queueName,
               previewLink: getPreviewLink(
                 req.query.queue_name,
@@ -169,10 +169,10 @@ app
                 categoryID
               ),
               uploadStatus: {
-                uploadLink: progress.value === 100 && trueURI ? trueURI : "",
+                uploadLink: progress === "(100%)" && trueURI ? trueURI : "",
                 isUploaded: jobState === "completed" ? true : false,
               },
-              wikimedia_links: job.progress().wikiLinks?.commons
+              wikimedia_links: job.progress().wikiLinks.commons
                 ? job.progress().wikiLinks.commons
                 : "Not Integrated",
             };

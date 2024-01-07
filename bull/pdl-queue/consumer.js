@@ -164,8 +164,8 @@ async function uploadZipToIA(
   byteLength,
   email,
   job,
-  onError,
-  trueURI
+  trueURI,
+  onError
 ) {
   const bucketTitle = metadata.IAIdentifier;
   const IAuri = `http://s3.us.archive.org/${bucketTitle}/${bucketTitle}_images.zip`;
@@ -213,8 +213,8 @@ async function uploadPdfToIA(
   byteLength,
   email,
   job,
-  onError,
-  trueURI
+  trueURI,
+  onError
 ) {
   const bucketTitle = metadata.IAIdentifier;
   const IAuri = `http://s3.us.archive.org/${bucketTitle}/${bucketTitle}.pdf`;
@@ -278,6 +278,7 @@ PDLQueue.process(async (job, done) => {
         byteLength,
         job.data.details.email,
         job,
+        trueURI,
         (isError, error) => {
           if (isError) {
             logger.log({
@@ -298,41 +299,45 @@ PDLQueue.process(async (job, done) => {
               step: "Uploading to Internet Archive",
               value: `(${100}%)`,
             });
+            if (job.data.details.isUploadCommons === "true") {
+              job.progress({
+                step: "Uploading to Wikimedia Commons",
+                value: `(${50}%)`,
+              });
+              CommonsProducer(
+                null,
+                null,
+                job.data.details,
+                async (commonsResponse) => {
+                  if (commonsResponse.status === true) {
+                    job.progress({
+                      step: "Upload to Wikimedia Commons",
+                      value: `(${100}%)`,
+                      wikiLinks: {
+                        commons: await commonsResponse.value.filename,
+                      },
+                    });
+                  } else {
+                    job.progress({
+                      step: "Upload To IA (100%), Upload To Commons",
+                      value: `(Failed)`,
+                    });
+                  }
+                }
+              );
+            }
+            if (job.data.details.isEmailNotification === "true") {
+              EmailProducer(
+                job.data.details.userName,
+                job.data.details.title,
+                trueURI,
+                true
+              );
+            }
+            return done(null, true);
           }
-        },
-        trueURI
+        }
       );
-      if (job.data.details.isUploadCommons === "true") {
-        job.progress({
-          step: "Uploading to Wikimedia Commons",
-          value: `(${50}%)`,
-        });
-        CommonsProducer(null, null, job.data.details, (commonsResponse) => {
-          if (commonsResponse.status === true) {
-            job.progress({
-              step: "Upload to Wikimedia Commons",
-              value: `(${100}%)`,
-              wikiLinks: {
-                commons: commonsResponse.filename,
-              },
-            });
-          } else {
-            job.progress({
-              step: "Upload To IA (100%), Upload To Commons",
-              value: `(Failed)`,
-            });
-          }
-        });
-      }
-      if (job.data.details.isEmailNotification === "true") {
-        EmailProducer(
-          job.data.details.userName,
-          job.data.details.title,
-          trueURI,
-          true
-        );
-      }
-      return done(null, true);
     } else {
       const [zip, byteLength, errorFlag] = await getZipAndBytelength(
         job.data.details.Pages,
@@ -357,13 +362,14 @@ PDLQueue.process(async (job, done) => {
         byteLength,
         job.data.details.email,
         job,
+        trueURI,
         async (isError, error) => {
           if (isError) {
+            logger.log({
+              level: "error",
+              message: `IA Failure PDL: ${error}`,
+            });
             if (job.data.details.isEmailNotification === "true") {
-              logger.log({
-                level: "error",
-                message: `IA Failure PDL: ${error}`,
-              });
               EmailProducer(
                 job.data.details.userName,
                 job.data.details.title,
@@ -387,13 +393,14 @@ PDLQueue.process(async (job, done) => {
                 "pdlZip",
                 base64Zip,
                 job.data.details,
-                (commonsResponse) => {
+                async (commonsResponse) => {
+                  console.log("commonsResponse:", await commonsResponse);
                   if (commonsResponse.status === true) {
                     job.progress({
                       step: "Upload to Wikimedia Commons",
                       value: `(${100}%)`,
                       wikiLinks: {
-                        commons: commonsResponse.filename,
+                        commons: await commonsResponse.value.filename,
                       },
                     });
                   } else {
@@ -413,10 +420,9 @@ PDLQueue.process(async (job, done) => {
                 true
               );
             }
-            return done(null, true);
+            done(null, true);
           }
-        },
-        trueURI
+        }
       );
     }
   } catch (error) {
