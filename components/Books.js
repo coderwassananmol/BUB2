@@ -590,7 +590,7 @@ const Books = () => {
               }}
             >
               <textarea
-                style={{ fontFamily: "Space Mono" }}
+                style={{ fontFamily: "Space Mono", resize: "none" }}
                 disabled={hasCommonsMetadataUpdated ? true : false}
                 className="cdx-text-input__input"
                 id="commonsMetadata"
