@@ -76,6 +76,7 @@ function setHeaders(metadata, contentLength, title, contentType) {
     "iaidentifier",
     "contenttype",
     "pdfurl",
+    "username",
   ];
   headers[
     "Authorization"
