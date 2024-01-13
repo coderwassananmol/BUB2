@@ -206,13 +206,13 @@ function uploadPdfToIA(pdfUrl, job, metadata, trueURI, done) {
               message: `IA Failure PDL ${errorMessage}`,
             });
             if (metadata.isEmailNotification === "true") {
-              EmailProducer(job.data.userName, metadata.title, trueURI, false);
+              EmailProducer(metadata.userName, metadata.title, trueURI, false);
             }
             done(new Error(errorMessage));
           } else {
             job.progress(100);
             if (metadata.isEmailNotification === "true") {
-              EmailProducer(job.data.userName, metadata.title, trueURI, true);
+              EmailProducer(metadata.userName, metadata.title, trueURI, true);
             }
             done(null, true);
           }
