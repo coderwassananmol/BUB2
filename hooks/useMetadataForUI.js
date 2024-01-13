@@ -57,7 +57,7 @@ export default function useMetadataForUI() {
             gbMetadata.accessInfo.accessViewStatus || ""
           }|name=Pages|value=${gb_pageCount || ""}}}
 }}
-{{cc-zero}}
+{{PD-author |1=${gb_authorsFormatted} }}
 [[Category:Files uploaded with BUB2]]
 `;
           return gb_commonsMetadata.replace(/&/g, "_");
@@ -113,7 +113,7 @@ export default function useMetadataForUI() {
             trove_category || ""
           }}}
 }}
-{{cc-zero}}
+{{PD-author |1= }}
 [[Category:Files uploaded with BUB2]]
 `;
           return trove_commonsMetadata;

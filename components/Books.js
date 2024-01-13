@@ -350,96 +350,103 @@ const Books = () => {
             </div>
             <div className="section">{renderContent(option)}</div>
 
-            <div style={{ marginTop: "25px" }} className="section">
-              <span class="cdx-checkbox">
-                <input
-                  id="checkbox-description-css-only-1"
-                  class="cdx-checkbox__input"
-                  type="checkbox"
-                  aria-describedby="cdx-description-css-1"
-                  checked={isUploadCommons}
-                  onChange={(event) => setIsUploadCommons(event.target.checked)}
-                />
-                <span class="cdx-checkbox__icon"></span>
+            <div className="section">
+              <h4>3. Upload Preferences</h4>
 
-                <div
-                  style={{ display: "flex", gap: "10px" }}
-                  class="cdx-checkbox__label cdx-label"
-                >
-                  <label
-                    for="checkbox-description-css-only-1"
-                    class="cdx-label__label"
+              <div style={{ marginTop: "25px" }} className="section">
+                <span class="cdx-checkbox">
+                  <input
+                    id="checkbox-description-css-only-1"
+                    class="cdx-checkbox__input"
+                    type="checkbox"
+                    aria-describedby="cdx-description-css-1"
+                    checked={isUploadCommons}
+                    onChange={(event) =>
+                      setIsUploadCommons(event.target.checked)
+                    }
+                  />
+                  <span class="cdx-checkbox__icon"></span>
+
+                  <div
+                    style={{ display: "flex", gap: "10px" }}
+                    class="cdx-checkbox__label cdx-label"
                   >
-                    Upload to Wikimedia Commons
-                  </label>
+                    <label
+                      for="checkbox-description-css-only-1"
+                      class="cdx-label__label"
+                    >
+                      Upload to Wikimedia Commons
+                    </label>
 
-                  <Tooltip
-                    placement="right"
-                    arrow={true}
-                    title={
-                      <span style={{ fontSize: "14px" }}>
-                        BUB2 will also upload book and metadata to Commons
+                    <Tooltip
+                      placement="right"
+                      arrow={true}
+                      title={
+                        <span style={{ fontSize: "14px" }}>
+                          BUB2 will also upload book and metadata to Commons
+                        </span>
+                      }
+                    >
+                      <span
+                        id="cdx-description-css-1"
+                        class="cdx-label__description"
+                      >
+                        <span class="cdx-css-icon--info-filled"></span>
                       </span>
+                    </Tooltip>
+                  </div>
+                </span>
+              </div>
+              <div style={{ marginTop: "10px" }} className="section">
+                <span class="cdx-checkbox">
+                  <input
+                    id="checkbox-description-css-only-1"
+                    class="cdx-checkbox__input"
+                    type="checkbox"
+                    aria-describedby="cdx-description-css-1"
+                    onChange={(event) =>
+                      setIsEmailNotification(event.target.checked)
+                    }
+                    disabled={!isUserEmailable}
+                    title={
+                      isUserEmailable
+                        ? ""
+                        : "No email associated with this user account or the user has disabled email access."
+                    }
+                  />
+                  <span class="cdx-checkbox__icon"></span>
+                  <div
+                    class="cdx-checkbox__label cdx-label"
+                    title={
+                      isUserEmailable
+                        ? ""
+                        : "No email associated with this user account or the user has disabled email access."
                     }
                   >
-                    <span
-                      id="cdx-description-css-1"
-                      class="cdx-label__description"
+                    <label
+                      for="checkbox-description-css-only-1"
+                      class="cdx-label__label"
                     >
-                      <span class="cdx-css-icon--info-filled"></span>
-                    </span>
-                  </Tooltip>
-                </div>
-              </span>
-            </div>
-
-            <div style={{ marginTop: "10px" }} className="section">
-              <span class="cdx-checkbox">
-                <input
-                  id="checkbox-description-css-only-1"
-                  class="cdx-checkbox__input"
-                  type="checkbox"
-                  aria-describedby="cdx-description-css-1"
-                  onChange={(event) =>
-                    setIsEmailNotification(event.target.checked)
-                  }
-                  disabled={!isUserEmailable}
-                  title={
-                    isUserEmailable
-                      ? ""
-                      : "No email associated with this user account or the user has disabled email access."
-                  }
-                />
-                <span class="cdx-checkbox__icon"></span>
-                <div
-                  class="cdx-checkbox__label cdx-label"
-                  title={
-                    isUserEmailable
-                      ? ""
-                      : "No email associated with this user account or the user has disabled email access."
-                  }
-                >
-                  <label
-                    for="checkbox-description-css-only-1"
-                    class="cdx-label__label"
-                  >
-                    Notify updates via e-mail
-                  </label>
-                </div>
-              </span>
-
-              {isEmailNotification && (
-                <span id="cdx-description-css-1" class="cdx-label__description">
-                  <p>
-                    <span class="cdx-css-icon--info-filled"></span>
-                    &nbsp; BUB2 will send an email to your email ID associated
-                    with your Wikimedia account regarding the success or failure
-                    of the upload.
-                  </p>
+                      Notify updates via e-mail
+                    </label>
+                  </div>
                 </span>
-              )}
-            </div>
 
+                {isEmailNotification && (
+                  <span
+                    id="cdx-description-css-1"
+                    class="cdx-label__description"
+                  >
+                    <p>
+                      <span class="cdx-css-icon--info-filled"></span>
+                      &nbsp; BUB2 will send an email to your email ID associated
+                      with your Wikimedia account regarding the success or
+                      failure of the upload.
+                    </p>
+                  </span>
+                )}
+              </div>
+            </div>
             {isDuplicate ? (
               <ChangeIdentifier
                 description={
@@ -482,6 +489,7 @@ const Books = () => {
                   style={{
                     marginTop: 20,
                     marginRight: 20,
+                    marginBottom: !isCommonsMetadataReady && !loader ? 40 : 0,
                   }}
                 >
                   <button
@@ -573,7 +581,12 @@ const Books = () => {
               }}
             >
               <textarea
-                style={{ fontFamily: "Space Mono", resize: "none" }}
+                style={{
+                  fontFamily: "Space Mono",
+                  letterSpacing: "1.5px",
+                  lineHeight: "35px",
+                  color: "#555555",
+                }}
                 disabled={hasCommonsMetadataUpdated ? true : false}
                 className="cdx-text-input__input"
                 id="commonsMetadata"
@@ -585,10 +598,10 @@ const Books = () => {
               <style jsx>{`
                 .cdx-text-input__input {
                   width: 100%;
-                  min-height: 450px;
+                  min-height: 598px;
+                  min-width: 945px;
                   font-size: 13px;
-                  line-height: 2.5;
-                  letter-spacing: 2px;
+                  resize: none;
                 }
                 @media (max-width: 600px) {
                   .cdx-text-input__input {
