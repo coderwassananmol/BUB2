@@ -41,21 +41,21 @@ async function mediawikiEmail(username, title, trueURI, success) {
       .then((data) => {
         logger.log({
           level: "info",
-          message: `Email Sent Successfully! Result : ${data}`,
+          message: `Email Sent Successfully! Result : ${JSON.stringify(data)}`,
         });
         return 200;
       })
       .catch((error) => {
         logger.log({
           level: "error",
-          message: `Failed to send email with error:  ${error}`,
+          message: `Failed to send email with error:  ${JSON.stringify(error)}`,
         });
         return error;
       });
   } catch (error) {
     logger.log({
       level: "error",
-      message: `mediawikiEmail:  ${error}`,
+      message: `mediawikiEmail:  ${JSON.stringify(error)}`,
     });
     return error;
   }
@@ -71,7 +71,7 @@ EmailQueue.process(async (job, done) => {
   if (emailResponse !== 200) {
     logger.log({
       level: "error",
-      message: `EmailQueue: ${emailResponse}`,
+      message: `EmailQueue: ${JSON.stringify(emailResponse)}`,
     });
     done(new Error(`EmailQueue: ${emailResponse}`));
   }
