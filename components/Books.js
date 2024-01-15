@@ -583,8 +583,8 @@ const Books = () => {
               <textarea
                 style={{
                   fontFamily: "Space Mono",
-                  letterSpacing: "1.5px",
-                  lineHeight: "35px",
+                  letterSpacing: "normal",
+                  lineHeight: "19.5px",
                   color: "#555555",
                 }}
                 disabled={hasCommonsMetadataUpdated ? true : false}

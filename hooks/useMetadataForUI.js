@@ -23,41 +23,45 @@ export default function useMetadataForUI() {
           const gb_authorsFormatted = gb_authors
             ? gb_authors.join().trim()
             : "";
-          const gb_commonsMetadata = `{{Book
-|Author=${gb_authorsFormatted}
-|Translator=
-|Editor=
-|Illustrator=
-|Title=${gb_title || ""}
-|Series title=
-|Volume=
-|Edition=
-|Publisher=${gb_publisher || ""}
-|Printer=
-|Publication date=${gb_publishedDate || ""}
-|City=
-|Language=${gb_language || ""}
-|Description=${gb_subtitle || ""}
-|Source=${gb_infoLink || ""}
-|Permission=${permission}
-|Image=
-|Image page=
-|Pageoverview=
-|Wikisource=
-|Homecat=
-|Other_versions=
-|ISBN=
-|LCCN=
-|OCLC=
-|References=
-|Linkback=
-|Wikidata=
-|noimage=
-|Other_fields_1={{Information field|name=Rights|value=${
+          const gb_commonsMetadata = `== {{int:filedesc}} ==
+{{Book
+| Author             = ${gb_authorsFormatted}
+| Translator         =
+| Editor             =
+| Illustrator        =
+| Title              = ${gb_title || ""}
+| Series title       =
+| Volume             =
+| Edition            =
+| Publisher          = ${gb_publisher || ""}
+| Printer            =
+| Publication date   = ${gb_publishedDate || ""}
+| City               =
+| Language           = ${gb_language || ""}
+| Description        = ${gb_subtitle || ""}
+| Source             = ${gb_infoLink || ""}
+| Permission         = ${permission}
+| Image              =
+| Image page         =
+| Pageoverview       =
+| Wikisource         =
+| Homecat            =
+| Other_versions     =
+| ISBN               =
+| LCCN               =
+| OCLC               =
+| References         =
+| Linkback           =
+| Wikidata           =
+| noimage            =
+| Other_fields_1      = {{Information field|name=Rights|value=${
             gbMetadata.accessInfo.accessViewStatus || ""
           }|name=Pages|value=${gb_pageCount || ""}}}
 }}
-{{PD-author |1=${gb_authorsFormatted} }}
+
+== {{int:license-header}} ==
+{{PD-scan}}
+
 [[Category:Files uploaded with BUB2]]
 `;
           return gb_commonsMetadata.replace(/&/g, "_");
@@ -77,43 +81,47 @@ export default function useMetadataForUI() {
             category: trove_category,
           } = troveMetadata;
 
-          const trove_commonsMetadata = `{{Book
-|Author=
-|Translator=
-|Editor=
-|Illustrator=
-|Title=${trove_heading || ""}
-|Series title=
-|Volume=
-|Edition=
-|Publisher=
-|Printer=
-|Publication date=${trove_date || ""}
-|City=
-|Language=
-|Description=${trove_title.value || ""}
-|Source=${trove_url || ""}
-|Permission=${permission}
-|Image=
-|Image page=
-|Pageoverview=
-|Wikisource=
-|Homecat=
-|Other_versions=
-|ISBN=
-|LCCN=
-|OCLC=
-|References=
-|Linkback=
-|Wikidata=
-|noimage=
-|Other_fields_1={{Information field|name=Identifier|value=${
+          const trove_commonsMetadata = `== {{int:filedesc}} ==
+{{Book
+| Author                  =
+| Translator              =
+| Editor                  =
+| Illustrator             =
+| Title                   = ${trove_heading || ""}
+| Series title            =
+| Volume                  =
+| Edition                 =
+| Publisher               =
+| Printer                 =
+| Publication date        = ${trove_date || ""}
+| City                    =
+| Language                =
+| Description             = ${trove_title.value || ""}
+| Source                  = ${trove_url || ""}
+| Permission              = ${permission}
+| Image                   =
+| Image page              =
+| Pageoverview            =
+| Wikisource              =
+| Homecat                 =
+| Other_versions          =
+| ISBN                    =
+| LCCN                    =
+| OCLC                    =
+| References              =
+| Linkback                =
+| Wikidata                =
+| noimage                 =
+| Other_fields_1           = {{Information field|name=Identifier|value=${
             trove_identifier || ""
           }|name=Pages|value=${trove_page || ""}|name=Category|value=${
             trove_category || ""
           }}}
 }}
-{{PD-author |1= }}
+
+== {{int:license-header}} ==
+{{PD-scan}}
+
 [[Category:Files uploaded with BUB2]]
 `;
           return trove_commonsMetadata;
