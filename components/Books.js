@@ -530,7 +530,7 @@ const Books = () => {
                 </div>
                 <button
                   className="cdx-button"
-                  style={{ padding: "1rem" }}
+                  style={{ padding: "1rem", marginBottom: 40 }}
                   onClick={(e) => {
                     e.preventDefault();
                     signIn("wikimedia");

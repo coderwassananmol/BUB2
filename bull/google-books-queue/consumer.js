@@ -92,6 +92,12 @@ GoogleBooksQueue.process((job, done) => {
           }
           done(new Error(errorMessage));
         } else {
+          if (
+            job.data.isUploadCommons !== "true" &&
+            job.data.isEmailNotification !== "true"
+          ) {
+            done(null, true);
+          }
           if (job.data.isUploadCommons === "true") {
             job.progress({
               step: "Uploading to Wikimedia Commons",
@@ -106,18 +112,20 @@ GoogleBooksQueue.process((job, done) => {
                     commons: await commonsResponse.value.filename,
                   },
                 });
+                done(null, true);
               } else {
                 job.progress({
                   step: "Upload To IA (100%), Upload To Commons",
                   value: `(Failed)`,
                 });
+                done(null, true);
               }
             });
           }
           if (job.data.isEmailNotification === "true") {
             EmailProducer(job.data.userName, title, trueURI, true);
+            done(null, true);
           }
-          done(null, true);
         }
       }
     )
