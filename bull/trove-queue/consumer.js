@@ -1,4 +1,5 @@
 const EmailProducer = require("../email-queue/producer");
+const CommonsProducer = require("../commons-queue/producer");
 const config = require("../../utils/bullconfig");
 const TroveQueue = config.getNewQueue("trove-queue");
 const rp = require("request-promise");
@@ -44,6 +45,7 @@ TroveQueue.process((job, done) => {
         const requestURI = request(
           `https://trove.nla.gov.au/newspaper/rendition/nla.news-issue${job.data.details.issueRenditionId}.pdf?followup=${body}`
         );
+        const downloadFileUrl = `https://trove.nla.gov.au/newspaper/rendition/nla.news-issue${job.data.details.issueRenditionId}.pdf?followup=${body}`;
         const jobLogs = job.data.details;
         let {
           name,
@@ -101,38 +103,28 @@ TroveQueue.process((job, done) => {
                 if (job.data.details.isUploadCommons === "true") {
                   job.progress({
                     step: "Uploading to Wikimedia Commons",
-                    value: `(${0}%)`,
+                    value: `(50%)`,
                   });
-                  const downloadFileRes = await downloadFile(
-                    requestURI,
-                    "commonsFilePayload.pdf"
+                  CommonsProducer(
+                    downloadFileUrl,
+                    job.data.details,
+                    async (commonsResponse) => {
+                      if (commonsResponse.status === true) {
+                        job.progress({
+                          step: "Upload to Wikimedia Commons",
+                          value: `(100%)`,
+                          wikiLinks: {
+                            commons: await commonsResponse.value.filename,
+                          },
+                        });
+                      } else {
+                        job.progress({
+                          step: "Upload To IA (100%), Upload To Commons",
+                          value: `(Failed)`,
+                        });
+                      }
+                    }
                   );
-                  job.progress({
-                    step: "Uploading to Wikimedia Commons",
-                    value: `(${50}%)`,
-                  });
-                  if (downloadFileRes.writeFileStatus !== 200) {
-                    return done(new Error(`downloadFile: ${downloadFileRes}`));
-                  }
-                  const commonsResponse = await uploadToCommons(
-                    job.data.details
-                  );
-                  job.progress({
-                    step: "Uploading to Wikimedia Commons",
-                    value: `(${80}%)`,
-                  });
-                  if (commonsResponse.fileUploadStatus !== 200) {
-                    return done(
-                      new Error(`uploadToCommons: ${commonsResponse}`)
-                    );
-                  }
-                  job.progress({
-                    step: "Upload to Wikimedia Commons",
-                    value: `(${100}%)`,
-                    wikiLinks: {
-                      commons: commonsResponse.filename,
-                    },
-                  });
                 }
                 if (isEmailNotification === "true") {
                   EmailProducer(userName, name, trueURI, true);
