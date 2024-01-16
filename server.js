@@ -146,7 +146,7 @@ app
           if (job) {
             const queue_data = await queueData(job, queue);
             const progress = job.progress().value
-              ? job.progress().value
+              ? `${job.progress().step}${job.progress().value}`
               : job.progress();
             const jobState = await job.getState();
             const book_id = job.data.details.id || job.data.details.bookID;

@@ -304,6 +304,7 @@ const Books = () => {
   }, [session]);
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
     if (
       hasCommonsMetadataUpdated &&
       isUploadCommons &&
