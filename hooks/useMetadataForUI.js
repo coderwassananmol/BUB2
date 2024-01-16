@@ -146,43 +146,47 @@ export default function useMetadataForUI() {
             pdfUrl: pdl_pdfUrl,
             IAIdentifier: pdl_identifier,
           } = pdlMetadata;
-          const pdl_commonsMetadata = `{{Book
-|Author=
-|Translator=
-|Editor=
-|Illustrator=
-|Title=${pdl_title || ""}
-|Series title=
-|Volume=
-|Edition=
-|Publisher=${pdl_publisher || ""}
-|Printer=
-|Publication date=
-|City=
-|Language=${pdl_language || ""}
-|Description=${pdl_description || ""}
-|Source=${pdl_pdfUrl || ""}
-|Permission=${permission}
-|Image=${pdl_coverImage || ""}
-|Image page=
-|Pageoverview=
-|Wikisource=
-|Homecat=
-|Other_versions=
-|ISBN=
-|LCCN=
-|OCLC=
-|References=
-|Linkback=
-|Wikidata=
-|noimage=
-|Other_fields_1={{Information field|name=Identifier|value=${
+          const pdl_commonsMetadata = `== {{int:filedesc}} ==
+{{Book
+| Author                     =
+| Translator                 =
+| Editor                     =
+| Illustrator                =
+| Title                      = ${pdl_title || ""}
+| Series title               =
+| Volume                     =
+| Edition                    =
+| Publisher                  = ${pdl_publisher || ""}
+| Printer                    =
+| Publication date           =
+| City                       =
+| Language                   = ${pdl_language || ""}
+| Description                = ${pdl_description || ""}
+| Source                     = ${pdl_pdfUrl || ""}
+| Permission                 = ${permission}
+| Image                      = ${pdl_coverImage || ""}
+| Image page                 =
+| Pageoverview               =
+| Wikisource                 =
+| Homecat                    =
+| Other_versions             =
+| ISBN                       =
+| LCCN                       =
+| OCLC                       =
+| References                 =
+| Linkback                   =
+| Wikidata                   =
+| noimage                    =
+| Other_fields_1              = {{Information field|name=Identifier|value=${
             pdl_identifier || ""
           }|name=Pages|value=${pdl_pages || ""}|name=Script|value=${
             pdl_script || ""
           }}}
 }}
-{{cc-zero}}
+
+== {{int:license-header}} ==
+{{PD-scan}}
+
 [[Category:Files uploaded with BUB2]]
 `;
           return pdl_commonsMetadata;

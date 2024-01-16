@@ -172,7 +172,7 @@ app
                 uploadLink: progress === "(100%)" && trueURI ? trueURI : "",
                 isUploaded: jobState === "completed" ? true : false,
               },
-              wikimedia_links: job.progress().wikiLinks.commons
+              wikimedia_links: job.progress().wikiLinks?.commons
                 ? job.progress().wikiLinks.commons
                 : "Not Integrated",
             };
