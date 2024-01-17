@@ -168,7 +168,8 @@ app
                 categoryID
               ),
               uploadStatus: {
-                uploadLink: progress === "(100%)" && trueURI ? trueURI : "",
+                uploadLink:
+                  job.progress().value === "(100%)" && trueURI ? trueURI : "",
                 isUploaded: jobState === "completed" ? true : false,
               },
               wikimedia_links: job.progress().wikiLinks?.commons
