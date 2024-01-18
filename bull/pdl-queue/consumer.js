@@ -55,7 +55,10 @@ async function getZipAndBytelength(no_of_pages, id, title, job) {
   for (let i = 1; i <= temp_pages; ++i) {
     const str = `http://www.panjabdigilib.org/images?ID=${id}&page=${i}&pagetype=null&Searched=W3GX`;
     downloadImageStatus = await download_image(str, `${title}_${i}.jpeg`);
-    job.progress(Math.round((i / temp_pages) * 82));
+    job.progress({
+      step: "Uploading to Internet Archive",
+      value: `(${Math.round((i / temp_pages) * 82)}%)`,
+    });
     if (downloadImageStatus >= 200 && downloadImageStatus < 300) {
       continue;
     } else {
@@ -76,7 +79,6 @@ function setHeaders(metadata, contentLength, title, contentType) {
     "iaidentifier",
     "contenttype",
     "pdfurl",
-    "username",
   ];
   headers[
     "Authorization"
@@ -174,7 +176,10 @@ function uploadPdfToIA(pdfUrl, job, metadata, trueURI, done) {
       });
       done(new Error("Failed to download PDF."));
     } else {
-      job.progress(20);
+      job.progress({
+        step: "Uploading to Internet Archive",
+        value: `(${20}%)`,
+      });
     }
   });
 
@@ -182,7 +187,10 @@ function uploadPdfToIA(pdfUrl, job, metadata, trueURI, done) {
     const newBuffer = Buffer.concat(chunks);
     var bufferStream = new stream.PassThrough();
     bufferStream.end(newBuffer);
-    job.progress(80);
+    job.progress({
+      step: "Uploading to Internet Archive",
+      value: `(${80}%)`,
+    });
     let headers = setHeaders(
       metadata,
       bufferLength,
@@ -206,13 +214,16 @@ function uploadPdfToIA(pdfUrl, job, metadata, trueURI, done) {
               message: `IA Failure PDL ${errorMessage}`,
             });
             if (metadata.isEmailNotification === "true") {
-              EmailProducer(metadata.userName, metadata.title, trueURI, false);
+              EmailProducer(job.data.userName, metadata.title, trueURI, false);
             }
             done(new Error(errorMessage));
           } else {
-            job.progress(100);
+            job.progress({
+              step: "Uploading to Internet Archive",
+              value: `(${100}%)`,
+            });
             if (metadata.isEmailNotification === "true") {
-              EmailProducer(metadata.userName, metadata.title, trueURI, true);
+              EmailProducer(job.data.userName, metadata.title, trueURI, true);
             }
             done(null, true);
           }
@@ -258,7 +269,10 @@ PDLQueue.process(async (job, done) => {
         });
         done(new Error(`Failure PDL: Failed to download ${errorFlag.page}`));
       }
-      job.progress(90);
+      job.progress({
+        step: "Uploading to Internet Archive",
+        value: `(${90}%)`,
+      });
       await uploadZipToIA(
         zip,
         job.data.details,
@@ -269,7 +283,10 @@ PDLQueue.process(async (job, done) => {
           if (isError) {
             done(new Error(error));
           } else {
-            job.progress(100);
+            job.progress({
+              step: "Uploading to Internet Archive",
+              value: `(${100}%)`,
+            });
             done(null, true);
           }
         },

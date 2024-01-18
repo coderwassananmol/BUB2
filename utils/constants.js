@@ -10,6 +10,7 @@ export const library = {
   pdl: "Panjab Digital Library",
   trove: "Trove Digital Library",
 };
+export const permission = `CCO No Rights Reserved https://creativecommons.org/publicdomain/mark/1.0/`;
 export const faq_data = [
   {
     que: "What is Book Uploader Bot?",

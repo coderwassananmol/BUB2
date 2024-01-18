@@ -56,15 +56,34 @@ const Stats = (props) => {
             <div
               className="cdx-message cdx-message--block cdx-message--success"
               aria-live="polite"
+              style={{ display: "flex", flexDirection: "column" }}
             >
-              <span className="cdx-message__icon"></span>
-              <div className="cdx-message__content">
-                <Link href={"https://archive.org/details/@bub_wikimedia"}>
-                  <a target="_blank">
-                    {props.data.totalUploadedCount} books uploaded to Internet
-                    Archive using BUB2!
-                  </a>
-                </Link>
+              <div>
+                <span className="cdx-message__icon"></span>
+                <span className="cdx-message__content">
+                  <Link href={"https://archive.org/details/@bub_wikimedia"}>
+                    <a target="_blank">
+                      {props.data.totalUploadedCount} books uploaded to Internet
+                      Archive using BUB2!
+                    </a>
+                  </Link>
+                </span>
+              </div>
+
+              <div>
+                <span className="cdx-message__icon"></span>
+                <span className="cdx-message__content">
+                  <Link
+                    href={
+                      "https://commons.wikimedia.org/wiki/Category:Files_uploaded_with_BUB2"
+                    }
+                  >
+                    <a target="_blank">
+                      {props.data.commonsUploadedCount} books uploaded to
+                      Wikimedia Commons using BUB2!
+                    </a>
+                  </Link>
+                </span>
               </div>
             </div>
           </div>

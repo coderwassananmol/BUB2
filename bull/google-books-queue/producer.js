@@ -3,11 +3,18 @@ const GoogleBooksQueue = config.getNewQueue("google-books-queue");
 require("./consumer");
 module.exports = async (
   uri,
+
   IAIdentifier,
+
   details,
+
   email,
+
   userName,
-  isEmailNotification
+  isEmailNotification,
+  isUploadCommons,
+  oauthToken,
+  commonsMetadata
 ) => {
   GoogleBooksQueue.add({
     uri,
@@ -16,5 +23,8 @@ module.exports = async (
     email,
     userName,
     isEmailNotification,
+    isUploadCommons,
+    oauthToken,
+    commonsMetadata,
   });
 };
