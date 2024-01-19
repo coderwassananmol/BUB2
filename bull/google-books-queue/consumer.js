@@ -112,19 +112,21 @@ GoogleBooksQueue.process((job, done) => {
                     commons: await commonsResponse.value.filename,
                   },
                 });
-                done(null, true);
+                if (job.data.isEmailNotification === "true") {
+                  EmailProducer(job.data.userName, title, trueURI, true);
+                }
+                return done(null, true);
               } else {
                 job.progress({
                   step: "Upload To IA (100%), Upload To Commons",
                   value: `(Failed)`,
                 });
-                done(null, true);
+                if (job.data.isEmailNotification === "true") {
+                  EmailProducer(job.data.userName, title, trueURI, true);
+                }
+                return done(null, true);
               }
             });
-          }
-          if (job.data.isEmailNotification === "true") {
-            EmailProducer(job.data.userName, title, trueURI, true);
-            done(null, true);
           }
         }
       }

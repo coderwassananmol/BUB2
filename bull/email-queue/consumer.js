@@ -62,7 +62,7 @@ async function mediawikiEmail(username, title, trueURI, success) {
 }
 
 EmailQueue.process(async (job, done) => {
-  const emailResponse = mediawikiEmail(
+  const emailResponse = await mediawikiEmail(
     job.data.userName,
     job.data.title,
     job.data.trueURI,
