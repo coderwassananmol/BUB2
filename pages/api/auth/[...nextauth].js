@@ -66,6 +66,7 @@ export const authOptions = {
 
   callbacks: {
     async jwt({ token, user, account, profile, isNewUser }) {
+      console.log(token, account, "::inside jwt");
       if (account) {
         token.accessToken = account.access_token;
         token.refreshToken = account.refresh_token;
@@ -78,6 +79,7 @@ export const authOptions = {
           token.accessToken = new_session?.access_token;
           token.refreshToken = new_session?.refresh_token;
           token.expiresIn = new_session.expires_in * 1000;
+          console.log(new_session, "::inside expiry");
           return token;
         } catch (error) {
           logger.log({
@@ -91,6 +93,7 @@ export const authOptions = {
     async session({ session, token, user }) {
       // Add the access token to the session object
       session.accessToken = token.accessToken;
+      console.log(session, "::inside session");
       return session;
     },
   },

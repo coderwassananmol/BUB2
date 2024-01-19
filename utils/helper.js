@@ -279,6 +279,7 @@ module.exports = {
   },
   uploadToCommons: async (metadata) => {
     try {
+      console.log(metadata, "::inside uploadToCommons");
       const bot = await Mwn.init({
         apiUrl: "https://commons.wikimedia.org/w/api.php",
         OAuth2AccessToken: metadata.oauthToken,
@@ -289,7 +290,8 @@ module.exports = {
       });
 
       const commonsFilePayload = "commonsFilePayload.pdf";
-      const title = metadata.details.volumeInfo.title || metadata.name;
+      let title = metadata.details.volumeInfo.title || metadata.name;
+      title = title.replaceAll(".", "");
       const response = await bot.upload(
         commonsFilePayload,
         title,
