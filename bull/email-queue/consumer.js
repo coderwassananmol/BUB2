@@ -5,12 +5,23 @@ const logger = winston.loggers.get("defaultLogger");
 require("dotenv").config();
 const { Mwn } = require("mwn");
 
+function generateMessage(status, title, trueURI) {
+  let message;
+  if (status.archive && status.commons) {
+    message = `Your file "${title}" has been uploaded to Internet Archive and Wikimedia Commons successfully. Take a look at, Internet Archive - ${trueURI.archiveLink}, Wikimedia Commons - ${trueURI.commonsLink}`;
+  } else if (status.archive && !status.commons) {
+    message = `Your file "${title}" has been uploaded to Internet Archive successfully! Take a look at ${trueURI}`;
+  } else if (!status.archive && !status.commons) {
+    message = `Your file "${title}" was not uploaded to Internet Archive! Please try again later.`;
+  }
+  return message;
+}
 /* 
 Mediawiki Email API DOCS - https://www.mediawiki.org/wiki/API:Emailuser#JavaScript
 MWN TOOLFORGE PACKAGE DOCS -https://github.com/siddharthvp/mwn
 */
 
-async function mediawikiEmail(username, title, trueURI, success) {
+async function mediawikiEmail(username, title, trueURI, status) {
   try {
     const bot = await Mwn.init({
       apiUrl: process.env.EMAIL_SOURCE_URL,
@@ -31,10 +42,7 @@ async function mediawikiEmail(username, title, trueURI, success) {
         action: "emailuser",
         target: username,
         subject: "BUB2 upload status",
-        text: success
-          ? `Your file "${title}" has been uploaded to Internet Archive successfully! Take a look at ${trueURI}`
-          : `Your file "${title}" was not uploaded to Internet Archive! Please try again later.
-          `,
+        text: generateMessage(status, title, trueURI),
         token: csrf_token,
         format: "json",
       })
@@ -66,7 +74,7 @@ EmailQueue.process(async (job, done) => {
     job.data.userName,
     job.data.title,
     job.data.trueURI,
-    job.data.success
+    job.data.status
   );
   if (emailResponse !== 200) {
     logger.log({

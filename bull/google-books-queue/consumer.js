@@ -88,7 +88,10 @@ GoogleBooksQueue.process((job, done) => {
             message: `IA Failure GB ${errorMessage}`,
           });
           if (job.data.isEmailNotification === "true") {
-            EmailProducer(job.data.userName, title, trueURI, false);
+            EmailProducer(job.data.userName, title, trueURI, {
+              archive: false,
+              commons: false,
+            });
           }
           done(new Error(errorMessage));
         } else {
@@ -97,6 +100,15 @@ GoogleBooksQueue.process((job, done) => {
             job.data.isEmailNotification !== "true"
           ) {
             done(null, true);
+          }
+          if (
+            job.data.isEmailNotification === "true" &&
+            job.data.isUploadCommons !== "true"
+          ) {
+            EmailProducer(job.data.userName, title, trueURI, {
+              archive: true,
+              commons: false,
+            });
           }
           if (job.data.isUploadCommons === "true") {
             job.progress({
@@ -113,7 +125,13 @@ GoogleBooksQueue.process((job, done) => {
                   },
                 });
                 if (job.data.isEmailNotification === "true") {
-                  EmailProducer(job.data.userName, title, trueURI, true);
+                  const commonsLink = `https://commons.wikimedia.org/wiki/File:${commonsResponse.value.filename}`;
+                  EmailProducer(
+                    job.data.userName,
+                    title,
+                    { archiveLink: trueURI, commonsLink: commonsLink },
+                    { archive: true, commons: true }
+                  );
                 }
                 return done(null, true);
               } else {
@@ -122,7 +140,10 @@ GoogleBooksQueue.process((job, done) => {
                   value: `(Failed)`,
                 });
                 if (job.data.isEmailNotification === "true") {
-                  EmailProducer(job.data.userName, title, trueURI, true);
+                  EmailProducer(job.data.userName, title, trueURI, {
+                    archive: true,
+                    commons: false,
+                  });
                 }
                 return done(null, true);
               }
