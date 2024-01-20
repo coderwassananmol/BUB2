@@ -1,10 +1,15 @@
 const request = require("request");
 const EmailProducer = require("../email-queue/producer");
+const CommonsProducer = require("../commons-queue/producer");
 const config = require("../../utils/bullconfig");
 const GoogleBooksQueue = config.getNewQueue("google-books-queue");
 const winston = require("winston");
 const logger = winston.loggers.get("defaultLogger");
-const { logUserData } = require("./../../utils/helper");
+const {
+  logUserData,
+  uploadToCommons,
+  downloadFile,
+} = require("./../../utils/helper");
 
 let responseSize,
   dataSize = 0;
@@ -87,10 +92,40 @@ GoogleBooksQueue.process((job, done) => {
           }
           done(new Error(errorMessage));
         } else {
+          if (
+            job.data.isUploadCommons !== "true" &&
+            job.data.isEmailNotification !== "true"
+          ) {
+            done(null, true);
+          }
+          if (job.data.isUploadCommons === "true") {
+            job.progress({
+              step: "Uploading to Wikimedia Commons",
+              value: `(${50}%)`,
+            });
+            CommonsProducer(null, job.data, async (commonsResponse) => {
+              if (commonsResponse.status === true) {
+                job.progress({
+                  step: "Upload to Wikimedia Commons",
+                  value: `(${100}%)`,
+                  wikiLinks: {
+                    commons: await commonsResponse.value.filename,
+                  },
+                });
+                done(null, true);
+              } else {
+                job.progress({
+                  step: "Upload To IA (100%), Upload To Commons",
+                  value: `(Failed)`,
+                });
+                done(null, true);
+              }
+            });
+          }
           if (job.data.isEmailNotification === "true") {
             EmailProducer(job.data.userName, title, trueURI, true);
+            done(null, true);
           }
-          done(null, true);
         }
       }
     )
@@ -103,6 +138,9 @@ GoogleBooksQueue.process((job, done) => {
 
   requestURI.on("data", function (chunk) {
     dataSize += Number(chunk.length);
-    job.progress(Math.round((dataSize / responseSize) * 100));
+    job.progress({
+      step: "Uploading to Internet Archive",
+      value: `(${Math.round((dataSize / responseSize) * 100)}%)`,
+    });
   });
 });

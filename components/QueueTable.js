@@ -106,9 +106,9 @@ const ShowUploadQueue = (props) => {
         ),
     },
     {
-      id: "timestamp",
-      label: "Timestamp",
-      minWidth: 150,
+      id: "upload_progress",
+      label: "Upload Progress",
+      minWidth: 50,
       align: "left",
       format: (value) => value,
     },
@@ -135,11 +135,11 @@ const ShowUploadQueue = (props) => {
       },
     },
     {
-      id: "upload_progress",
-      label: "Upload Progress",
-      minWidth: 50,
+      id: "timestamp",
+      label: "Timestamp",
+      minWidth: 150,
       align: "left",
-      format: (value) => value + "%",
+      format: (value) => value,
     },
   ];
 
@@ -171,6 +171,8 @@ const ShowUploadQueue = (props) => {
     } else if (column.id === "date") {
       return column.format(value);
     } else if (column.id === "status") {
+      return column.format(value);
+    } else if (column.id === "wikimedia_links") {
       return column.format(value);
     } else {
       return value;

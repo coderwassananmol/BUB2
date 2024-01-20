@@ -13,7 +13,7 @@ function MyApp({ Component, pageProps }) {
             width: 100%;
             min-height: 80vh;
             display: flex;
-            padding: 3vw;
+            padding: 2.8vw;
             flex-flow: column;
             flex-grow: 1;
           }
@@ -186,6 +186,10 @@ function MyApp({ Component, pageProps }) {
           sizes="196x196"
           href="assets/apple-touch-icon.png"
         ></link>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap"
+          rel="stylesheet"
+        />
       </Head>
       <SessionProvider>
         <Component {...pageProps} />

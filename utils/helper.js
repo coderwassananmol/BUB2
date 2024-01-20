@@ -5,6 +5,8 @@ const _ = require("lodash");
 const winston = require("winston");
 const { truncate } = require("fs");
 const logger = winston.loggers.get("defaultLogger");
+const fs = require("fs");
+const { Mwn } = require("mwn");
 
 module.exports = {
   checkIfFileExistsAtIA: async (ID) => {
@@ -253,5 +255,64 @@ module.exports = {
       level: "info",
       message: `User ${userName} uploaded using ${libraryName}`,
     });
+  },
+  downloadFile: async (downloadUrl, localFilepath) => {
+    try {
+      const fileRes = await fetch(downloadUrl, {
+        method: "GET",
+        headers: new Headers({
+          "Content-Type": "application/pdf",
+        }),
+      });
+      const fileBuffer = await fileRes.buffer();
+      await fs.promises.writeFile(localFilepath, fileBuffer);
+      return {
+        writeFileStatus: 200,
+      };
+    } catch (error) {
+      logger.log({
+        level: "error",
+        message: `downloadFile: ${error}`,
+      });
+      return error;
+    }
+  },
+  uploadToCommons: async (metadata) => {
+    try {
+      const bot = await Mwn.init({
+        apiUrl: "https://commons.wikimedia.org/w/api.php",
+        OAuth2AccessToken: metadata.oauthToken,
+        userAgent: "bub2.toolforge ([[https://bub2.toolforge.org]])",
+        defaultParams: {
+          assert: "user",
+        },
+      });
+
+      const commonsFilePayload = "commonsFilePayload.pdf";
+      const title = metadata.details.volumeInfo.title || metadata.name;
+      const response = await bot.upload(
+        commonsFilePayload,
+        title,
+        metadata.commonsMetadata
+      );
+      if (await response.filename) {
+        await fs.promises.unlink(commonsFilePayload);
+      }
+      logger.log({
+        level: "info",
+        message: `uploadToCommons: Upload of ${metadata.IAIdentifier} to commons successful`,
+      });
+      return {
+        fileUploadStatus: 200,
+        filename: response.filename,
+      };
+    } catch (error) {
+      await fs.promises.unlink("commonsFilePayload.pdf");
+      logger.log({
+        level: "error",
+        message: `uploadToCommons: ${error}`,
+      });
+      return error;
+    }
   },
 };

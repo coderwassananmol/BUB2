@@ -6,11 +6,17 @@ const cheerio = require("cheerio"); // Basically jQuery for node.js
 require("./consumer");
 module.exports = async (
   bookid,
+
   IAIdentifier,
+
   metaData,
+
   email,
+
   userName,
-  isEmailNotification
+  isEmailNotification,
+  isUploadCommons,
+  oauthToken
 ) => {
   const uri = `https://trove.nla.gov.au/newspaper/article/${bookid}`;
   var options = {
@@ -27,6 +33,8 @@ module.exports = async (
   metaData["userName"] = userName;
   metaData["IAIdentifier"] = IAIdentifier;
   metaData["isEmailNotification"] = isEmailNotification;
+  metaData["isUploadCommons"] = isUploadCommons;
+  metaData["oauthToken"] = oauthToken;
 
   const details = {
     details: metaData,

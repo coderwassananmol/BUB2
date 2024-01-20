@@ -102,7 +102,11 @@ const Queue = ({ data }) => {
   }, [data[`${queueName}-queue`]["active"]]);
 
   return (
-    <div>
+    <div
+      style={{
+        minHeight: "114vh",
+      }}
+    >
       <Header page="queue" />
       <div className="container p-0">
         <div className="main-content">

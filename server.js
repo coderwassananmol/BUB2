@@ -98,6 +98,10 @@ app
         gb: google_books_queue,
         trove: trove_queue,
       };
+      const commonsRes = await customFetch(
+        "https://commons.wikimedia.org/w/api.php?action=query&prop=categoryinfo&titles=Category:Files_uploaded_with_BUB2&format=json",
+        "GET"
+      );
       customFetch(
         `https://archive.org/advancedsearch.php?q=bub.wikimedia+&rows=0&output=json`,
         "GET"
@@ -106,6 +110,10 @@ app
           res.send({
             queueStats: queueStats,
             totalUploadedCount: resp.response.numFound,
+            commonsUploadedCount: commonsRes?.query?.pages["142217311"]
+              ?.categoryinfo?.files
+              ? commonsRes.query.pages["142217311"].categoryinfo.files
+              : "0",
           });
         }
       });
@@ -137,7 +145,9 @@ app
           const job = await queue.getJob(req.query.job_id);
           if (job) {
             const queue_data = await queueData(job, queue);
-            const progress = job.progress();
+            const progress = job.progress().value
+              ? `${job.progress().step}${job.progress().value}`
+              : job.progress();
             const jobState = await job.getState();
             const book_id = job.data.details.id || job.data.details.bookID;
             const categoryID = job.data.details.categoryID;
@@ -158,9 +168,13 @@ app
                 categoryID
               ),
               uploadStatus: {
-                uploadLink: progress === 100 && trueURI ? trueURI : "",
+                uploadLink:
+                  job.progress().value === "(100%)" && trueURI ? trueURI : "",
                 isUploaded: jobState === "completed" ? true : false,
               },
+              wikimedia_links: job.progress().wikiLinks?.commons
+                ? job.progress().wikiLinks.commons
+                : "Not Integrated",
             };
             res.send(
               Object.assign(
@@ -212,7 +226,7 @@ app
       if (req.query.job_id) {
         const job = await queue.getJob(req.query.job_id);
         if (job) {
-          return job.progress();
+          return job.progress().value;
         }
         return null;
       }
@@ -277,22 +291,27 @@ app
                     .toString()
                     .padStart(2, "0") +
                   "-" +
-                  date
-                    .getUTCDate()
-                    .toLocaleString(undefined, { minimumIntegerDigits: 2 }) +
+                  date.getUTCDate().toLocaleString(undefined, {
+                    minimumIntegerDigits: 2,
+                  }) +
                   " " +
                   date.getUTCHours() +
                   ":" +
-                  date
-                    .getUTCMinutes()
-                    .toLocaleString(undefined, { minimumIntegerDigits: 2 }) +
+                  date.getUTCMinutes().toLocaleString(undefined, {
+                    minimumIntegerDigits: 2,
+                  }) +
                   " (UTC)",
-                upload_progress: job.progress(),
+                upload_progress: job.progress().step
+                  ? `${job.progress().step}:${job.progress().value}`
+                  : `${job.progress()}%`,
                 status: returnJobStatus(
                   job.failedReason,
                   job.finishedOn,
                   job.processedOn
                 ),
+                wikimedia_links: job.progress().wikiLinks?.commons
+                  ? job.progress().wikiLinks.commons
+                  : "Not Integrated",
               };
             });
             res.send(_.orderBy(filteredJobs, "id", "desc"));
@@ -373,11 +392,19 @@ app
     server.get("/check", async (req, res) => {
       const {
         bookid,
+
         option,
+
         email,
+
         userName,
+
         IAtitle,
         isEmailNotification,
+
+        isUploadCommons,
+        oauthToken,
+        commonsMetadata,
       } = req.query;
       emailaddr = email;
       authUserName = userName;
@@ -531,11 +558,17 @@ app
                 });
                 TroveProducer(
                   bookid,
+
                   titleInIA,
+
                   troveData,
+
                   email,
+
                   userName,
-                  isEmailNotification
+                  isEmailNotification,
+                  isUploadCommons,
+                  oauthToken
                 );
               }
             }
@@ -553,6 +586,26 @@ app
       const emailableStatus =
         usersQuery?.query?.users[0]?.emailable === undefined ? false : true;
       res.send(emailableStatus);
+    });
+
+    server.get("/getMetadata", async (req, res) => {
+      const { option, id } = req.query;
+      switch (option) {
+        case "gb":
+          const gbRes = await customFetch(
+            `https://www.googleapis.com/books/v1/volumes/${id}?key=${GB_KEY}`,
+            "GET"
+          );
+          res.send(gbRes);
+          break;
+        case "trove":
+          const troveRes = await customFetch(
+            `https://api.trove.nla.gov.au/v2/newspaper/${id}?key=${trove_key}&encoding=json&reclevel=full`,
+            "GET"
+          );
+          res.send(troveRes);
+          break;
+      }
     });
 
     server.post("/webhook", async (req, res) => {
@@ -593,7 +646,10 @@ app
           GBdetails,
           emailaddr,
           authUserName,
-          GBreq.query.isEmailNotification
+          GBreq.query.isEmailNotification,
+          GBreq.query.isUploadCommons,
+          GBreq.query.oauthToken,
+          GBreq.query.commonsMetadata
         );
       } else {
         res.send({

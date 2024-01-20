@@ -1,4 +1,5 @@
 const EmailProducer = require("../email-queue/producer");
+const CommonsProducer = require("../commons-queue/producer");
 const config = require("../../utils/bullconfig");
 const TroveQueue = config.getNewQueue("trove-queue");
 const rp = require("request-promise");
@@ -6,7 +7,11 @@ const request = require("request");
 const _ = require("lodash");
 const winston = require("winston");
 const logger = winston.loggers.get("defaultLogger");
-const { logUserData } = require("./../../utils/helper");
+const {
+  logUserData,
+  downloadFile,
+  uploadToCommons,
+} = require("./../../utils/helper");
 
 let responseSize,
   dataSize = 0;
@@ -40,6 +45,7 @@ TroveQueue.process((job, done) => {
         const requestURI = request(
           `https://trove.nla.gov.au/newspaper/rendition/nla.news-issue${job.data.details.issueRenditionId}.pdf?followup=${body}`
         );
+        const downloadFileUrl = `https://trove.nla.gov.au/newspaper/rendition/nla.news-issue${job.data.details.issueRenditionId}.pdf?followup=${body}`;
         const jobLogs = job.data.details;
         let {
           name,
@@ -94,6 +100,32 @@ TroveQueue.process((job, done) => {
                 }
                 done(new Error(errorMessage));
               } else {
+                if (job.data.details.isUploadCommons === "true") {
+                  job.progress({
+                    step: "Uploading to Wikimedia Commons",
+                    value: `(50%)`,
+                  });
+                  CommonsProducer(
+                    downloadFileUrl,
+                    job.data.details,
+                    async (commonsResponse) => {
+                      if (commonsResponse.status === true) {
+                        job.progress({
+                          step: "Upload to Wikimedia Commons",
+                          value: `(100%)`,
+                          wikiLinks: {
+                            commons: await commonsResponse.value.filename,
+                          },
+                        });
+                      } else {
+                        job.progress({
+                          step: "Upload To IA (100%), Upload To Commons",
+                          value: `(Failed)`,
+                        });
+                      }
+                    }
+                  );
+                }
                 if (isEmailNotification === "true") {
                   EmailProducer(userName, name, trueURI, true);
                 }
@@ -110,7 +142,11 @@ TroveQueue.process((job, done) => {
         requestURI.on("data", function (chunk) {
           dataSize += Number(chunk.length);
           const progress = Math.round((dataSize / responseSize) * 100);
-          if (progress !== null) job.progress(progress);
+          if (progress !== null)
+            job.progress({
+              step: "Uploading to Internet Archive",
+              value: `(${progress || 0}%)`,
+            });
         });
       }
     }
