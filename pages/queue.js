@@ -92,6 +92,12 @@ const Queue = ({ data }) => {
   // user with near real time upload progress
   // Condition: only when queue is active
   useEffect(() => {
+    if (
+      data[`${queueName}-queue`]["active"] === null &&
+      data["commons-queue"]["active"] === null
+    ) {
+      return;
+    }
     const intervalId = setInterval(() => {
       if (data[`${queueName}-queue`]["active"] !== null) {
         fetchQueueData();

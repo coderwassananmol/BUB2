@@ -336,6 +336,7 @@ app
       const pdl_queue = await config.getNewQueue("pdl-queue");
       const google_books_queue = await config.getNewQueue("google-books-queue");
       const trove_queue = await config.getNewQueue("trove-queue");
+      const commons_queue = await config.getNewQueue("commons-queue");
 
       const queryParams = {
         "gb-queue": {
@@ -350,6 +351,10 @@ app
           active: "",
           waiting: "",
         },
+        "commons-queue": {
+          active: "",
+          waiting: "",
+        },
       };
       const pdlqueue_active_job = await pdl_queue.getActive(0, 0);
       const pdlqueue_waiting_job = await pdl_queue.getWaiting(0, 0);
@@ -359,6 +364,9 @@ app
 
       const trovequeue_active_job = await trove_queue.getActive(0, 0);
       const trovequeue_waiting_job = await trove_queue.getWaiting(0, 0);
+
+      const commonsqueue_active_job = await commons_queue.getActive(0, 0);
+      const commonsqueue_waiting_job = await commons_queue.getWaiting(0, 0);
 
       queryParams["pdl-queue"]["active"] = jobData(
         pdlqueue_active_job[0],
@@ -382,6 +390,15 @@ app
       queryParams["trove-queue"]["waiting"] = jobData(
         trovequeue_waiting_job[0],
         "trove"
+      );
+
+      queryParams["commons-queue"]["active"] = jobData(
+        commonsqueue_active_job[0],
+        "commons"
+      );
+      queryParams["commons-queue"]["waiting"] = jobData(
+        commonsqueue_waiting_job[0],
+        "commons"
       );
       res.send(queryParams);
     });
