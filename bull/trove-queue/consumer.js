@@ -96,10 +96,22 @@ TroveQueue.process((job, done) => {
                   message: `IA Failure Trove ${errorMessage}`,
                 });
                 if (isEmailNotification === "true") {
-                  EmailProducer(userName, name, trueURI, false);
+                  EmailProducer(userName, name, trueURI, {
+                    archive: false,
+                    commons: false,
+                  });
                 }
                 done(new Error(errorMessage));
               } else {
+                if (
+                  isEmailNotification === "true" &&
+                  job.data.details.isUploadCommons !== "true"
+                ) {
+                  EmailProducer(userName, name, trueURI, {
+                    archive: true,
+                    commons: false,
+                  });
+                }
                 if (job.data.details.isUploadCommons === "true") {
                   job.progress({
                     step: "Uploading to Wikimedia Commons",
@@ -117,17 +129,27 @@ TroveQueue.process((job, done) => {
                             commons: await commonsResponse.value.filename,
                           },
                         });
+                        if (job.data.isEmailNotification === "true") {
+                          const commonsLink = `https://commons.wikimedia.org/wiki/File:${commonsResponse.value.filename}`;
+                          EmailProducer(
+                            userName,
+                            name,
+                            { archiveLink: trueURI, commonsLink: commonsLink },
+                            { archive: true, commons: true }
+                          );
+                        }
                       } else {
                         job.progress({
                           step: "Upload To IA (100%), Upload To Commons",
                           value: `(Failed)`,
                         });
+                        EmailProducer(userName, name, trueURI, {
+                          archive: true,
+                          commons: false,
+                        });
                       }
                     }
                   );
-                }
-                if (isEmailNotification === "true") {
-                  EmailProducer(userName, name, trueURI, true);
                 }
                 done(null, true);
               }
