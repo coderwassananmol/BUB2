@@ -209,7 +209,15 @@ function uploadPdfToIA(pdfUrl, job, metadata, trueURI, done) {
               message: `IA Failure PDL ${errorMessage}`,
             });
             if (metadata.isEmailNotification === "true") {
-              EmailProducer(job.data.userName, metadata.title, trueURI, false);
+              EmailProducer(
+                job.data.details.userName,
+                metadata.title,
+                trueURI,
+                {
+                  archive: false,
+                  commons: false,
+                }
+              );
             }
             done(new Error(errorMessage));
           } else {
@@ -221,6 +229,21 @@ function uploadPdfToIA(pdfUrl, job, metadata, trueURI, done) {
               job.data.details.isUploadCommons !== "true" &&
               metadata.isEmailNotification !== "true"
             ) {
+              done(null, true);
+            }
+            if (
+              job.data.details.isUploadCommons !== "true" &&
+              metadata.isEmailNotification === "true"
+            ) {
+              EmailProducer(
+                job.data.details.userName,
+                metadata.title,
+                trueURI,
+                {
+                  archive: true,
+                  commons: false,
+                }
+              );
               done(null, true);
             }
             if (job.data.details.isUploadCommons === "true") {
@@ -241,19 +264,38 @@ function uploadPdfToIA(pdfUrl, job, metadata, trueURI, done) {
                         commons: await commonsResponse.value.filename,
                       },
                     });
+                    if (metadata.isEmailNotification === "true") {
+                      const commonsLink = `https://commons.wikimedia.org/wiki/File:${commonsResponse.value.filename}`;
+                      EmailProducer(
+                        job.data.details.userName,
+                        metadata.title,
+                        { archiveLink: trueURI, commonsLink: commonsLink },
+                        {
+                          archive: true,
+                          commons: true,
+                        }
+                      );
+                    }
                   } else {
                     job.progress({
                       step: "Upload To IA (100%), Upload To Commons",
                       value: `(Failed)`,
                     });
+                    if (metadata.isEmailNotification === "true") {
+                      EmailProducer(
+                        job.data.details.userName,
+                        metadata.title,
+                        trueURI,
+                        {
+                          archive: true,
+                          commons: false,
+                        }
+                      );
+                    }
                   }
-                  done(null, true);
+                  return done(null, true);
                 }
               );
-            }
-            if (metadata.isEmailNotification === "true") {
-              EmailProducer(job.data.userName, metadata.title, trueURI, true);
-              done(null, true);
             }
           }
         }
@@ -320,7 +362,10 @@ PDLQueue.process(async (job, done) => {
                 job.data.details.userName,
                 job.data.details.title,
                 trueURI,
-                false
+                {
+                  archive: false,
+                  commons: false,
+                }
               );
             }
             done(new Error(error));
@@ -329,6 +374,27 @@ PDLQueue.process(async (job, done) => {
               step: "Uploading to Internet Archive",
               value: `(${100}%)`,
             });
+            if (
+              job.data.details.isUploadCommons !== "true" &&
+              job.data.details.isEmailNotification !== "true"
+            ) {
+              done(null, true);
+            }
+            if (
+              job.data.details.isUploadCommons !== "true" &&
+              job.data.details.isEmailNotification === "true"
+            ) {
+              EmailProducer(
+                job.data.details.userName,
+                job.data.details.title,
+                trueURI,
+                {
+                  archive: true,
+                  commons: false,
+                }
+              );
+              done(null, true);
+            }
             if (job.data.details.isUploadCommons === "true") {
               job.progress({
                 step: "Uploading to Wikimedia Commons",
@@ -340,7 +406,6 @@ PDLQueue.process(async (job, done) => {
                 base64Zip,
                 job.data.details,
                 async (commonsResponse) => {
-                  console.log("commonsResponse:", await commonsResponse);
                   if (commonsResponse.status === true) {
                     job.progress({
                       step: "Upload to Wikimedia Commons",
@@ -349,24 +414,39 @@ PDLQueue.process(async (job, done) => {
                         commons: await commonsResponse.value.filename,
                       },
                     });
+                    if (job.data.details.isEmailNotification === "true") {
+                      const commonsLink = `https://commons.wikimedia.org/wiki/File:${commonsResponse.value.filename}`;
+                      EmailProducer(
+                        job.data.details.userName,
+                        job.data.details.title,
+                        { archiveLink: trueURI, commonsLink: commonsLink },
+                        {
+                          archive: true,
+                          commons: true,
+                        }
+                      );
+                    }
                   } else {
                     job.progress({
                       step: "Upload To IA (100%), Upload To Commons",
                       value: `(Failed)`,
                     });
+                    if (job.data.details.isEmailNotification === "true") {
+                      EmailProducer(
+                        job.data.details.userName,
+                        job.data.details.title,
+                        trueURI,
+                        {
+                          archive: true,
+                          commons: false,
+                        }
+                      );
+                    }
                   }
                 }
               );
             }
-            if (job.data.details.isEmailNotification === "true") {
-              EmailProducer(
-                job.data.details.userName,
-                job.data.details.title,
-                trueURI,
-                true
-              );
-            }
-            done(null, true);
+            return done(null, true);
           }
         }
       );

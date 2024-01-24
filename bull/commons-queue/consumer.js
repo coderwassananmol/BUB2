@@ -41,30 +41,29 @@ CommonsQueue.process(async (job, done) => {
         level: "error",
         message: `downloadFile: ${downloadFileRes}`,
       });
-      process.emit("commonsJobComplete", {
+      process.emit(`commonsJobComplete:${job.id}`, {
         status: false,
         value: null,
       });
       return done(null, true);
     }
-  }
-  const commonsResponse = await uploadToCommons(job.data.metadata);
+    const commonsResponse = await uploadToCommons(job.data.metadata);
 
-  if (commonsResponse.fileUploadStatus !== 200) {
-    logger.log({
-      level: "error",
-      message: `uploadToCommons: ${commonsResponse}`,
-    });
-    process.emit("commonsJobComplete", {
-      status: false,
-      value: null,
+    if (commonsResponse.fileUploadStatus !== 200) {
+      logger.log({
+        level: "error",
+        message: `uploadToCommons: ${commonsResponse}`,
+      });
+      process.emit(`commonsJobComplete:${job.id}`, {
+        status: false,
+        value: null,
+      });
+      return done(null, true);
+    }
+    process.emit(`commonsJobComplete:${job.id}`, {
+      status: true,
+      value: commonsResponse,
     });
     return done(null, true);
-    // return done(new Error(`uploadToCommons: ${commonsResponse}`));
   }
-  process.emit("commonsJobComplete", {
-    status: true,
-    value: commonsResponse,
-  });
-  done(null, true);
 });
