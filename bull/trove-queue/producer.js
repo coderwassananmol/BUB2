@@ -16,7 +16,8 @@ module.exports = async (
   userName,
   isEmailNotification,
   isUploadCommons,
-  oauthToken
+  oauthToken,
+  commonsMetadata
 ) => {
   const uri = `https://trove.nla.gov.au/newspaper/article/${bookid}`;
   var options = {
@@ -35,6 +36,7 @@ module.exports = async (
   metaData["isEmailNotification"] = isEmailNotification;
   metaData["isUploadCommons"] = isUploadCommons;
   metaData["oauthToken"] = oauthToken;
+  metaData["commonsMetadata"] = commonsMetadata;
 
   const details = {
     details: metaData,

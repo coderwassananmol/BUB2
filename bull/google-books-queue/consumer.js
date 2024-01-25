@@ -95,6 +95,10 @@ GoogleBooksQueue.process((job, done) => {
           }
           done(new Error(errorMessage));
         } else {
+          job.progress({
+            step: "Upload To IA",
+            value: `(${100}%)`,
+          });
           if (
             job.data.isUploadCommons !== "true" &&
             job.data.isEmailNotification !== "true"

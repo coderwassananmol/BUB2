@@ -169,7 +169,9 @@ app
               ),
               uploadStatus: {
                 uploadLink:
-                  job.progress().step.includes("Upload To IA (100%)") && trueURI
+                  (job.progress().step.includes("Upload To IA") ||
+                    job.progress().step.includes("Upload to Wikimedia")) &&
+                  trueURI
                     ? trueURI
                     : "",
                 isUploaded: jobState === "completed" ? true : false,
@@ -570,7 +572,8 @@ app
                   userName,
                   isEmailNotification,
                   isUploadCommons,
-                  oauthToken
+                  oauthToken,
+                  commonsMetadata
                 );
               }
             }
