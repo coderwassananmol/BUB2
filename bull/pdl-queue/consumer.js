@@ -222,7 +222,7 @@ function uploadPdfToIA(pdfUrl, job, metadata, trueURI, done) {
             done(new Error(errorMessage));
           } else {
             job.progress({
-              step: "Uploading to Internet Archive",
+              step: "Upload To IA",
               value: `(${100}%)`,
             });
             if (
@@ -371,7 +371,7 @@ PDLQueue.process(async (job, done) => {
             done(new Error(error));
           } else {
             job.progress({
-              step: "Uploading to Internet Archive",
+              step: "Upload To IA",
               value: `(${100}%)`,
             });
             if (

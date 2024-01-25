@@ -170,7 +170,7 @@ app
               ),
               uploadStatus: {
                 uploadLink:
-                  job.progress().step.includes("Upload To IA (100%)") && trueURI
+                  job.progress().step.includes("Upload To IA") && trueURI
                     ? trueURI
                     : "",
                 isUploaded: jobState === "completed" ? true : false,
