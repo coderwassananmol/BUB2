@@ -103,6 +103,10 @@ TroveQueue.process((job, done) => {
                 }
                 done(new Error(errorMessage));
               } else {
+                job.progress({
+                  step: "Upload To IA",
+                  value: `(${100}%)`,
+                });
                 if (
                   isEmailNotification === "true" &&
                   job.data.details.isUploadCommons !== "true"
