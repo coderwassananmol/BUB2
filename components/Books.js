@@ -325,6 +325,7 @@ const Books = () => {
           sx={{
             minHeight: "auto !important",
             paddingBottom: "0 !important",
+            paddingTop: "20px !important",
             "@media (max-width: 600px)": {
               paddingX: "0 !important",
             },

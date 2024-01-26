@@ -26,6 +26,7 @@ async function refetchAccessToken(refreshToken) {
       level: "error",
       message: `refetchAccessToken: ${error}`,
     });
+    throw error;
   }
 }
 
@@ -65,21 +66,23 @@ export const authOptions = {
   },
 
   callbacks: {
-    async jwt({ token, user, account, profile, isNewUser }) {
-      console.log(token, account, "::inside jwt");
+    async jwt({ token, account }) {
+      const threeHoursThirtyMinutesInMilliseconds = 12600000;
       if (account) {
         token.accessToken = account.access_token;
         token.refreshToken = account.refresh_token;
-        token.expiresIn = account.expires_at * 1000;
+        token.expiresIn = Date.now() + threeHoursThirtyMinutesInMilliseconds;
       }
       // Refresh the token if it's expired
-      if (Date.now() > token.expiresIn) {
+      if (token.expiresIn && Date.now() > token.expiresIn) {
         try {
           const new_session = await refetchAccessToken(token.refreshToken);
-          token.accessToken = new_session?.access_token;
-          token.refreshToken = new_session?.refresh_token;
-          token.expiresIn = new_session.expires_in * 1000;
-          console.log(new_session, "::inside expiry");
+          if (new_session.access_token) {
+            token.accessToken = new_session.access_token;
+            token.refreshToken = new_session.refresh_token;
+            token.expiresIn =
+              Date.now() + threeHoursThirtyMinutesInMilliseconds;
+          }
           return token;
         } catch (error) {
           logger.log({
@@ -93,7 +96,7 @@ export const authOptions = {
     async session({ session, token, user }) {
       // Add the access token to the session object
       session.accessToken = token.accessToken;
-      console.log(session, "::inside session");
+      session.expiresIn = token.expiresIn;
       return session;
     },
   },

@@ -169,7 +169,9 @@ app
               ),
               uploadStatus: {
                 uploadLink:
-                  job.progress().value === "(100%)" && trueURI ? trueURI : "",
+                  job.progress().step.includes("Upload To IA (100%)") && trueURI
+                    ? trueURI
+                    : "",
                 isUploaded: jobState === "completed" ? true : false,
               },
               wikimedia_links: job.progress().wikiLinks?.commons
