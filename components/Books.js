@@ -270,7 +270,7 @@ const Books = () => {
             session.user.name
           }&IAtitle=${IAIdentifier}&isUploadCommons=${isUploadCommons}&oauthToken=${
             session?.accessToken
-          }&isEmailNotification=${isEmailNotification}`;
+          }&isEmailNotification=${isEmailNotification}&commonsMetadata=${commonsMetadata}`;
           fetch(url)
             .then((res) => res.json())
             .then((response) => {
