@@ -95,6 +95,10 @@ GoogleBooksQueue.process((job, done) => {
           }
           done(new Error(errorMessage));
         } else {
+          job.progress({
+            step: "Upload To IA",
+            value: `(${100}%)`,
+          });
           if (
             job.data.isUploadCommons !== "true" &&
             job.data.isEmailNotification !== "true"
@@ -121,7 +125,11 @@ GoogleBooksQueue.process((job, done) => {
                   step: "Upload to Wikimedia Commons",
                   value: `(${100}%)`,
                   wikiLinks: {
-                    commons: await commonsResponse.value.filename,
+                    commons: await commonsResponse.value.commons.filename,
+                    wikidata:
+                      (await commonsResponse.value.wikidata) !== 404
+                        ? await commonsResponse.value.wikidata
+                        : 404,
                   },
                 });
                 if (job.data.isEmailNotification === "true") {

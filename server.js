@@ -169,14 +169,21 @@ app
               ),
               uploadStatus: {
                 uploadLink:
-                  job.progress().step.includes("Upload To IA (100%)") && trueURI
+                  (job.progress().step.includes("Upload To IA") ||
+                    job.progress().step.includes("Upload to Wikimedia")) &&
+                  trueURI
                     ? trueURI
                     : "",
                 isUploaded: jobState === "completed" ? true : false,
               },
-              wikimedia_links: job.progress().wikiLinks?.commons
-                ? job.progress().wikiLinks.commons
-                : "Not Integrated",
+              wikimedia_links: {
+                commons: job.progress().wikiLinks?.commons
+                  ? job.progress().wikiLinks.commons
+                  : "Not Integrated",
+                wikidata: job.progress().wikiLinks?.wikidata
+                  ? job.progress().wikiLinks.wikidata
+                  : "Not Integrated",
+              },
             };
             res.send(
               Object.assign(
