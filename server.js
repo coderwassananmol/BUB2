@@ -577,7 +577,8 @@ app
                   userName,
                   isEmailNotification,
                   isUploadCommons,
-                  oauthToken
+                  oauthToken,
+                  commonsMetadata
                 );
               }
             }
