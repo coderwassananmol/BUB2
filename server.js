@@ -170,7 +170,9 @@ app
               ),
               uploadStatus: {
                 uploadLink:
-                  job.progress().step.includes("Upload To IA") && trueURI
+                  (job.progress().step.includes("Upload To IA") ||
+                    job.progress().step.includes("Upload to Wikimedia")) &&
+                  trueURI
                     ? trueURI
                     : "",
                 isUploaded: jobState === "completed" ? true : false,
