@@ -179,6 +179,10 @@ function uploadPdfToIA(pdfUrl, job, metadata, trueURI, done) {
   });
 
   getPdf.on("end", function () {
+    const IAMetadata = { ...metadata };
+    delete IAMetadata["commonsMetadata"];
+    delete IAMetadata["isUploadCommons"];
+    delete IAMetadata["oauthToken"];
     const newBuffer = Buffer.concat(chunks);
     var bufferStream = new stream.PassThrough();
     bufferStream.end(newBuffer);
@@ -187,7 +191,7 @@ function uploadPdfToIA(pdfUrl, job, metadata, trueURI, done) {
       value: `(${80}%)`,
     });
     let headers = setHeaders(
-      metadata,
+      IAMetadata,
       bufferLength,
       metadata.title,
       job.data.details.contentType
