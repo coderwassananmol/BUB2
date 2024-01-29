@@ -108,9 +108,9 @@ function setHeaders(metadata, contentLength, title, contentType) {
       headers[`X-archive-meta-${meta_key}`] = metadata[key];
   }
   headers["X-archive-meta-title"] = metadata["title"];
-  headers[`X-archive-meta-description`] = `uri(${encodeURI(
-    metadata.description?.trim()
-  )})`;
+  headers[`X-archive-meta-description`] = metadata.description
+    ? `uri(${encodeURI(metadata.description?.trim())})`
+    : "";
   return headers;
 }
 
