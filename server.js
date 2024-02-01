@@ -585,6 +585,21 @@ app
           break;
       }
     });
+    server.get("/checkPublicDomain", async (req, res) => {
+      const { bookid } = req.query;
+      customFetch(
+        `https://www.googleapis.com/books/v1/volumes/${bookid}?key=${GB_KEY}`,
+        "GET",
+        new Headers({
+          "Content-Type": "application/json",
+        })
+      ).then(async (data) => {
+        const { error } = checkForPublicDomain(data, res);
+        if (error === false) {
+          res.send({ error: false });
+        }
+      });
+    });
 
     server.get("/checkEmailableStatus", async (req, res) => {
       const { username } = req.query;

@@ -155,9 +155,17 @@ const Books = () => {
     switch (option) {
       case "gb":
         if (isUploadCommons && !hasCommonsMetadataUpdated) {
-          const commonsMetadata = await getMetadataForUI("gb", bookid);
-          setCommonsMetadata(commonsMetadata);
-          setIsCommonsMetadataReady(true);
+          const checkPublicDomainURL = `${host}/checkPublicDomain?bookid=${bookid}`;
+          const checkPublicDomainRes = await fetch(checkPublicDomainURL);
+          const checkPublicDomainStatus = await checkPublicDomainRes.json();
+          if (checkPublicDomainStatus.error === false) {
+            const commonsMetadata = await getMetadataForUI("gb", bookid);
+            setCommonsMetadata(commonsMetadata);
+            setIsCommonsMetadataReady(true);
+          } else {
+            Swal("Error!", checkPublicDomainStatus.message, "error");
+            setLoader(false);
+          }
         } else {
           url = `${host}/check?bookid=${bookid}&option=${
             option + (email ? "&email=" + email : "")
