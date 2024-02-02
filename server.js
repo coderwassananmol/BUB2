@@ -160,6 +160,20 @@ app
                 "https://assets.nla.gov.au/logos/trove/trove-colour.svg"
               );
             }
+            function getUploadLink(job, trueURI) {
+              if (job.progress().step) {
+                const link =
+                  (job.progress().step.includes("Upload To IA") ||
+                    job.progress().step.includes("Upload to Wikimedia")) &&
+                  trueURI
+                    ? trueURI
+                    : "";
+                return link;
+              } else {
+                const link = job.progress() === 100 ? trueURI : "";
+                return link;
+              }
+            }
             const obj = {
               progress: progress,
               queueName: queueName,
@@ -169,18 +183,14 @@ app
                 categoryID
               ),
               uploadStatus: {
-                uploadLink:
-                  (job.progress().step.includes("Upload To IA") ||
-                    job.progress().step.includes("Upload to Wikimedia")) &&
-                  trueURI
-                    ? trueURI
-                    : "",
+                uploadLink: getUploadLink(job, trueURI),
                 isUploaded: jobState === "completed" ? true : false,
               },
               wikimedia_links: job.progress().wikiLinks?.commons
                 ? job.progress().wikiLinks.commons
                 : "Not Integrated",
             };
+
             res.send(
               Object.assign(
                 {},

@@ -29,12 +29,11 @@ CommonsQueue.process(async (job, done) => {
       return done(null, true);
     }
   } else {
-    const downloadFileRes = await downloadFile(
-      job.data.metadata.uri ||
-        job.data.downloadFileURL ||
-        job.data.metadata.pdfUrl,
-      "commonsFilePayload.pdf"
-    );
+    const url =
+      job.data?.metadata?.uri ||
+      job.data?.downloadFileURL?.uri ||
+      job.data?.metadata?.pdfUrl;
+    const downloadFileRes = await downloadFile(url, "commonsFilePayload.pdf");
 
     if (downloadFileRes.writeFileStatus !== 200) {
       logger.log({
