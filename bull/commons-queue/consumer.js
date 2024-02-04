@@ -20,7 +20,7 @@ CommonsQueue.process(async (job, done) => {
     if (convertZipToPdfRes.status !== 200) {
       logger.log({
         level: "error",
-        message: `convertZipToPdfRes: ${convertZipToPdfRes}`,
+        message: `convertZipToPdfRes: ${JSON.stringify(convertZipToPdfRes)}`,
       });
       process.emit("commonsJobComplete", {
         status: false,
