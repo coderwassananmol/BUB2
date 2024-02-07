@@ -1,7 +1,11 @@
 const config = require("../../utils/bullconfig");
 const CommonsQueue = config.getNewQueue("commons-queue");
 const winston = require("winston");
-const { downloadFile, uploadToCommons } = require("../../utils/helper");
+const {
+  downloadFile,
+  uploadToCommons,
+  uploadToWikiData,
+} = require("../../utils/helper");
 const logger = winston.loggers.get("defaultLogger");
 
 CommonsQueue.process(async (job, done) => {
@@ -36,9 +40,26 @@ CommonsQueue.process(async (job, done) => {
     return done(null, true);
     // return done(new Error(`uploadToCommons: ${commonsResponse}`));
   }
-  process.emit(`commonsJobComplete:${job.id}`, {
-    status: true,
-    value: commonsResponse,
-  });
+  const wikiDataResponse = await uploadToWikiData(
+    job.data.metadata,
+    commonsResponse.filename
+  );
+  if (wikiDataResponse !== 404) {
+    process.emit(`commonsJobComplete:${job.id}`, {
+      status: true,
+      value: {
+        commons: commonsResponse,
+        wikidata: wikiDataResponse,
+      },
+    });
+  } else {
+    process.emit(`commonsJobComplete:${job.id}`, {
+      status: true,
+      value: {
+        commons: commonsResponse,
+        wikidata: 404,
+      },
+    });
+  }
   return done(null, true);
 });
