@@ -390,12 +390,12 @@ module.exports = {
                 rank: "normal",
               },
             ],
-            inventory_number: id
+            internet_archive_id: id
               ? [
                   {
                     mainsnak: {
                       snaktype: "value",
-                      property: "P217",
+                      property: "P724",
                       datavalue: {
                         value: id,
                         type: "string",
