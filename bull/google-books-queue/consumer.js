@@ -130,6 +130,10 @@ GoogleBooksQueue.process((job, done) => {
                       (await commonsResponse.value.wikidata) !== 404
                         ? await commonsResponse.value.wikidata
                         : 404,
+                    wikisource:
+                      (await commonsResponse.value.wikisource) !== 404
+                        ? await commonsResponse.value.wikisource.filename
+                        : 404,
                   },
                 });
                 if (job.data.isEmailNotification === "true") {

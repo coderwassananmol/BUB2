@@ -180,9 +180,16 @@ app
                 commons: job.progress().wikiLinks?.commons
                   ? job.progress().wikiLinks.commons
                   : "Not Integrated",
-                wikidata: job.progress().wikiLinks?.wikidata
-                  ? job.progress().wikiLinks.wikidata
-                  : "Not Integrated",
+                wikidata:
+                  job.progress().wikiLinks?.wikidata &&
+                  job.progress().wikiLinks.wikidata !== 404
+                    ? job.progress().wikiLinks.wikidata
+                    : "Not Integrated",
+                wikisource:
+                  job.progress().wikiLinks?.wikisource &&
+                  job.progress().wikiLinks.wikisource !== 404
+                    ? job.progress().wikiLinks.wikisource
+                    : "Not Integrated",
               },
             };
             res.send(

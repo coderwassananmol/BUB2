@@ -295,9 +295,6 @@ module.exports = {
         title,
         metadata.commonsMetadata
       );
-      if (await response.filename) {
-        await fs.promises.unlink(commonsFilePayload);
-      }
       logger.log({
         level: "info",
         message: `uploadToCommons: Upload of ${metadata.IAIdentifier} to commons successful`,
@@ -545,6 +542,7 @@ module.exports = {
         });
         return res.entity.id;
       } catch (error) {
+        await fs.promises.unlink("commonsFilePayload.pdf");
         logger.log({
           level: "error",
           message: `uploadToWikidata:${error}`,
@@ -554,5 +552,104 @@ module.exports = {
     }
     const csrf_token = await bot.getCsrfToken();
     return await createEntity(csrf_token);
+  },
+  uploadToWikiSource: async (metadata, commonsItemFilename) => {
+    try {
+      const bot = await Mwn.init({
+        apiUrl: "https://en.wikisource.org/w/api.php",
+        OAuth2AccessToken: metadata.oauthToken,
+        userAgent: "bub2.toolforge ([[https://bub2.toolforge.org]])",
+        defaultParams: {
+          assert: "user",
+        },
+      });
+
+      const commonsFilePayload = "commonsFilePayload.pdf";
+      const title = metadata.details.volumeInfo.title || metadata.name;
+      const response = await bot.upload(
+        commonsFilePayload,
+        `bub2_${title}`,
+        ""
+      );
+      console.log("response:", response);
+      if (await response.filename) {
+        await fs.promises.unlink(commonsFilePayload);
+      }
+      logger.log({
+        level: "info",
+        message: `uploadToWikiSource: Upload of ${commonsItemFilename} to wikisource successful`,
+      });
+      return {
+        fileUploadStatus: 200,
+        filename: response.filename,
+      };
+    } catch (error) {
+      await fs.promises.unlink("commonsFilePayload.pdf");
+      logger.log({
+        level: "error",
+        message: `uploadToWikiSource: ${error}`,
+      });
+      return error;
+    }
+  },
+
+  updateWikiData: async (metadata, wikidataId, wikisourceIndex) => {
+    try {
+      const bot = await Mwn.init({
+        apiUrl: "https://www.wikidata.org/w/api.php",
+        OAuth2AccessToken: metadata.oauthToken,
+        userAgent: "bub2.toolforge ([[https://bub2.toolforge.org]])",
+        defaultParams: {
+          assert: "user",
+        },
+      });
+
+      const payload = {
+        claims: {
+          wikisource_index_page: [
+            {
+              mainsnak: {
+                snaktype: "value",
+                property: "P1957",
+                datavalue: {
+                  value: wikisourceIndex,
+                  type: "string",
+                },
+              },
+              type: "statement",
+              rank: "normal",
+            },
+          ],
+        },
+      };
+
+      const csrf_token = await bot.getCsrfToken();
+      const res = await bot.request({
+        action: "wbeditentity",
+        id: wikidataId,
+        data: JSON.stringify(payload),
+        summary: "Update wikisource index page from bub2.toolforge.org",
+        token: csrf_token,
+      });
+
+      logger.log({
+        level: "info",
+        message: `updateWikiData: Update of Wikidata item ${wikidataId} successful`,
+      });
+
+      return {
+        success: true,
+        entityId: wikidataId,
+      };
+    } catch (error) {
+      logger.log({
+        level: "error",
+        message: `updateWikiData: ${error}`,
+      });
+      return {
+        success: false,
+        error: error,
+      };
+    }
   },
 };

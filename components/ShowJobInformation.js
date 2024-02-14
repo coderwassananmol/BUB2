@@ -18,7 +18,8 @@ const ShowJobInformation = (props) => {
   const styles = {
     root: {
       maxWidth: 365,
-      height: "fit-content",
+      height: "95vh",
+      overflow: "scroll",
     },
     cardContentContainer: {
       height: "200px",
@@ -173,6 +174,24 @@ const ShowJobInformation = (props) => {
                   color="primary"
                 >
                   View on Wikidata
+                </Button>
+              </Link>
+            ) : null}
+          </CardActions>
+
+          <CardActions sx={{ marginTop: "-15px" }}>
+            {data.wikimedia_links.wikisource !== "Not Integrated" ? (
+              <Link
+                passHref
+                href={`https://en.wikisource.org/wiki/File:${data.wikimedia_links.wikisource}`}
+              >
+                <Button
+                  sx={styles.button}
+                  target="_blank"
+                  size="large"
+                  color="primary"
+                >
+                  View on WikiSource
                 </Button>
               </Link>
             ) : null}
