@@ -295,9 +295,6 @@ module.exports = {
         title,
         metadata.commonsMetadata
       );
-      if (await response.filename) {
-        await fs.promises.unlink(commonsFilePayload);
-      }
       logger.log({
         level: "info",
         message: `uploadToCommons: Upload of ${metadata.IAIdentifier} to commons successful`,
@@ -313,6 +310,346 @@ module.exports = {
         message: `uploadToCommons: ${error}`,
       });
       return error;
+    }
+  },
+  uploadToWikiData: async (metadata, commonsItemFilename) => {
+    const bot = await Mwn.init({
+      apiUrl: "https://www.wikidata.org/w/api.php",
+      OAuth2AccessToken: metadata.oauthToken,
+      userAgent: "bub2.toolforge ([[https://bub2.toolforge.org]])",
+      defaultParams: {
+        assert: "user",
+      },
+    });
+
+    async function createEntity(csrf_token) {
+      try {
+        const title = metadata.details.volumeInfo.title || "";
+        const id = metadata.details.id || "";
+        const authorsArr = metadata.details.volumeInfo.authors
+          ? metadata.details.volumeInfo.authors.join().trim()
+          : null;
+        const authors = authorsArr || "";
+        // Mapping for the labels/properties defined in `payload` - https://prop-explorer.toolforge.org/
+        const payload = {
+          labels: {
+            en: {
+              language: "en",
+              value: commonsItemFilename,
+            },
+          },
+          descriptions: {
+            en: {
+              language: "en",
+              value: title,
+            },
+          },
+          claims: {
+            file_name: [
+              {
+                mainsnak: {
+                  snaktype: "value",
+                  property: "P18",
+                  datavalue: {
+                    value: commonsItemFilename,
+                    type: "string",
+                  },
+                },
+                type: "statement",
+                rank: "normal",
+              },
+            ],
+            file_url: [
+              {
+                mainsnak: {
+                  snaktype: "value",
+                  property: "P4765",
+                  datavalue: {
+                    value: `https://commons.wikimedia.org/wiki/File:${commonsItemFilename}`,
+                    type: "string",
+                  },
+                },
+                type: "statement",
+                rank: "normal",
+              },
+            ],
+            commons_category: [
+              {
+                mainsnak: {
+                  snaktype: "value",
+                  property: "P373",
+                  datavalue: {
+                    value: "Bub.wikimedia",
+                    type: "string",
+                  },
+                },
+                type: "statement",
+                rank: "normal",
+              },
+            ],
+            internet_archive_id: id
+              ? [
+                  {
+                    mainsnak: {
+                      snaktype: "value",
+                      property: "P724",
+                      datavalue: {
+                        value: id,
+                        type: "string",
+                      },
+                    },
+                    type: "statement",
+                    rank: "normal",
+                  },
+                ]
+              : undefined,
+            collection: [
+              {
+                mainsnak: {
+                  snaktype: "value",
+                  property: "P195",
+                  datavalue: {
+                    value: {
+                      "entity-type": "item",
+                      "numeric-id": 39162,
+                      id: "Q39162", //wikidataID for 'opensource'
+                    },
+                    type: "wikibase-entityid",
+                  },
+                },
+                type: "statement",
+                rank: "normal",
+              },
+            ],
+            title: title
+              ? [
+                  {
+                    mainsnak: {
+                      snaktype: "value",
+                      property: "P1476",
+                      datavalue: {
+                        value: {
+                          text: title,
+                          language: "en",
+                        },
+                        type: "monolingualtext",
+                      },
+                    },
+                    type: "statement",
+                    rank: "normal",
+                  },
+                ]
+              : undefined,
+            name: title
+              ? [
+                  {
+                    mainsnak: {
+                      snaktype: "value",
+                      property: "P2561",
+                      datavalue: {
+                        value: {
+                          text: title,
+                          language: "en",
+                        },
+                        type: "monolingualtext",
+                      },
+                    },
+                    type: "statement",
+                    rank: "normal",
+                  },
+                ]
+              : undefined,
+            file_format: [
+              {
+                mainsnak: {
+                  snaktype: "value",
+                  property: "P2701",
+                  datavalue: {
+                    value: {
+                      "entity-type": "item",
+                      "numeric-id": 42332,
+                      id: "Q42332", // wikidataID for PDF
+                    },
+                    type: "wikibase-entityid",
+                  },
+                },
+                type: "statement",
+                rank: "normal",
+              },
+            ],
+            author_name: authors
+              ? [
+                  {
+                    mainsnak: {
+                      snaktype: "value",
+                      property: "P2093",
+                      datavalue: {
+                        value: authors,
+                        type: "string",
+                      },
+                    },
+                    type: "statement",
+                    rank: "normal",
+                  },
+                ]
+              : undefined,
+            URL: [
+              {
+                mainsnak: {
+                  snaktype: "value",
+                  property: "P2699",
+                  datavalue: {
+                    value: `https://commons.wikimedia.org/wiki/File:${commonsItemFilename}`,
+                    type: "string",
+                  },
+                },
+                type: "statement",
+                rank: "normal",
+              },
+            ],
+            copyright_status: [
+              {
+                mainsnak: {
+                  snaktype: "value",
+                  property: "P6216",
+                  datavalue: {
+                    value: {
+                      "entity-type": "item",
+                      "numeric-id": 6938433,
+                      id: "Q6938433", // wikidataID for CC0 license
+                    },
+                    type: "wikibase-entityid",
+                  },
+                },
+                type: "statement",
+                rank: "normal",
+              },
+            ],
+          },
+        };
+
+        const res = await bot.request({
+          action: "wbeditentity",
+          new: "item",
+          summary: "bub2.toolforge.org: upload commons item to wikidata",
+          tags: "wikimedia-commons-app",
+          data: JSON.stringify(payload),
+          token: csrf_token,
+        });
+        logger.log({
+          level: "info",
+          message: `uploadToWikidata: Upload of ${commonsItemFilename} metadata to wikidata successful`,
+        });
+        return res.entity.id;
+      } catch (error) {
+        await fs.promises.unlink("commonsFilePayload.pdf");
+        logger.log({
+          level: "error",
+          message: `uploadToWikidata:${error}`,
+        });
+        return 404;
+      }
+    }
+    const csrf_token = await bot.getCsrfToken();
+    return await createEntity(csrf_token);
+  },
+  uploadToWikiSource: async (metadata, commonsItemFilename) => {
+    try {
+      const bot = await Mwn.init({
+        apiUrl: "https://en.wikisource.org/w/api.php",
+        OAuth2AccessToken: metadata.oauthToken,
+        userAgent: "bub2.toolforge ([[https://bub2.toolforge.org]])",
+        defaultParams: {
+          assert: "user",
+        },
+      });
+
+      const commonsFilePayload = "commonsFilePayload.pdf";
+      const title = metadata.details.volumeInfo.title || metadata.name;
+      const response = await bot.upload(
+        commonsFilePayload,
+        `bub2_${title}`,
+        ""
+      );
+      console.log("response:", response);
+      if (await response.filename) {
+        await fs.promises.unlink(commonsFilePayload);
+      }
+      logger.log({
+        level: "info",
+        message: `uploadToWikiSource: Upload of ${commonsItemFilename} to wikisource successful`,
+      });
+      return {
+        fileUploadStatus: 200,
+        filename: response.filename,
+      };
+    } catch (error) {
+      await fs.promises.unlink("commonsFilePayload.pdf");
+      logger.log({
+        level: "error",
+        message: `uploadToWikiSource: ${error}`,
+      });
+      return error;
+    }
+  },
+
+  updateWikiData: async (metadata, wikidataId, wikisourceIndex) => {
+    try {
+      const bot = await Mwn.init({
+        apiUrl: "https://www.wikidata.org/w/api.php",
+        OAuth2AccessToken: metadata.oauthToken,
+        userAgent: "bub2.toolforge ([[https://bub2.toolforge.org]])",
+        defaultParams: {
+          assert: "user",
+        },
+      });
+
+      const payload = {
+        claims: {
+          wikisource_index_page: [
+            {
+              mainsnak: {
+                snaktype: "value",
+                property: "P1957",
+                datavalue: {
+                  value: wikisourceIndex,
+                  type: "string",
+                },
+              },
+              type: "statement",
+              rank: "normal",
+            },
+          ],
+        },
+      };
+
+      const csrf_token = await bot.getCsrfToken();
+      const res = await bot.request({
+        action: "wbeditentity",
+        id: wikidataId,
+        data: JSON.stringify(payload),
+        summary: "Update wikisource index page from bub2.toolforge.org",
+        token: csrf_token,
+      });
+
+      logger.log({
+        level: "info",
+        message: `updateWikiData: Update of Wikidata item ${wikidataId} successful`,
+      });
+
+      return {
+        success: true,
+        entityId: wikidataId,
+      };
+    } catch (error) {
+      logger.log({
+        level: "error",
+        message: `updateWikiData: ${error}`,
+      });
+      return {
+        success: false,
+        error: error,
+      };
     }
   },
 };

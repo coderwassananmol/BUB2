@@ -125,7 +125,15 @@ GoogleBooksQueue.process((job, done) => {
                   step: "Upload to Wikimedia Commons",
                   value: `(${100}%)`,
                   wikiLinks: {
-                    commons: await commonsResponse.value.filename,
+                    commons: await commonsResponse.value.commons.filename,
+                    wikidata:
+                      (await commonsResponse.value.wikidata) !== 404
+                        ? await commonsResponse.value.wikidata
+                        : 404,
+                    wikisource:
+                      (await commonsResponse.value.wikisource) !== 404
+                        ? await commonsResponse.value.wikisource.filename
+                        : 404,
                   },
                 });
                 if (job.data.isEmailNotification === "true") {
