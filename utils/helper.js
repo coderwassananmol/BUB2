@@ -281,7 +281,7 @@ module.exports = {
     try {
       console.log(metadata, "::inside uploadToCommons");
       const bot = await Mwn.init({
-        apiUrl: "https://commons.wikimedia.org/w/api.php",
+        apiUrl: process.env.NEXT_PUBLIC_COMMONS_URL + "/w/api.php",
         OAuth2AccessToken: metadata.oauthToken,
         userAgent: "bub2.toolforge ([[https://bub2.toolforge.org]])",
         defaultParams: {

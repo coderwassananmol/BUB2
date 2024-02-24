@@ -6,7 +6,7 @@ const logger = winston.loggers.get("defaultLogger");
 async function refetchAccessToken(refreshToken) {
   try {
     const response = await fetch(
-      "https://meta.wikimedia.org/w/rest.php/oauth2/access_token",
+      process.env.NEXT_PUBLIC_WIKIMEDIA_URL + "/w/rest.php/oauth2/access_token",
       {
         method: "POST",
         headers: {
@@ -35,6 +35,17 @@ export const authOptions = {
     WikimediaProvider({
       clientId: process.env.WIKIMEDIA_CLIENT_ID,
       clientSecret: process.env.WIKIMEDIA_CLIENT_SECRET,
+      token:
+        process.env.NEXT_PUBLIC_WIKIMEDIA_URL +
+        "/w/rest.php/oauth2/access_token",
+      userinfo:
+        process.env.NEXT_PUBLIC_WIKIMEDIA_URL +
+        "/w/rest.php/oauth2/resource/profile",
+      authorization: {
+        url:
+          process.env.NEXT_PUBLIC_WIKIMEDIA_URL +
+          "/w/rest.php/oauth2/authorize",
+      },
     }),
   ],
   session: {
