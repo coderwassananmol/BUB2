@@ -588,7 +588,7 @@ app
       const { username } = req.query;
       const usersQuery = await customFetch(
         process.env.NEXT_PUBLIC_WIKIMEDIA_URL +
-          "/w/api.php?action=query&list=users&ususers=${username}&usprop=emailable&format=json",
+          `/w/api.php?action=query&list=users&ususers=${username}&usprop=emailable&format=json`,
         "GET"
       );
       const emailableStatus =
