@@ -75,7 +75,8 @@ const Stats = (props) => {
                 <span className="cdx-message__content">
                   <Link
                     href={
-                      "https://commons.wikimedia.org/wiki/Category:Files_uploaded_with_BUB2"
+                      process.env.NEXT_PUBLIC_COMMONS_URL +
+                      "/wiki/Category:Files_uploaded_with_BUB2"
                     }
                   >
                     <a target="_blank">

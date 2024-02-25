@@ -191,7 +191,7 @@ function MyApp({ Component, pageProps }) {
           rel="stylesheet"
         />
       </Head>
-      <SessionProvider>
+      <SessionProvider refetchOnWindowFocus={false}>
         <Component {...pageProps} />
       </SessionProvider>
       <Footer />
