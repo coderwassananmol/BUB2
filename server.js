@@ -104,7 +104,7 @@ app
         "GET"
       );
       customFetch(
-        `https://archive.org/advancedsearch.php?q=${process.env.IA_USERNAME}+&rows=0&output=json`,
+        `https://archive.org/advancedsearch.php?q=${process.env.IA_EMAIL}+&rows=0&output=json`,
         "GET"
       ).then((resp) => {
         if (resp && resp.response && resp.response.numFound) {
@@ -161,6 +161,7 @@ app
                 "https://assets.nla.gov.au/logos/trove/trove-colour.svg"
               );
             }
+            let uploadLink;
             const obj = {
               progress: progress,
               queueName: queueName,
@@ -170,12 +171,7 @@ app
                 categoryID
               ),
               uploadStatus: {
-                uploadLink:
-                  (job.progress().step.includes("Upload To IA") ||
-                    job.progress().step.includes("Upload to Wikimedia")) &&
-                  trueURI
-                    ? trueURI
-                    : "",
+                uploadLink: trueURI,
                 isUploaded: jobState === "completed" ? true : false,
               },
               wikimedia_links: job.progress().wikiLinks?.commons

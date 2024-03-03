@@ -74,7 +74,8 @@ Rename `.env.example` to `.env`. Then, to fill the credentials,
 - Go to [wikisource Bot] (https://meta.wikimedia.beta.wmflabs.org/wiki/Special:BotPasswords) to generate your `EMAIL_BOT_USERNAME` and `EMAIL_BOT_PASSWORD`. When creating your bot, tick 'send email to users' under the Applicable Grants section. Go ahead and enter the generated credentials in the `.env` file.
 - Enter the `NEXT_PUBLIC_WIKIMEDIA_URL` which is used to authenticate with Wikimedia environment for login, send emails etc. For example - https://meta.wikimedia.beta.wmflabs.org
 - Enter the `NEXT_PUBLIC_COMMONS_URL` which is used to upload the files to Commons. For example - https://meta.commons.beta.wmflabs.org for local setup.
-- Enter the `IA_USERNAME` which is the username of Internet Archive account.
+- Enter the `NEXT_PUBLIC_IA_USER` which is the username of Internet Archive account.
+- Enter the `IA_EMAIL` which is the email of the Internet Archive account.
 - Go to [Trove API](https://trove.nla.gov.au/about/create-something/using-api) and follow the instructions on how to get a trove key. Fill in `trove_key` with the trove key you generated.
 <a id="runRedisServer"></a>
 ### Run Redis server

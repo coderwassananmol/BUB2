@@ -61,7 +61,9 @@ const Stats = (props) => {
               <div>
                 <span className="cdx-message__icon"></span>
                 <span className="cdx-message__content">
-                  <Link href={"https://archive.org/details/@bub_wikimedia"}>
+                  <Link
+                    href={`https://archive.org/details/@${process.env.NEXT_PUBLIC_IA_USER}`}
+                  >
                     <a target="_blank">
                       {props.data.totalUploadedCount} books uploaded to Internet
                       Archive using BUB2!

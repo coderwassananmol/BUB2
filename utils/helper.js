@@ -14,7 +14,7 @@ module.exports = {
     const resp = await fetchCall.json();
     if (!_.isEmpty(resp)) {
       if (_.has(resp, "metadata.uploader") === true) {
-        return resp.metadata.uploader !== "bub.wikimedia@gmail.com";
+        return resp.metadata.uploader !== process.env.IA_EMAIL;
       } else {
         return true;
       }
@@ -279,7 +279,6 @@ module.exports = {
   },
   uploadToCommons: async (metadata) => {
     try {
-      console.log(metadata, "::inside uploadToCommons");
       const bot = await Mwn.init({
         apiUrl: process.env.NEXT_PUBLIC_COMMONS_URL + "/w/api.php",
         OAuth2AccessToken: metadata.oauthToken,
