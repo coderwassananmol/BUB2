@@ -44,7 +44,7 @@ async function getZipAndBytelength(no_of_pages, id, title, job) {
         },
       });
       if (/image/.test(body.headers["content-type"])) {
-        var data = new Buffer(body.data);
+        var data = Buffer.from(body.data);
         img.file(filename, data.toString("base64"), { base64: true });
       }
       return 200;
@@ -125,7 +125,12 @@ async function uploadZipToIA(
 ) {
   const bucketTitle = metadata.IAIdentifier;
   const IAuri = `http://s3.us.archive.org/${bucketTitle}/${bucketTitle}_images.zip`;
-  metadata = _.omit(metadata, "coverImage");
+  metadata = _.omit(metadata, [
+    "coverImage",
+    "commonsMetadata",
+    "isUploadCommons",
+    "oauthToken",
+  ]);
   let headers = setHeaders(
     metadata,
     byteLength,
