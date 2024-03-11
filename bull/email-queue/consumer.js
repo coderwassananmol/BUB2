@@ -24,7 +24,7 @@ MWN TOOLFORGE PACKAGE DOCS -https://github.com/siddharthvp/mwn
 async function mediawikiEmail(username, title, trueURI, status) {
   try {
     const bot = await Mwn.init({
-      apiUrl: process.env.EMAIL_SOURCE_URL,
+      apiUrl: process.env.NEXT_PUBLIC_WIKIMEDIA_URL + "/w/api.php",
       username: process.env.EMAIL_BOT_USERNAME,
       password: process.env.EMAIL_BOT_PASSWORD,
       // Set your user agent (required for WMF wikis, see https://meta.wikimedia.org/wiki/User-Agent_policy):

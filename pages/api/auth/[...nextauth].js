@@ -6,7 +6,7 @@ const logger = winston.loggers.get("defaultLogger");
 async function refetchAccessToken(refreshToken) {
   try {
     const response = await fetch(
-      "https://meta.wikimedia.org/w/rest.php/oauth2/access_token",
+      process.env.NEXT_PUBLIC_WIKIMEDIA_URL + "/w/rest.php/oauth2/access_token",
       {
         method: "POST",
         headers: {

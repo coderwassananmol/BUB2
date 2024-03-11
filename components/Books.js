@@ -381,10 +381,10 @@ const Books = () => {
               <h4>3. Upload Preferences</h4>
 
               <div style={{ marginTop: "25px" }} className="section">
-                <span class="cdx-checkbox">
+                <span className="cdx-checkbox">
                   <input
                     id="checkbox-description-css-only-1"
-                    class="cdx-checkbox__input"
+                    className="cdx-checkbox__input"
                     type="checkbox"
                     aria-describedby="cdx-description-css-1"
                     checked={isUploadCommons}
@@ -392,15 +392,15 @@ const Books = () => {
                       setIsUploadCommons(event.target.checked)
                     }
                   />
-                  <span class="cdx-checkbox__icon"></span>
+                  <span className="cdx-checkbox__icon"></span>
 
                   <div
                     style={{ display: "flex", gap: "10px" }}
-                    class="cdx-checkbox__label cdx-label"
+                    className="cdx-checkbox__label cdx-label"
                   >
                     <label
-                      for="checkbox-description-css-only-1"
-                      class="cdx-label__label"
+                      htmlFor="checkbox-description-css-only-1"
+                      className="cdx-label__label"
                     >
                       Upload to Wikimedia Commons
                     </label>
@@ -416,19 +416,19 @@ const Books = () => {
                     >
                       <span
                         id="cdx-description-css-1"
-                        class="cdx-label__description"
+                        className="cdx-label__description"
                       >
-                        <span class="cdx-css-icon--info-filled"></span>
+                        <span className="cdx-css-icon--info-filled"></span>
                       </span>
                     </Tooltip>
                   </div>
                 </span>
               </div>
               <div style={{ marginTop: "10px" }} className="section">
-                <span class="cdx-checkbox">
+                <span className="cdx-checkbox">
                   <input
                     id="checkbox-description-css-only-1"
-                    class="cdx-checkbox__input"
+                    className="cdx-checkbox__input"
                     type="checkbox"
                     aria-describedby="cdx-description-css-1"
                     onChange={(event) =>
@@ -441,9 +441,9 @@ const Books = () => {
                         : "No email associated with this user account or the user has disabled email access."
                     }
                   />
-                  <span class="cdx-checkbox__icon"></span>
+                  <span className="cdx-checkbox__icon"></span>
                   <div
-                    class="cdx-checkbox__label cdx-label"
+                    className="cdx-checkbox__label cdx-label"
                     title={
                       isUserEmailable
                         ? ""
@@ -451,8 +451,8 @@ const Books = () => {
                     }
                   >
                     <label
-                      for="checkbox-description-css-only-1"
-                      class="cdx-label__label"
+                      htmlFor="checkbox-description-css-only-1"
+                      className="cdx-label__label"
                     >
                       Notify updates via e-mail
                     </label>
@@ -462,10 +462,10 @@ const Books = () => {
                 {isEmailNotification && (
                   <span
                     id="cdx-description-css-1"
-                    class="cdx-label__description"
+                    className="cdx-label__description"
                   >
                     <p>
-                      <span class="cdx-css-icon--info-filled"></span>
+                      <span className="cdx-css-icon--info-filled"></span>
                       &nbsp; BUB2 will send an email to your email ID associated
                       with your Wikimedia account regarding the success or
                       failure of the upload.

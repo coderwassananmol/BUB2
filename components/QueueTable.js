@@ -98,7 +98,10 @@ const ShowUploadQueue = (props) => {
       align: "left",
       format: (value) =>
         value !== "-" ? (
-          <a href={"https://meta.wikimedia.org/wiki/" + value} target="_blank">
+          <a
+            href={process.env.NEXT_PUBLIC_WIKIMEDIA_URL + "/wiki/" + value}
+            target="_blank"
+          >
             {value}
           </a>
         ) : (

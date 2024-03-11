@@ -18,7 +18,7 @@ module.exports = {
     const resp = await fetchCall.json();
     if (!_.isEmpty(resp)) {
       if (_.has(resp, "metadata.uploader") === true) {
-        return resp.metadata.uploader !== "bub.wikimedia@gmail.com";
+        return resp.metadata.uploader !== process.env.IA_EMAIL;
       } else {
         return true;
       }
@@ -369,8 +369,10 @@ module.exports = {
       });
 
       const commonsFilePayload = "commonsFilePayload.pdf";
-      const title =
+      let title =
         metadata.details?.volumeInfo?.title || metadata.name || metadata.title;
+      title = title.replaceAll(".", "");
+      console.log(" title:", title);
       const response = await bot.upload(
         commonsFilePayload,
         title,
