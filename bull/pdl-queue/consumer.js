@@ -130,6 +130,7 @@ async function uploadZipToIA(
     "commonsMetadata",
     "isUploadCommons",
     "oauthToken",
+    "userName",
   ]);
   let headers = setHeaders(
     metadata,
@@ -188,6 +189,7 @@ function uploadPdfToIA(pdfUrl, job, metadata, trueURI, done) {
     delete IAMetadata["commonsMetadata"];
     delete IAMetadata["isUploadCommons"];
     delete IAMetadata["oauthToken"];
+    delete IAMetadata["userName"];
     const newBuffer = Buffer.concat(chunks);
     var bufferStream = new stream.PassThrough();
     bufferStream.end(newBuffer);
