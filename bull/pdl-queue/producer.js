@@ -10,7 +10,10 @@ module.exports = async (
   categoryID,
   email,
   userName,
-  isEmailNotification
+  isEmailNotification,
+  isUploadCommons,
+  oauthToken,
+  commonsMetadata
 ) => {
   const uri = `http://www.panjabdigilib.org/webuser/searches/displayPage.jsp?ID=${bookid}&page=1&CategoryID=${categoryID}&Searched=W3GX`;
   var options = {
@@ -26,6 +29,9 @@ module.exports = async (
   metaData["userName"] = userName;
   metaData["IAIdentifier"] = IAIdentifier;
   metaData["isEmailNotification"] = isEmailNotification;
+  metaData["isUploadCommons"] = isUploadCommons;
+  metaData["oauthToken"] = oauthToken;
+  metaData["commonsMetadata"] = commonsMetadata;
   const details = {
     details: metaData,
   };
