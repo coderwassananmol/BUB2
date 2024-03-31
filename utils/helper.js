@@ -372,7 +372,6 @@ module.exports = {
       let title =
         metadata.details?.volumeInfo?.title || metadata.name || metadata.title;
       title = title.replaceAll(".", "");
-      console.log(" title:", title);
       const response = await bot.upload(
         commonsFilePayload,
         title,
