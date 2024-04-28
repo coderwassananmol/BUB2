@@ -95,6 +95,10 @@ GoogleBooksQueue.process((job, done) => {
           }
           done(new Error(errorMessage));
         } else {
+          job.progress({
+            step: "Upload To IA",
+            value: `(${100}%)`,
+          });
           if (
             job.data.isUploadCommons !== "true" &&
             job.data.isEmailNotification !== "true"
@@ -125,7 +129,9 @@ GoogleBooksQueue.process((job, done) => {
                   },
                 });
                 if (job.data.isEmailNotification === "true") {
-                  const commonsLink = `https://commons.wikimedia.org/wiki/File:${commonsResponse.value.filename}`;
+                  const commonsLink =
+                    process.env.NEXT_PUBLIC_COMMONS_URL +
+                    `/wiki/File:${commonsResponse.value.filename}`;
                   EmailProducer(
                     job.data.userName,
                     title,

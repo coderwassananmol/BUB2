@@ -95,7 +95,7 @@ function setHeaders(metadata, contentLength, title, contentType) {
   headers["X-Archive-Ignore-Preexisting-Bucket"] = 1;
   headers["X-archive-meta-identifier"] = title;
   headers["X-archive-meta-mediatype"] = "texts";
-  headers["X-archive-meta-uploader"] = "bub.wikimedia@gmail.com"; //To be added
+  headers["X-archive-meta-uploader"] = process.env.IA_EMAIL; //To be added
   headers["X-archive-meta-contributor"] = "Panjab Digital Library"; //To be added
   headers["X-archive-meta-betterpdf"] = true; //To be added
   headers[

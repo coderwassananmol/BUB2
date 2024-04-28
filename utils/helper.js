@@ -14,7 +14,7 @@ module.exports = {
     const resp = await fetchCall.json();
     if (!_.isEmpty(resp)) {
       if (_.has(resp, "metadata.uploader") === true) {
-        return resp.metadata.uploader !== "bub.wikimedia@gmail.com";
+        return resp.metadata.uploader !== process.env.IA_EMAIL;
       } else {
         return true;
       }
@@ -280,7 +280,7 @@ module.exports = {
   uploadToCommons: async (metadata) => {
     try {
       const bot = await Mwn.init({
-        apiUrl: "https://commons.wikimedia.org/w/api.php",
+        apiUrl: process.env.NEXT_PUBLIC_COMMONS_URL + "/w/api.php",
         OAuth2AccessToken: metadata.oauthToken,
         userAgent: "bub2.toolforge ([[https://bub2.toolforge.org]])",
         defaultParams: {
@@ -289,7 +289,8 @@ module.exports = {
       });
 
       const commonsFilePayload = "commonsFilePayload.pdf";
-      const title = metadata.details.volumeInfo.title || metadata.name;
+      let title = metadata.details.volumeInfo.title || metadata.name;
+      title = title.replaceAll(".", "");
       const response = await bot.upload(
         commonsFilePayload,
         title,

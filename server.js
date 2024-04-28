@@ -99,20 +99,22 @@ app
         trove: trove_queue,
       };
       const commonsRes = await customFetch(
-        "https://commons.wikimedia.org/w/api.php?action=query&prop=categoryinfo&titles=Category:Files_uploaded_with_BUB2&format=json",
+        process.env.NEXT_PUBLIC_COMMONS_URL +
+          "/w/api.php?action=query&prop=categoryinfo&titles=Category:Files_uploaded_with_BUB2&format=json",
         "GET"
       );
       customFetch(
-        `https://archive.org/advancedsearch.php?q=bub.wikimedia+&rows=0&output=json`,
+        `https://archive.org/advancedsearch.php?q=${process.env.IA_EMAIL}+&rows=0&output=json`,
         "GET"
       ).then((resp) => {
         if (resp && resp.response && resp.response.numFound) {
+          const pages = commonsRes?.query?.pages;
+          const page_no = pages[`${_.keys(pages)}`];
           res.send({
             queueStats: queueStats,
             totalUploadedCount: resp.response.numFound,
-            commonsUploadedCount: commonsRes?.query?.pages["142217311"]
-              ?.categoryinfo?.files
-              ? commonsRes.query.pages["142217311"].categoryinfo.files
+            commonsUploadedCount: page_no?.categoryinfo?.files
+              ? page_no.categoryinfo.files
               : "0",
           });
         }
@@ -159,6 +161,7 @@ app
                 "https://assets.nla.gov.au/logos/trove/trove-colour.svg"
               );
             }
+            let uploadLink;
             const obj = {
               progress: progress,
               queueName: queueName,
@@ -168,10 +171,7 @@ app
                 categoryID
               ),
               uploadStatus: {
-                uploadLink:
-                  job.progress().step.includes("Upload To IA (100%)") && trueURI
-                    ? trueURI
-                    : "",
+                uploadLink: trueURI,
                 isUploaded: jobState === "completed" ? true : false,
               },
               wikimedia_links: job.progress().wikiLinks?.commons
@@ -587,7 +587,8 @@ app
                   userName,
                   isEmailNotification,
                   isUploadCommons,
-                  oauthToken
+                  oauthToken,
+                  commonsMetadata
                 );
               }
             }
@@ -599,7 +600,8 @@ app
     server.get("/checkEmailableStatus", async (req, res) => {
       const { username } = req.query;
       const usersQuery = await customFetch(
-        `${process.env.EMAIL_SOURCE_URL}?action=query&list=users&ususers=${username}&usprop=emailable&format=json`,
+        process.env.NEXT_PUBLIC_WIKIMEDIA_URL +
+          `/w/api.php?action=query&list=users&ususers=${username}&usprop=emailable&format=json`,
         "GET"
       );
       const emailableStatus =

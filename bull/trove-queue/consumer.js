@@ -103,6 +103,10 @@ TroveQueue.process((job, done) => {
                 }
                 done(new Error(errorMessage));
               } else {
+                job.progress({
+                  step: "Upload To IA",
+                  value: `(${100}%)`,
+                });
                 if (
                   isEmailNotification === "true" &&
                   job.data.details.isUploadCommons !== "true"
@@ -130,7 +134,9 @@ TroveQueue.process((job, done) => {
                           },
                         });
                         if (job.data.isEmailNotification === "true") {
-                          const commonsLink = `https://commons.wikimedia.org/wiki/File:${commonsResponse.value.filename}`;
+                          const commonsLink =
+                            process.env.NEXT_PUBLIC_COMMONS_URL +
+                            `/wiki/File:${commonsResponse.value.filename}`;
                           EmailProducer(
                             userName,
                             name,
