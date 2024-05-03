@@ -362,7 +362,7 @@ module.exports = {
       const bot = await Mwn.init({
         apiUrl: process.env.NEXT_PUBLIC_COMMONS_URL + "/w/api.php",
         OAuth2AccessToken: metadata.oauthToken,
-        userAgent: "bub2.toolforge ([[https://bub2.toolforge.org]])",
+        userAgent: "bub2.wmcloud ([[https://bub2.wmcloud.org]])",
         defaultParams: {
           assert: "user",
         },
