@@ -46,7 +46,7 @@ const ShowJobInformation = (props) => {
   const [data, setData] = useState({
     title: "",
     description: "",
-    previewLink: "https://bub2.toolforge.org",
+    previewLink: "https://bub2.wmcloud.org",
     imageLinks: {},
     uploadStatus: {
       isUploaded: false,

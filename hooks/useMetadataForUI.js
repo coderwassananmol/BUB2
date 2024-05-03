@@ -29,42 +29,44 @@ export default function useMetadataForUI() {
             ? gb_authors.join().trim()
             : "";
           const gb_commonsMetadata = `== {{int:filedesc}} ==
+
 {{Book
-| Author             = ${gb_authorsFormatted}
-| Translator         =
-| Editor             =
-| Illustrator        =
-| Title              = ${gb_title || ""}
-| Series title       =
-| Volume             =
-| Edition            =
-| Publisher          = ${gb_publisher || ""}
-| Printer            =
-| Publication date   = ${gb_publishedDate || ""}
-| City               =
-| Language           = ${gb_language || ""}
-| Description        = ${gb_subtitle || ""}
-| Source             = ${gb_infoLink || ""}
-| Permission         = ${permission}
-| Image              =
-| Image page         =
-| Pageoverview       =
-| Wikisource         =
-| Homecat            =
-| Other_versions     =
-| ISBN               =
-| LCCN               =
-| OCLC               =
-| References         =
-| Linkback           =
-| Wikidata           =
-| noimage            =
+| Author             = ${gb_authorsFormatted}\n
+| Translator         =\n
+| Editor             =\n
+| Illustrator        =\n
+| Title              = ${gb_title || ""}\n
+| Series title       =\n
+| Volume             =\n
+| Edition            =\n
+| Publisher          = ${gb_publisher || ""}\n
+| Printer            =\n
+| Publication date   = ${gb_publishedDate || ""}\n
+| City               =\n
+| Language           = ${gb_language || ""}\n
+| Description        = ${gb_subtitle || ""}\n
+| Source             = ${gb_infoLink || ""}\n
+| Permission         = ${permission}\n
+| Image              =\n
+| Image page         =\n
+| Pageoverview       =\n
+| Wikisource         =\n
+| Homecat            =\n
+| Other_versions     =\n
+| ISBN               =\n
+| LCCN               =\n
+| OCLC               =\n
+| References         =\n
+| Linkback           =\n
+| Wikidata           =\n
+| noimage            =\n
 | Other_fields_1      = {{Information field|name=Rights|value=${
             gbMetadata.accessInfo.accessViewStatus || ""
           }|name=Pages|value=${gb_pageCount || ""}}}
 }}
 
 == {{int:license-header}} ==
+
 {{PD-scan}}
 
 [[Category:Files uploaded with BUB2]]
@@ -87,36 +89,37 @@ export default function useMetadataForUI() {
           } = troveMetadata;
 
           const trove_commonsMetadata = `== {{int:filedesc}} ==
+
 {{Book
-| Author                  =
-| Translator              =
-| Editor                  =
-| Illustrator             =
-| Title                   = ${trove_heading || ""}
-| Series title            =
-| Volume                  =
-| Edition                 =
-| Publisher               =
-| Printer                 =
-| Publication date        = ${trove_date || ""}
-| City                    =
-| Language                =
-| Description             = ${trove_title.value || ""}
-| Source                  = ${trove_url || ""}
-| Permission              = ${permission}
-| Image                   =
-| Image page              =
-| Pageoverview            =
-| Wikisource              =
-| Homecat                 =
-| Other_versions          =
-| ISBN                    =
-| LCCN                    =
-| OCLC                    =
-| References              =
-| Linkback                =
-| Wikidata                =
-| noimage                 =
+| Author                  =\n
+| Translator              =\n
+| Editor                  =\n
+| Illustrator             =\n
+| Title                   = ${trove_heading || ""}\n
+| Series title            =\n
+| Volume                  =\n
+| Edition                 =\n
+| Publisher               =\n
+| Printer                 =\n
+| Publication date        = ${trove_date || ""}\n
+| City                    =\n
+| Language                =\n
+| Description             = ${trove_title.value || ""}\n
+| Source                  = ${trove_url || ""}\n
+| Permission              = ${permission}\n
+| Image                   =\n
+| Image page              =\n
+| Pageoverview            =\n
+| Wikisource              =\n
+| Homecat                 =\n
+| Other_versions          =\n
+| ISBN                    =\n
+| LCCN                    =\n
+| OCLC                    =\n
+| References              =\n
+| Linkback                =\n
+| Wikidata                =\n
+| noimage                 =\n
 | Other_fields_1           = {{Information field|name=Identifier|value=${
             trove_identifier || ""
           }|name=Pages|value=${trove_page || ""}|name=Category|value=${
@@ -125,6 +128,7 @@ export default function useMetadataForUI() {
 }}
 
 == {{int:license-header}} ==
+
 {{PD-scan}}
 
 [[Category:Files uploaded with BUB2]]
@@ -147,37 +151,38 @@ export default function useMetadataForUI() {
             IAIdentifier: pdl_identifier,
           } = pdlMetadata;
           const pdl_commonsMetadata = `== {{int:filedesc}} ==
+
 {{Book
-| Author                     =
-| Translator                 =
-| Editor                     =
-| Illustrator                =
-| Title                      = ${pdl_title || ""}
-| Series title               =
-| Volume                     =
-| Edition                    =
-| Publisher                  = ${pdl_publisher || ""}
-| Printer                    =
-| Publication date           =
-| City                       =
-| Language                   = ${pdl_language || ""}
-| Description                = ${pdl_description || ""}
-| Source                     = ${pdl_pdfUrl || ""}
-| Permission                 = ${permission}
-| Image                      = ${pdl_coverImage || ""}
-| Image page                 =
-| Pageoverview               =
-| Wikisource                 =
-| Homecat                    =
-| Other_versions             =
-| ISBN                       =
-| LCCN                       =
-| OCLC                       =
-| References                 =
-| Linkback                   =
-| Wikidata                   =
-| noimage                    =
-| Other_fields_1              = {{Information field|name=Identifier|value=${
+| Author                     =\n
+| Translator                 =\n
+| Editor                     =\n
+| Illustrator                =\n
+| Title                      = ${pdl_title || ""}\n
+| Series title               =\n
+| Volume                     =\n
+| Edition                    =\n
+| Publisher                  = ${pdl_publisher || ""}\n
+| Printer                    =\n
+| Publication date           =\n
+| City                       =\n
+| Language                   = ${pdl_language || ""}\n
+| Description                = ${pdl_description || ""}\n
+| Source                     = ${pdl_pdfUrl || ""}\n
+| Permission                 = ${permission}\n
+| Image                      = ${pdl_coverImage || ""}\n
+| Image page                 =\n
+| Pageoverview               =\n
+| Wikisource                 =\n
+| Homecat                    =\n
+| Other_versions             =\n
+| ISBN                       =\n
+| LCCN                       =\n
+| OCLC                       =\n
+| References                 =\n
+| Linkback                   =\n
+| Wikidata                   =\n
+| noimage                    =\n
+| Other_fields_1             = {{Information field|name=Identifier|value=${
             pdl_identifier || ""
           }|name=Pages|value=${pdl_pages || ""}|name=Script|value=${
             pdl_script || ""
@@ -185,12 +190,12 @@ export default function useMetadataForUI() {
 }}
 
 == {{int:license-header}} ==
+
 {{PD-scan}}
 
 [[Category:Files uploaded with BUB2]]
 `;
           return pdl_commonsMetadata;
-          break;
       }
     } catch (error) {
       return error;

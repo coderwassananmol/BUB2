@@ -16,10 +16,6 @@ function generateMessage(status, title, trueURI) {
   }
   return message;
 }
-/* 
-Mediawiki Email API DOCS - https://www.mediawiki.org/wiki/API:Emailuser#JavaScript
-MWN TOOLFORGE PACKAGE DOCS -https://github.com/siddharthvp/mwn
-*/
 
 async function mediawikiEmail(username, title, trueURI, status) {
   try {
@@ -28,7 +24,7 @@ async function mediawikiEmail(username, title, trueURI, status) {
       username: process.env.EMAIL_BOT_USERNAME,
       password: process.env.EMAIL_BOT_PASSWORD,
       // Set your user agent (required for WMF wikis, see https://meta.wikimedia.org/wiki/User-Agent_policy):
-      userAgent: "BUB2/1.0 (https://bub2.toolforge.org)",
+      userAgent: "BUB2/1.0 (https://bub2.wmcloud.org)",
       // Set default parameters to be sent to be included in every API request
       defaultParams: {
         assert: "user", // ensure we're logged in
