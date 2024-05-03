@@ -173,8 +173,16 @@ const Books = () => {
             session?.user?.name
           }&IAtitle=${IAIdentifier}&isEmailNotification=${isEmailNotification}&isUploadCommons=${isUploadCommons}&oauthToken=${
             session?.accessToken
-          }&commonsMetadata=${commonsMetadata}`;
-          fetch(url)
+          }`;
+          fetch(url, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              commonsMetadata: commonsMetadata,
+            }),
+          })
             .then((response) => response.json())
             .then(async (response) => {
               setLoader(false);
@@ -255,8 +263,16 @@ const Books = () => {
               session.user.name
             }&IAtitle=${IAIdentifier}&isEmailNotification=${isEmailNotification}&isUploadCommons=${isUploadCommons}&oauthToken=${
               session?.accessToken
-            }&commonsMetadata=${commonsMetadata}`;
-            fetch(url)
+            }`;
+            fetch(url, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                commonsMetadata: commonsMetadata,
+              }),
+            })
               .then((res) => res.json())
               .then((response) => {
                 setLoader(false);
@@ -295,8 +311,16 @@ const Books = () => {
             session.user.name
           }&IAtitle=${IAIdentifier}&isUploadCommons=${isUploadCommons}&oauthToken=${
             session?.accessToken
-          }&isEmailNotification=${isEmailNotification}&commonsMetadata=${commonsMetadata}`;
-          fetch(url)
+          }&isEmailNotification=${isEmailNotification}`;
+          fetch(url, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              commonsMetadata: commonsMetadata,
+            }),
+          })
             .then((res) => res.json())
             .then((response) => {
               setLoader(false);

@@ -405,8 +405,9 @@ app
 
     let GBdetails = {};
     let GBreq;
+    let GBcommonsMetaData;
     const isAlphanumericLess50 = /^[a-zA-Z0-9]{1,50}$/;
-    server.get("/check", async (req, res) => {
+    server.post("/check", async (req, res) => {
       const {
         bookid,
 
@@ -421,8 +422,8 @@ app
 
         isUploadCommons,
         oauthToken,
-        commonsMetadata,
       } = req.query;
+      const commonsMetadata = req.body.commonsMetadata;
       emailaddr = email;
       authUserName = userName;
       switch (option) {
@@ -453,6 +454,7 @@ app
               } else {
                 GBdetails = data;
                 GBreq = req;
+                GBcommonsMetaData = commonsMetadata;
                 res.send({
                   error: false,
                   message: "In public domain.",
@@ -702,7 +704,7 @@ app
           GBreq.query.isEmailNotification,
           GBreq.query.isUploadCommons,
           GBreq.query.oauthToken,
-          GBreq.query.commonsMetadata
+          GBcommonsMetaData
         );
       } else {
         res.send({
