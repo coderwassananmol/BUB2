@@ -35,16 +35,10 @@ export const authOptions = {
     WikimediaProvider({
       clientId: process.env.WIKIMEDIA_CLIENT_ID,
       clientSecret: process.env.WIKIMEDIA_CLIENT_SECRET,
-      token:
-        process.env.NEXT_PUBLIC_WIKIMEDIA_URL +
-        "/w/rest.php/oauth2/access_token",
-      userinfo:
-        process.env.NEXT_PUBLIC_WIKIMEDIA_URL +
-        "/w/rest.php/oauth2/resource/profile",
+      token: `${process.env.NEXT_PUBLIC_WIKIMEDIA_URL}/w/rest.php/oauth2/access_token`,
+      userinfo: `${process.env.NEXT_PUBLIC_WIKIMEDIA_URL}/w/rest.php/oauth2/resource/profile`,
       authorization: {
-        url:
-          process.env.NEXT_PUBLIC_WIKIMEDIA_URL +
-          "/w/rest.php/oauth2/authorize",
+        url: `${process.env.NEXT_PUBLIC_WIKIMEDIA_URL}/w/rest.php/oauth2/authorize`,
       },
     }),
   ],

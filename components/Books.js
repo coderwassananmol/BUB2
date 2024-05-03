@@ -155,9 +155,17 @@ const Books = () => {
     switch (option) {
       case "gb":
         if (isUploadCommons && !hasCommonsMetadataUpdated) {
-          const commonsMetadata = await getMetadataForUI("gb", bookid);
-          setCommonsMetadata(commonsMetadata);
-          setIsCommonsMetadataReady(true);
+          const checkPublicDomainURL = `${host}/checkPublicDomain?bookid=${bookid}`;
+          const checkPublicDomainRes = await fetch(checkPublicDomainURL);
+          const checkPublicDomainStatus = await checkPublicDomainRes.json();
+          if (checkPublicDomainStatus.error === false) {
+            const commonsMetadata = await getMetadataForUI("gb", bookid);
+            setCommonsMetadata(commonsMetadata);
+            setIsCommonsMetadataReady(true);
+          } else {
+            Swal("Error!", checkPublicDomainStatus.message, "error");
+            setLoader(false);
+          }
         } else {
           url = `${host}/check?bookid=${bookid}&option=${
             option + (email ? "&email=" + email : "")
@@ -231,28 +239,45 @@ const Books = () => {
           const searchParams = new URL(bookid).searchParams;
           const ID = searchParams.get("ID");
           const categoryID = searchParams.get("CategoryID");
-          url = `${host}/check?bookid=${ID}&option=${
-            option + (email ? "&email=" + email : "")
-          }&categoryID=${categoryID}&userName=${
-            session.user.name
-          }&IAtitle=${IAIdentifier}&isEmailNotification=${isEmailNotification}`;
-          fetch(url)
-            .then((res) => res.json())
-            .then((response) => {
-              setLoader(false);
-              if (response.isDuplicate) {
-                setIsDuplicate(true);
-                setIATitle(response.titleInIA);
-                setInputDisabled(true);
-              } else if (response.isInValidIdentifier) {
-                setIsInValidIdentifier(true);
-                setIATitle(response.titleInIA);
-                setInputDisabled(true);
-              } else {
-                if (response.error) Swal("Error!", response.message, "error");
-                else Swal("Voila!", response.message, "success");
-              }
-            });
+          if (isUploadCommons && !hasCommonsMetadataUpdated) {
+            const pdlMetadata = await getMetadataForUI(
+              "pdl",
+              ID,
+              categoryID,
+              IAIdentifier
+            );
+            setCommonsMetadata(pdlMetadata);
+            setIsCommonsMetadataReady(true);
+          } else {
+            url = `${host}/check?bookid=${ID}&option=${
+              option + (email ? "&email=" + email : "")
+            }&categoryID=${categoryID}&userName=${
+              session.user.name
+            }&IAtitle=${IAIdentifier}&isEmailNotification=${isEmailNotification}&isUploadCommons=${isUploadCommons}&oauthToken=${
+              session?.accessToken
+            }&commonsMetadata=${commonsMetadata}`;
+            fetch(url)
+              .then((res) => res.json())
+              .then((response) => {
+                setLoader(false);
+                if (response.isDuplicate) {
+                  setIsDuplicate(true);
+                  setIATitle(response.titleInIA);
+                  setInputDisabled(true);
+                } else if (response.isInValidIdentifier) {
+                  setIsInValidIdentifier(true);
+                  setIATitle(response.titleInIA);
+                  setInputDisabled(true);
+                } else {
+                  if (response.error) {
+                    Swal("Error!", response.message, "error");
+                  } else {
+                    setIsCommonsMetadataReady(false);
+                    Swal("Voila!", response.message, "success");
+                  }
+                }
+              });
+          }
         } else {
           setLoader(false);
           Swal("Opps...", "Enter a valid URL", "error");

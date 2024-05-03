@@ -47,6 +47,7 @@ const {
   checkIfFileExistsAtIA,
   replaceTitle,
   getPDLTitle,
+  getPDLMetaData,
 } = require("./utils/helper.js");
 const GoogleBooksProducer = require("./bull/google-books-queue/producer");
 const PDLProducer = require("./bull/pdl-queue/producer");
@@ -161,7 +162,20 @@ app
                 "https://assets.nla.gov.au/logos/trove/trove-colour.svg"
               );
             }
-            let uploadLink;
+            function getUploadLink(job, trueURI) {
+              if (job.progress().step) {
+                const link =
+                  (job.progress().step.includes("Upload To IA") ||
+                    job.progress().step.includes("Upload to Wikimedia")) &&
+                  trueURI
+                    ? trueURI
+                    : "";
+                return link;
+              } else {
+                const link = job.progress() === 100 ? trueURI : "";
+                return link;
+              }
+            }
             const obj = {
               progress: progress,
               queueName: queueName,
@@ -171,13 +185,14 @@ app
                 categoryID
               ),
               uploadStatus: {
-                uploadLink: trueURI,
+                uploadLink: getUploadLink(job, trueURI),
                 isUploaded: jobState === "completed" ? true : false,
               },
               wikimedia_links: job.progress().wikiLinks?.commons
                 ? job.progress().wikiLinks.commons
                 : "Not Integrated",
             };
+
             res.send(
               Object.assign(
                 {},
@@ -497,7 +512,10 @@ app
                 categoryID,
                 email,
                 authUserName,
-                isEmailNotification
+                isEmailNotification,
+                isUploadCommons,
+                oauthToken,
+                commonsMetadata
               );
             }
           }
@@ -579,6 +597,21 @@ app
           break;
       }
     });
+    server.get("/checkPublicDomain", async (req, res) => {
+      const { bookid } = req.query;
+      customFetch(
+        `https://www.googleapis.com/books/v1/volumes/${bookid}?key=${GB_KEY}`,
+        "GET",
+        new Headers({
+          "Content-Type": "application/json",
+        })
+      ).then(async (data) => {
+        const { error } = checkForPublicDomain(data, res);
+        if (error === false) {
+          res.send({ error: false });
+        }
+      });
+    });
 
     server.get("/checkEmailableStatus", async (req, res) => {
       const { username } = req.query;
@@ -593,21 +626,37 @@ app
     });
 
     server.get("/getMetadata", async (req, res) => {
-      const { option, id } = req.query;
+      const { option, bookID, categoryID, IAIdentifier } = req.query;
       switch (option) {
         case "gb":
           const gbRes = await customFetch(
-            `https://www.googleapis.com/books/v1/volumes/${id}?key=${GB_KEY}`,
+            `https://www.googleapis.com/books/v1/volumes/${bookID}?key=${GB_KEY}`,
             "GET"
           );
           res.send(gbRes);
           break;
         case "trove":
           const troveRes = await customFetch(
-            `https://api.trove.nla.gov.au/v2/newspaper/${id}?key=${trove_key}&encoding=json&reclevel=full`,
+            `https://api.trove.nla.gov.au/v2/newspaper/${bookID}?key=${trove_key}&encoding=json&reclevel=full`,
             "GET"
           );
           res.send(troveRes);
+          break;
+        case "pdl":
+          const uri = `http://www.panjabdigilib.org/webuser/searches/displayPage.jsp?ID=${bookID}&page=1&CategoryID=${categoryID}&Searched=W3GX`;
+          var options = {
+            uri,
+            transform: function (body) {
+              return cheerio.load(body);
+            },
+          };
+          const pdlRes = await getPDLMetaData(options, bookID, categoryID);
+          const titleInIA =
+            IAIdentifier?.trim() !== ""
+              ? replaceTitle(IAIdentifier?.trim())
+              : replaceTitle(await getPDLTitle(options));
+          pdlRes.IAIdentifier = titleInIA;
+          res.send(pdlRes);
           break;
       }
     });

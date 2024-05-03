@@ -63,7 +63,7 @@ async function mediawikiEmail(username, title, trueURI, status) {
   } catch (error) {
     logger.log({
       level: "error",
-      message: `mediawikiEmail:  ${error}`,
+      message: `mediawikiEmail: ${JSON.stringify(error)}`,
     });
     return error;
   }
@@ -79,7 +79,7 @@ EmailQueue.process(async (job, done) => {
   if (emailResponse !== 200) {
     logger.log({
       level: "error",
-      message: `EmailQueue: ${emailResponse}`,
+      message: `EmailQueue: ${JSON.stringify(emailResponse)}`,
     });
     done(new Error(`EmailQueue: ${emailResponse}`));
   }

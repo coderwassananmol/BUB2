@@ -122,6 +122,7 @@ TroveQueue.process((job, done) => {
                     value: `(50%)`,
                   });
                   CommonsProducer(
+                    null,
                     downloadFileUrl,
                     job.data.details,
                     async (commonsResponse) => {

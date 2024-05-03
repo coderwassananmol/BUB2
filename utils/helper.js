@@ -7,6 +7,10 @@ const { truncate } = require("fs");
 const logger = winston.loggers.get("defaultLogger");
 const fs = require("fs");
 const { Mwn } = require("mwn");
+const JSZip = require("jszip");
+const PDFDocument = require("pdfkit");
+const path = require("path");
+const { PDFDocument: PDFLibDocument } = require("pdf-lib");
 
 module.exports = {
   checkIfFileExistsAtIA: async (ID) => {
@@ -250,6 +254,82 @@ module.exports = {
     }
   },
 
+  convertZipToPdf: async (targetZip, localFilePath) => {
+    async function mergePdf(pdfDataArray) {
+      try {
+        const mergedPdf = await PDFLibDocument.create();
+        for (const pdfData of pdfDataArray) {
+          const pdfDoc = await PDFLibDocument.load(pdfData);
+          const pages = await mergedPdf.copyPages(
+            pdfDoc,
+            pdfDoc.getPageIndices()
+          );
+          for (const page of pages) {
+            mergedPdf.addPage(page);
+          }
+        }
+
+        const mergedPdfFile = await mergedPdf.save();
+        await fs.promises.writeFile(localFilePath, mergedPdfFile);
+        return { status: 200 };
+      } catch (error) {
+        logger.log({
+          level: "error",
+          message: `PDL -  convertZipToPdf/mergePdf: ${error}`,
+        });
+        return { status: 404, error: error };
+      }
+    }
+
+    async function zipToPdf() {
+      try {
+        const pdfInstances = [];
+        await Promise.all(
+          Object.values(targetZip.files).map(async (file, index) => {
+            if (file.dir) return;
+            if ([".jpg", ".jpeg", ".png"].includes(path.extname(file.name))) {
+              const data = await file.async("nodebuffer");
+              const pdfDoc = new PDFDocument();
+              const buffers = [];
+              const writeStream = new require("stream").Writable({
+                write(chunk, encoding, callback) {
+                  buffers.push(chunk);
+                  callback();
+                },
+              });
+              pdfDoc.pipe(writeStream);
+              pdfDoc.image(data, 0, 0, { fit: [595.28, 841.89] }); // A4 size
+              pdfDoc.end();
+              return new Promise((resolve) => {
+                writeStream.on("finish", () => {
+                  pdfInstances.push({
+                    index,
+                    pdfInstance: Buffer.concat(buffers),
+                  });
+                  resolve();
+                });
+              });
+            }
+          })
+        );
+
+        pdfInstances.sort((a, b) => a.index - b.index);
+
+        const sortedPdfInstances = pdfInstances.map(
+          ({ pdfInstance }) => pdfInstance
+        );
+        return await mergePdf(sortedPdfInstances);
+      } catch (error) {
+        logger.log({
+          level: "error",
+          message: `PDL -  convertZipToPdf/zipToPdf: ${error}`,
+        });
+        return { status: 404, error: error };
+      }
+    }
+    return await zipToPdf();
+  },
+
   logUserData: (userName, libraryName) => {
     logger.log({
       level: "info",
@@ -289,7 +369,8 @@ module.exports = {
       });
 
       const commonsFilePayload = "commonsFilePayload.pdf";
-      let title = metadata.details.volumeInfo.title || metadata.name;
+      let title =
+        metadata.details?.volumeInfo?.title || metadata.name || metadata.title;
       title = title.replaceAll(".", "");
       const response = await bot.upload(
         commonsFilePayload,
