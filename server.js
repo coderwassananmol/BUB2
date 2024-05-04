@@ -47,6 +47,7 @@ const {
   checkIfFileExistsAtIA,
   replaceTitle,
   getPDLTitle,
+  getPDLMetaData,
 } = require("./utils/helper.js");
 const GoogleBooksProducer = require("./bull/google-books-queue/producer");
 const PDLProducer = require("./bull/pdl-queue/producer");
@@ -99,20 +100,22 @@ app
         trove: trove_queue,
       };
       const commonsRes = await customFetch(
-        "https://commons.wikimedia.org/w/api.php?action=query&prop=categoryinfo&titles=Category:Files_uploaded_with_BUB2&format=json",
+        process.env.NEXT_PUBLIC_COMMONS_URL +
+          "/w/api.php?action=query&prop=categoryinfo&titles=Category:Files_uploaded_with_BUB2&format=json",
         "GET"
       );
       customFetch(
-        `https://archive.org/advancedsearch.php?q=bub.wikimedia+&rows=0&output=json`,
+        `https://archive.org/advancedsearch.php?q=${process.env.IA_EMAIL}+&rows=0&output=json`,
         "GET"
       ).then((resp) => {
         if (resp && resp.response && resp.response.numFound) {
+          const pages = commonsRes?.query?.pages;
+          const page_no = pages[`${_.keys(pages)}`];
           res.send({
             queueStats: queueStats,
             totalUploadedCount: resp.response.numFound,
-            commonsUploadedCount: commonsRes?.query?.pages["142217311"]
-              ?.categoryinfo?.files
-              ? commonsRes.query.pages["142217311"].categoryinfo.files
+            commonsUploadedCount: page_no?.categoryinfo?.files
+              ? page_no.categoryinfo.files
               : "0",
           });
         }
@@ -159,6 +162,20 @@ app
                 "https://assets.nla.gov.au/logos/trove/trove-colour.svg"
               );
             }
+            function getUploadLink(job, trueURI) {
+              if (job.progress().step) {
+                const link =
+                  (job.progress().step.includes("Upload To IA") ||
+                    job.progress().step.includes("Upload to Wikimedia")) &&
+                  trueURI
+                    ? trueURI
+                    : "";
+                return link;
+              } else {
+                const link = job.progress() === 100 ? trueURI : "";
+                return link;
+              }
+            }
             const obj = {
               progress: progress,
               queueName: queueName,
@@ -168,12 +185,7 @@ app
                 categoryID
               ),
               uploadStatus: {
-                uploadLink:
-                  (job.progress().step.includes("Upload To IA") ||
-                    job.progress().step.includes("Upload to Wikimedia")) &&
-                  trueURI
-                    ? trueURI
-                    : "",
+                uploadLink: getUploadLink(job, trueURI),
                 isUploaded: jobState === "completed" ? true : false,
               },
               wikimedia_links: {
@@ -185,6 +197,7 @@ app
                   : "Not Integrated",
               },
             };
+
             res.send(
               Object.assign(
                 {},
@@ -345,6 +358,7 @@ app
       const pdl_queue = await config.getNewQueue("pdl-queue");
       const google_books_queue = await config.getNewQueue("google-books-queue");
       const trove_queue = await config.getNewQueue("trove-queue");
+      const commons_queue = await config.getNewQueue("commons-queue");
 
       const queryParams = {
         "gb-queue": {
@@ -359,6 +373,10 @@ app
           active: "",
           waiting: "",
         },
+        "commons-queue": {
+          active: "",
+          waiting: "",
+        },
       };
       const pdlqueue_active_job = await pdl_queue.getActive(0, 0);
       const pdlqueue_waiting_job = await pdl_queue.getWaiting(0, 0);
@@ -368,6 +386,9 @@ app
 
       const trovequeue_active_job = await trove_queue.getActive(0, 0);
       const trovequeue_waiting_job = await trove_queue.getWaiting(0, 0);
+
+      const commonsqueue_active_job = await commons_queue.getActive(0, 0);
+      const commonsqueue_waiting_job = await commons_queue.getWaiting(0, 0);
 
       queryParams["pdl-queue"]["active"] = jobData(
         pdlqueue_active_job[0],
@@ -392,13 +413,23 @@ app
         trovequeue_waiting_job[0],
         "trove"
       );
+
+      queryParams["commons-queue"]["active"] = jobData(
+        commonsqueue_active_job[0],
+        "commons"
+      );
+      queryParams["commons-queue"]["waiting"] = jobData(
+        commonsqueue_waiting_job[0],
+        "commons"
+      );
       res.send(queryParams);
     });
 
     let GBdetails = {};
     let GBreq;
+    let GBcommonsMetaData;
     const isAlphanumericLess50 = /^[a-zA-Z0-9]{1,50}$/;
-    server.get("/check", async (req, res) => {
+    server.post("/check", async (req, res) => {
       const {
         bookid,
 
@@ -413,8 +444,8 @@ app
 
         isUploadCommons,
         oauthToken,
-        commonsMetadata,
       } = req.query;
+      const commonsMetadata = req.body.commonsMetadata;
       emailaddr = email;
       authUserName = userName;
       switch (option) {
@@ -445,6 +476,7 @@ app
               } else {
                 GBdetails = data;
                 GBreq = req;
+                GBcommonsMetaData = commonsMetadata;
                 res.send({
                   error: false,
                   message: "In public domain.",
@@ -504,7 +536,10 @@ app
                 categoryID,
                 email,
                 authUserName,
-                isEmailNotification
+                isEmailNotification,
+                isUploadCommons,
+                oauthToken,
+                commonsMetadata
               );
             }
           }
@@ -586,11 +621,27 @@ app
           break;
       }
     });
+    server.get("/checkPublicDomain", async (req, res) => {
+      const { bookid } = req.query;
+      customFetch(
+        `https://www.googleapis.com/books/v1/volumes/${bookid}?key=${GB_KEY}`,
+        "GET",
+        new Headers({
+          "Content-Type": "application/json",
+        })
+      ).then(async (data) => {
+        const { error } = checkForPublicDomain(data, res);
+        if (error === false) {
+          res.send({ error: false });
+        }
+      });
+    });
 
     server.get("/checkEmailableStatus", async (req, res) => {
       const { username } = req.query;
       const usersQuery = await customFetch(
-        `${process.env.EMAIL_SOURCE_URL}?action=query&list=users&ususers=${username}&usprop=emailable&format=json`,
+        process.env.NEXT_PUBLIC_WIKIMEDIA_URL +
+          `/w/api.php?action=query&list=users&ususers=${username}&usprop=emailable&format=json`,
         "GET"
       );
       const emailableStatus =
@@ -599,21 +650,37 @@ app
     });
 
     server.get("/getMetadata", async (req, res) => {
-      const { option, id } = req.query;
+      const { option, bookID, categoryID, IAIdentifier } = req.query;
       switch (option) {
         case "gb":
           const gbRes = await customFetch(
-            `https://www.googleapis.com/books/v1/volumes/${id}?key=${GB_KEY}`,
+            `https://www.googleapis.com/books/v1/volumes/${bookID}?key=${GB_KEY}`,
             "GET"
           );
           res.send(gbRes);
           break;
         case "trove":
           const troveRes = await customFetch(
-            `https://api.trove.nla.gov.au/v2/newspaper/${id}?key=${trove_key}&encoding=json&reclevel=full`,
+            `https://api.trove.nla.gov.au/v2/newspaper/${bookID}?key=${trove_key}&encoding=json&reclevel=full`,
             "GET"
           );
           res.send(troveRes);
+          break;
+        case "pdl":
+          const uri = `http://www.panjabdigilib.org/webuser/searches/displayPage.jsp?ID=${bookID}&page=1&CategoryID=${categoryID}&Searched=W3GX`;
+          var options = {
+            uri,
+            transform: function (body) {
+              return cheerio.load(body);
+            },
+          };
+          const pdlRes = await getPDLMetaData(options, bookID, categoryID);
+          const titleInIA =
+            IAIdentifier?.trim() !== ""
+              ? replaceTitle(IAIdentifier?.trim())
+              : replaceTitle(await getPDLTitle(options));
+          pdlRes.IAIdentifier = titleInIA;
+          res.send(pdlRes);
           break;
       }
     });
@@ -659,7 +726,7 @@ app
           GBreq.query.isEmailNotification,
           GBreq.query.isUploadCommons,
           GBreq.query.oauthToken,
-          GBreq.query.commonsMetadata
+          GBcommonsMetaData
         );
       } else {
         res.send({

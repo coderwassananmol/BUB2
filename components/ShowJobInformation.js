@@ -46,7 +46,7 @@ const ShowJobInformation = (props) => {
   const [data, setData] = useState({
     title: "",
     description: "",
-    previewLink: "https://bub2.toolforge.org",
+    previewLink: "https://bub2.wmcloud.org",
     imageLinks: {},
     uploadStatus: {
       isUploaded: false,
@@ -147,7 +147,7 @@ const ShowJobInformation = (props) => {
             {data.wikimedia_links.commons !== "Not Integrated" ? (
               <Link
                 passHref
-                href={`https://commons.wikimedia.org/wiki/File:${data.wikimedia_links.commons}`}
+                href={`${process.env.NEXT_PUBLIC_COMMONS_URL}/wiki/File:${data.wikimedia_links.commons}`}
               >
                 <Button
                   sx={styles.button}

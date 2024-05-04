@@ -128,6 +128,7 @@ TroveQueue.process((job, done) => {
                     value: `(50%)`,
                   });
                   CommonsProducer(
+                    null,
                     downloadFileUrl,
                     job.data.details,
                     async (commonsResponse) => {
@@ -145,7 +146,9 @@ TroveQueue.process((job, done) => {
                           },
                         });
                         if (job.data.isEmailNotification === "true") {
-                          const commonsLink = `https://commons.wikimedia.org/wiki/File:${commonsResponse.value.filename}`;
+                          const commonsLink =
+                            process.env.NEXT_PUBLIC_COMMONS_URL +
+                            `/wiki/File:${commonsResponse.value.filename}`;
                           EmailProducer(
                             userName,
                             name,

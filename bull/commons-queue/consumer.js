@@ -5,40 +5,84 @@ const {
   downloadFile,
   uploadToCommons,
   uploadToWikiData,
+  convertZipToPdf
 } = require("../../utils/helper");
+const JSZip = require("jszip");
 const logger = winston.loggers.get("defaultLogger");
 
 CommonsQueue.process(async (job, done) => {
-  const downloadFileRes = await downloadFile(
-    job.data.metadata.uri || job.data.downloadFileURL,
-    "commonsFilePayload.pdf"
-  );
+  if (job.data.type === "pdlZip") {
+    const zipBuffer = Buffer.from(job.data.downloadFileURL, "base64");
+    const zip = await JSZip.loadAsync(zipBuffer);
+    const convertZipToPdfRes = await convertZipToPdf(
+      zip,
+      "commonsFilePayload.pdf"
+    );
+    if (convertZipToPdfRes.status !== 200) {
+      logger.log({
+        level: "error",
+        message: `convertZipToPdfRes: ${JSON.stringify(convertZipToPdfRes)}`,
+      });
+      process.emit("commonsJobComplete", {
+        status: false,
+        value: null,
+      });
+      return done(null, true);
+    }
+    const commonsResponse = await uploadToCommons(job.data.metadata);
 
-  if (downloadFileRes.writeFileStatus !== 200) {
-    logger.log({
-      level: "error",
-      message: `downloadFile: ${downloadFileRes}`,
-    });
+    if (commonsResponse.fileUploadStatus !== 200) {
+      logger.log({
+        level: "error",
+        message: `uploadToCommons: ${commonsResponse}`,
+      });
+      process.emit(`commonsJobComplete:${job.id}`, {
+        status: false,
+        value: null,
+      });
+      return done(null, true);
+    }
     process.emit(`commonsJobComplete:${job.id}`, {
-      status: false,
-      value: null,
+      status: true,
+      value: commonsResponse,
     });
     return done(null, true);
-    // return done(new Error(`downloadFile: ${downloadFileRes}`));
-  }
-  const commonsResponse = await uploadToCommons(job.data.metadata);
+  } else {
+    const url =
+      job.data?.metadata?.uri ||
+      job.data?.downloadFileURL?.uri ||
+      job.data?.metadata?.pdfUrl;
+    const downloadFileRes = await downloadFile(url, "commonsFilePayload.pdf");
 
-  if (commonsResponse.fileUploadStatus !== 200) {
-    logger.log({
-      level: "error",
-      message: `uploadToCommons: ${commonsResponse}`,
-    });
+    if (downloadFileRes.writeFileStatus !== 200) {
+      logger.log({
+        level: "error",
+        message: `downloadFile: ${downloadFileRes}`,
+      });
+      process.emit(`commonsJobComplete:${job.id}`, {
+        status: false,
+        value: null,
+      });
+      return done(null, true);
+    }
+    const commonsResponse = await uploadToCommons(job.data.metadata);
+
+    if (commonsResponse.fileUploadStatus !== 200) {
+      logger.log({
+        level: "error",
+        message: `uploadToCommons: ${commonsResponse}`,
+      });
+      process.emit(`commonsJobComplete:${job.id}`, {
+        status: false,
+        value: null,
+      });
+      return done(null, true);
+    }
     process.emit(`commonsJobComplete:${job.id}`, {
-      status: false,
-      value: null,
+      status: true,
+      value: commonsResponse,
     });
     return done(null, true);
-    // return done(new Error(`uploadToCommons: ${commonsResponse}`));
   }
   const wikiDataResponse = await uploadToWikiData(
     job.data.metadata,

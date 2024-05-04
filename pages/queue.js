@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import Header from "../components/Header";
 import QueueSection from "../components/QueueSection";
 import QueueTable from "../components/QueueTable";
@@ -5,12 +6,28 @@ import { host, queue_data_endpoint } from "../utils/constants";
 import { useEffect, useState } from "react";
 
 const Queue = ({ data }) => {
+  const router = useRouter();
   const [queueName, setQueueName] = useState("gb");
   const [tableDataArchive, setTableDataArchive] = useState([]);
   const [searchResult, setSearchResult] = useState([]);
   const [isSearch, setIsSearch] = useState(false);
+  // initially, the page itself is refreshed every 15 seconds (according to GB queue)
+  const [refreshSSPropsInterval, setSSPropsInterval] = useState(15000);
   const onChange = (event) => {
     setQueueName(event.target.value);
+    // refresh server side props on queue change
+    router.replace(router.asPath);
+    // This time interval has been chosed based on speed of upload
+    // For GB Queue, refresh server side props every 15 seconds
+    // For PDL, refresh server side props every 50 seconds
+    // For Trove, refresh server side props every 30 seconds
+    if (event.target.value === "gb") {
+      setSSPropsInterval(15000);
+    } else if (event.target.value === "pdl") {
+      setSSPropsInterval(50000);
+    } else if (event.target.value === "trove") {
+      setSSPropsInterval(30000);
+    }
   };
 
   /**
@@ -39,7 +56,7 @@ const Queue = ({ data }) => {
     setSearchResult(filteredData);
   };
 
-  useEffect(() => {
+  const fetchQueueData = () => {
     if (queueName)
       fetch(`${host}/allJobs?queue_name=${queueName}`)
         .then((resp) => resp.json())
@@ -47,7 +64,48 @@ const Queue = ({ data }) => {
           setTableDataArchive(resp);
           setSearchResult(resp);
         });
+  };
+
+  // This useEffect runs on page load and
+  // is responsible for fetching the initial
+  // queue data
+  useEffect(() => {
+    if (queueName) {
+      fetchQueueData();
+    }
   }, [queueName]);
+
+  // This useEffect runs every `refreshSSPropsInterval` milliseconds
+  // to refresh the server side props which contain
+  // details about books in the active and waiting queue
+  // Condition: only when queueName changes
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      router.replace(router.asPath);
+    }, refreshSSPropsInterval);
+    // clear the setInterval
+    return () => clearInterval(intervalId);
+  }, [queueName]);
+
+  // This useEffect runs every 5000 milliseconds
+  // to refresh the queue itself, thereby providing
+  // user with near real time upload progress
+  // Condition: only when queue is active
+  useEffect(() => {
+    if (
+      data[`${queueName}-queue`]["active"] === null &&
+      data["commons-queue"]["active"] === null
+    ) {
+      return;
+    }
+    const intervalId = setInterval(() => {
+      if (data[`${queueName}-queue`]["active"] !== null) {
+        fetchQueueData();
+      }
+    }, 5000);
+    // clear the setInterval
+    return () => clearInterval(intervalId);
+  }, [data[`${queueName}-queue`]["active"]]);
 
   return (
     <div

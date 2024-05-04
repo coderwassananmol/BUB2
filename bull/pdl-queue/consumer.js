@@ -1,4 +1,5 @@
 const EmailProducer = require("../email-queue/producer");
+const CommonsProducer = require("../commons-queue/producer");
 const config = require("../../utils/bullconfig");
 const PDLQueue = config.getNewQueue("pdl-queue");
 const rp = require("request-promise");
@@ -43,7 +44,7 @@ async function getZipAndBytelength(no_of_pages, id, title, job) {
         },
       });
       if (/image/.test(body.headers["content-type"])) {
-        var data = new Buffer(body.data);
+        var data = Buffer.from(body.data);
         img.file(filename, data.toString("base64"), { base64: true });
       }
       return 200;
@@ -95,7 +96,7 @@ function setHeaders(metadata, contentLength, title, contentType) {
   headers["X-Archive-Ignore-Preexisting-Bucket"] = 1;
   headers["X-archive-meta-identifier"] = title;
   headers["X-archive-meta-mediatype"] = "texts";
-  headers["X-archive-meta-uploader"] = "bub.wikimedia@gmail.com"; //To be added
+  headers["X-archive-meta-uploader"] = process.env.IA_EMAIL; //To be added
   headers["X-archive-meta-contributor"] = "Panjab Digital Library"; //To be added
   headers["X-archive-meta-betterpdf"] = true; //To be added
   headers[
@@ -107,9 +108,9 @@ function setHeaders(metadata, contentLength, title, contentType) {
       headers[`X-archive-meta-${meta_key}`] = metadata[key];
   }
   headers["X-archive-meta-title"] = metadata["title"];
-  headers[`X-archive-meta-description`] = `uri(${encodeURI(
-    metadata.description?.trim()
-  )})`;
+  headers[`X-archive-meta-description`] = metadata.description
+    ? `uri(${encodeURI(metadata.description?.trim())})`
+    : "";
   return headers;
 }
 
@@ -119,12 +120,18 @@ async function uploadZipToIA(
   byteLength,
   email,
   job,
-  onError,
-  trueURI
+  trueURI,
+  onError
 ) {
   const bucketTitle = metadata.IAIdentifier;
   const IAuri = `http://s3.us.archive.org/${bucketTitle}/${bucketTitle}_images.zip`;
-  metadata = _.omit(metadata, "coverImage");
+  metadata = _.omit(metadata, [
+    "coverImage",
+    "commonsMetadata",
+    "isUploadCommons",
+    "oauthToken",
+    "userName",
+  ]);
   let headers = setHeaders(
     metadata,
     byteLength,
@@ -142,9 +149,6 @@ async function uploadZipToIA(
       },
       (error, response, body) => {
         if (response.statusCode === 200) {
-          if (metadata.isEmailNotification === "true") {
-            EmailProducer(metadata.userName, metadata.title, trueURI, true);
-          }
           onError(false, null);
         } else {
           const errorMessage = !body ? error : body;
@@ -152,9 +156,6 @@ async function uploadZipToIA(
             level: "error",
             message: `IA Failure PDL ${errorMessage}`,
           });
-          if (metadata.isEmailNotification === "true") {
-            EmailProducer(metadata.userName, metadata.title, trueURI, false);
-          }
           onError(true, errorMessage);
         }
       }
@@ -184,6 +185,11 @@ function uploadPdfToIA(pdfUrl, job, metadata, trueURI, done) {
   });
 
   getPdf.on("end", function () {
+    const IAMetadata = { ...metadata };
+    delete IAMetadata["commonsMetadata"];
+    delete IAMetadata["isUploadCommons"];
+    delete IAMetadata["oauthToken"];
+    delete IAMetadata["userName"];
     const newBuffer = Buffer.concat(chunks);
     var bufferStream = new stream.PassThrough();
     bufferStream.end(newBuffer);
@@ -192,7 +198,7 @@ function uploadPdfToIA(pdfUrl, job, metadata, trueURI, done) {
       value: `(${80}%)`,
     });
     let headers = setHeaders(
-      metadata,
+      IAMetadata,
       bufferLength,
       metadata.title,
       job.data.details.contentType
@@ -214,18 +220,94 @@ function uploadPdfToIA(pdfUrl, job, metadata, trueURI, done) {
               message: `IA Failure PDL ${errorMessage}`,
             });
             if (metadata.isEmailNotification === "true") {
-              EmailProducer(job.data.userName, metadata.title, trueURI, false);
+              EmailProducer(
+                job.data.details.userName,
+                metadata.title,
+                trueURI,
+                {
+                  archive: false,
+                  commons: false,
+                }
+              );
             }
             done(new Error(errorMessage));
           } else {
             job.progress({
-              step: "Uploading to Internet Archive",
+              step: "Upload To IA",
               value: `(${100}%)`,
             });
-            if (metadata.isEmailNotification === "true") {
-              EmailProducer(job.data.userName, metadata.title, trueURI, true);
+            if (
+              job.data.details.isUploadCommons !== "true" &&
+              metadata.isEmailNotification !== "true"
+            ) {
+              done(null, true);
             }
-            done(null, true);
+            if (
+              job.data.details.isUploadCommons !== "true" &&
+              metadata.isEmailNotification === "true"
+            ) {
+              EmailProducer(
+                job.data.details.userName,
+                metadata.title,
+                trueURI,
+                {
+                  archive: true,
+                  commons: false,
+                }
+              );
+              done(null, true);
+            }
+            if (job.data.details.isUploadCommons === "true") {
+              job.progress({
+                step: "Uploading to Wikimedia Commons",
+                value: `(50%)`,
+              });
+              CommonsProducer(
+                null,
+                null,
+                job.data.details,
+                async (commonsResponse) => {
+                  if (commonsResponse.status === true) {
+                    job.progress({
+                      step: "Upload to Wikimedia Commons",
+                      value: `(100%)`,
+                      wikiLinks: {
+                        commons: await commonsResponse.value.filename,
+                      },
+                    });
+                    if (metadata.isEmailNotification === "true") {
+                      const commonsLink = `https://commons.wikimedia.org/wiki/File:${commonsResponse.value.filename}`;
+                      EmailProducer(
+                        job.data.details.userName,
+                        metadata.title,
+                        { archiveLink: trueURI, commonsLink: commonsLink },
+                        {
+                          archive: true,
+                          commons: true,
+                        }
+                      );
+                    }
+                  } else {
+                    job.progress({
+                      step: "Upload To IA (100%), Upload To Commons",
+                      value: `(Failed)`,
+                    });
+                    if (metadata.isEmailNotification === "true") {
+                      EmailProducer(
+                        job.data.details.userName,
+                        metadata.title,
+                        trueURI,
+                        {
+                          archive: true,
+                          commons: false,
+                        }
+                      );
+                    }
+                  }
+                  return done(null, true);
+                }
+              );
+            }
           }
         }
       )
@@ -279,18 +361,105 @@ PDLQueue.process(async (job, done) => {
         byteLength,
         job.data.details.email,
         job,
-        (isError, error) => {
+        trueURI,
+        async (isError, error) => {
           if (isError) {
+            logger.log({
+              level: "error",
+              message: `IA Failure PDL: ${error}`,
+            });
+            if (job.data.details.isEmailNotification === "true") {
+              EmailProducer(
+                job.data.details.userName,
+                job.data.details.title,
+                trueURI,
+                {
+                  archive: false,
+                  commons: false,
+                }
+              );
+            }
             done(new Error(error));
           } else {
             job.progress({
-              step: "Uploading to Internet Archive",
+              step: "Upload To IA",
               value: `(${100}%)`,
             });
-            done(null, true);
+            if (
+              job.data.details.isUploadCommons !== "true" &&
+              job.data.details.isEmailNotification !== "true"
+            ) {
+              done(null, true);
+            }
+            if (
+              job.data.details.isUploadCommons !== "true" &&
+              job.data.details.isEmailNotification === "true"
+            ) {
+              EmailProducer(
+                job.data.details.userName,
+                job.data.details.title,
+                trueURI,
+                {
+                  archive: true,
+                  commons: false,
+                }
+              );
+              done(null, true);
+            }
+            if (job.data.details.isUploadCommons === "true") {
+              job.progress({
+                step: "Uploading to Wikimedia Commons",
+                value: `(50%)`,
+              });
+              const base64Zip = await zip.generateAsync({ type: "base64" });
+              CommonsProducer(
+                "pdlZip",
+                base64Zip,
+                job.data.details,
+                async (commonsResponse) => {
+                  if (commonsResponse.status === true) {
+                    job.progress({
+                      step: "Upload to Wikimedia Commons",
+                      value: `(100%)`,
+                      wikiLinks: {
+                        commons: await commonsResponse.value.filename,
+                      },
+                    });
+                    if (job.data.details.isEmailNotification === "true") {
+                      const commonsLink = `https://commons.wikimedia.org/wiki/File:${commonsResponse.value.filename}`;
+                      EmailProducer(
+                        job.data.details.userName,
+                        job.data.details.title,
+                        { archiveLink: trueURI, commonsLink: commonsLink },
+                        {
+                          archive: true,
+                          commons: true,
+                        }
+                      );
+                    }
+                  } else {
+                    job.progress({
+                      step: "Upload To IA (100%), Upload To Commons",
+                      value: `(Failed)`,
+                    });
+                    if (job.data.details.isEmailNotification === "true") {
+                      EmailProducer(
+                        job.data.details.userName,
+                        job.data.details.title,
+                        trueURI,
+                        {
+                          archive: true,
+                          commons: false,
+                        }
+                      );
+                    }
+                  }
+                }
+              );
+            }
+            return done(null, true);
           }
-        },
-        trueURI
+        }
       );
     }
   } catch (error) {

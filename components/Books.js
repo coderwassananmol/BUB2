@@ -155,9 +155,17 @@ const Books = () => {
     switch (option) {
       case "gb":
         if (isUploadCommons && !hasCommonsMetadataUpdated) {
-          const commonsMetadata = await getMetadataForUI("gb", bookid);
-          setCommonsMetadata(commonsMetadata);
-          setIsCommonsMetadataReady(true);
+          const checkPublicDomainURL = `${host}/checkPublicDomain?bookid=${bookid}`;
+          const checkPublicDomainRes = await fetch(checkPublicDomainURL);
+          const checkPublicDomainStatus = await checkPublicDomainRes.json();
+          if (checkPublicDomainStatus.error === false) {
+            const commonsMetadata = await getMetadataForUI("gb", bookid);
+            setCommonsMetadata(commonsMetadata);
+            setIsCommonsMetadataReady(true);
+          } else {
+            Swal("Error!", checkPublicDomainStatus.message, "error");
+            setLoader(false);
+          }
         } else {
           url = `${host}/check?bookid=${bookid}&option=${
             option + (email ? "&email=" + email : "")
@@ -165,8 +173,16 @@ const Books = () => {
             session?.user?.name
           }&IAtitle=${IAIdentifier}&isEmailNotification=${isEmailNotification}&isUploadCommons=${isUploadCommons}&oauthToken=${
             session?.accessToken
-          }&commonsMetadata=${commonsMetadata}`;
-          fetch(url)
+          }`;
+          fetch(url, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              commonsMetadata: commonsMetadata,
+            }),
+          })
             .then((response) => response.json())
             .then(async (response) => {
               setLoader(false);
@@ -231,28 +247,53 @@ const Books = () => {
           const searchParams = new URL(bookid).searchParams;
           const ID = searchParams.get("ID");
           const categoryID = searchParams.get("CategoryID");
-          url = `${host}/check?bookid=${ID}&option=${
-            option + (email ? "&email=" + email : "")
-          }&categoryID=${categoryID}&userName=${
-            session.user.name
-          }&IAtitle=${IAIdentifier}&isEmailNotification=${isEmailNotification}`;
-          fetch(url)
-            .then((res) => res.json())
-            .then((response) => {
-              setLoader(false);
-              if (response.isDuplicate) {
-                setIsDuplicate(true);
-                setIATitle(response.titleInIA);
-                setInputDisabled(true);
-              } else if (response.isInValidIdentifier) {
-                setIsInValidIdentifier(true);
-                setIATitle(response.titleInIA);
-                setInputDisabled(true);
-              } else {
-                if (response.error) Swal("Error!", response.message, "error");
-                else Swal("Voila!", response.message, "success");
-              }
-            });
+          if (isUploadCommons && !hasCommonsMetadataUpdated) {
+            const pdlMetadata = await getMetadataForUI(
+              "pdl",
+              ID,
+              categoryID,
+              IAIdentifier
+            );
+            setCommonsMetadata(pdlMetadata);
+            setIsCommonsMetadataReady(true);
+          } else {
+            url = `${host}/check?bookid=${ID}&option=${
+              option + (email ? "&email=" + email : "")
+            }&categoryID=${categoryID}&userName=${
+              session.user.name
+            }&IAtitle=${IAIdentifier}&isEmailNotification=${isEmailNotification}&isUploadCommons=${isUploadCommons}&oauthToken=${
+              session?.accessToken
+            }`;
+            fetch(url, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                commonsMetadata: commonsMetadata,
+              }),
+            })
+              .then((res) => res.json())
+              .then((response) => {
+                setLoader(false);
+                if (response.isDuplicate) {
+                  setIsDuplicate(true);
+                  setIATitle(response.titleInIA);
+                  setInputDisabled(true);
+                } else if (response.isInValidIdentifier) {
+                  setIsInValidIdentifier(true);
+                  setIATitle(response.titleInIA);
+                  setInputDisabled(true);
+                } else {
+                  if (response.error) {
+                    Swal("Error!", response.message, "error");
+                  } else {
+                    setIsCommonsMetadataReady(false);
+                    Swal("Voila!", response.message, "success");
+                  }
+                }
+              });
+          }
         } else {
           setLoader(false);
           Swal("Opps...", "Enter a valid URL", "error");
@@ -270,8 +311,16 @@ const Books = () => {
             session.user.name
           }&IAtitle=${IAIdentifier}&isUploadCommons=${isUploadCommons}&oauthToken=${
             session?.accessToken
-          }&isEmailNotification=${isEmailNotification}&commonsMetadata=${commonsMetadata}`;
-          fetch(url)
+          }&isEmailNotification=${isEmailNotification}`;
+          fetch(url, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              commonsMetadata: commonsMetadata,
+            }),
+          })
             .then((res) => res.json())
             .then((response) => {
               setLoader(false);
@@ -356,10 +405,10 @@ const Books = () => {
               <h4>3. Upload Preferences</h4>
 
               <div style={{ marginTop: "25px" }} className="section">
-                <span class="cdx-checkbox">
+                <span className="cdx-checkbox">
                   <input
                     id="checkbox-description-css-only-1"
-                    class="cdx-checkbox__input"
+                    className="cdx-checkbox__input"
                     type="checkbox"
                     aria-describedby="cdx-description-css-1"
                     checked={isUploadCommons}
@@ -367,15 +416,15 @@ const Books = () => {
                       setIsUploadCommons(event.target.checked)
                     }
                   />
-                  <span class="cdx-checkbox__icon"></span>
+                  <span className="cdx-checkbox__icon"></span>
 
                   <div
                     style={{ display: "flex", gap: "10px" }}
-                    class="cdx-checkbox__label cdx-label"
+                    className="cdx-checkbox__label cdx-label"
                   >
                     <label
-                      for="checkbox-description-css-only-1"
-                      class="cdx-label__label"
+                      htmlFor="checkbox-description-css-only-1"
+                      className="cdx-label__label"
                     >
                       Upload to Wikimedia Commons
                     </label>
@@ -391,19 +440,19 @@ const Books = () => {
                     >
                       <span
                         id="cdx-description-css-1"
-                        class="cdx-label__description"
+                        className="cdx-label__description"
                       >
-                        <span class="cdx-css-icon--info-filled"></span>
+                        <span className="cdx-css-icon--info-filled"></span>
                       </span>
                     </Tooltip>
                   </div>
                 </span>
               </div>
               <div style={{ marginTop: "10px" }} className="section">
-                <span class="cdx-checkbox">
+                <span className="cdx-checkbox">
                   <input
                     id="checkbox-description-css-only-1"
-                    class="cdx-checkbox__input"
+                    className="cdx-checkbox__input"
                     type="checkbox"
                     aria-describedby="cdx-description-css-1"
                     onChange={(event) =>
@@ -416,9 +465,9 @@ const Books = () => {
                         : "No email associated with this user account or the user has disabled email access."
                     }
                   />
-                  <span class="cdx-checkbox__icon"></span>
+                  <span className="cdx-checkbox__icon"></span>
                   <div
-                    class="cdx-checkbox__label cdx-label"
+                    className="cdx-checkbox__label cdx-label"
                     title={
                       isUserEmailable
                         ? ""
@@ -426,8 +475,8 @@ const Books = () => {
                     }
                   >
                     <label
-                      for="checkbox-description-css-only-1"
-                      class="cdx-label__label"
+                      htmlFor="checkbox-description-css-only-1"
+                      className="cdx-label__label"
                     >
                       Notify updates via e-mail
                     </label>
@@ -437,10 +486,10 @@ const Books = () => {
                 {isEmailNotification && (
                   <span
                     id="cdx-description-css-1"
-                    class="cdx-label__description"
+                    className="cdx-label__description"
                   >
                     <p>
-                      <span class="cdx-css-icon--info-filled"></span>
+                      <span className="cdx-css-icon--info-filled"></span>
                       &nbsp; BUB2 will send an email to your email ID associated
                       with your Wikimedia account regarding the success or
                       failure of the upload.
