@@ -4,10 +4,19 @@ import QueueSection from "../components/QueueSection";
 import QueueTable from "../components/QueueTable";
 import { host, queue_data_endpoint } from "../utils/constants";
 import { useEffect, useState } from "react";
+import { library } from "../utils/constants";
 
 const Queue = ({ data }) => {
   const router = useRouter();
-  const [queueName, setQueueName] = useState("gb");
+  // queueTypeFromQuery can be "gb" || "pdl" || "trove"
+  let queueTypeFromQuery = router.query["queue"] || "";
+  // get valid library codes used in the application
+  let libraryKeys = Object.keys(library);
+  // check and assign if the queue is valid
+  const [isValidQueue, _] = useState(libraryKeys.includes(queueTypeFromQuery));
+  const [queueName, setQueueName] = useState(
+    isValidQueue ? queueTypeFromQuery : "gb"
+  );
   const [tableDataArchive, setTableDataArchive] = useState([]);
   const [searchResult, setSearchResult] = useState([]);
   const [isSearch, setIsSearch] = useState(false);
@@ -15,8 +24,8 @@ const Queue = ({ data }) => {
   const [refreshSSPropsInterval, setSSPropsInterval] = useState(15000);
   const onChange = (event) => {
     setQueueName(event.target.value);
-    // refresh server side props on queue change
-    router.replace(router.asPath);
+    // update query parameter on queue change; also refreshes server side props
+    router.replace(router.pathname + ("?queue=" + event.target.value));
     // This time interval has been chosed based on speed of upload
     // For GB Queue, refresh server side props every 15 seconds
     // For PDL, refresh server side props every 50 seconds
@@ -81,7 +90,8 @@ const Queue = ({ data }) => {
   // Condition: only when queueName changes
   useEffect(() => {
     const intervalId = setInterval(() => {
-      router.replace(router.asPath);
+      // update query parameter on queue change
+      router.replace(router.pathname + ("?queue=" + queueName));
     }, refreshSSPropsInterval);
     // clear the setInterval
     return () => clearInterval(intervalId);
@@ -116,51 +126,64 @@ const Queue = ({ data }) => {
       <Header page="queue" />
       <div className="container p-0">
         <div className="main-content">
-          <h4>Select a Queue</h4>
-          <select className="cdx-select" onChange={onChange}>
-            <option value="gb" selected>
-              Google Books
-            </option>
-            <option value="pdl">Panjab Digital Library</option>
-            <option value="trove">Trove Digital Library</option>
-          </select>
-          <QueueSection
-            active={data[`${queueName}-queue`]["active"]}
-            waiting={data[`${queueName}-queue`]["waiting"]}
-          />
+          {isValidQueue || queueName !== "" ? (
+            <>
+              <h4>Select a Queue</h4>
+              <select
+                className="cdx-select"
+                onChange={onChange}
+                defaultValue={queueName}
+              >
+                <option value="gb">Google Books</option>
+                <option value="pdl">Panjab Digital Library</option>
+                <option value="trove">Trove Digital Library</option>
+              </select>
+              <QueueSection
+                active={data[`${queueName}-queue`]["active"]}
+                waiting={data[`${queueName}-queue`]["waiting"]}
+              />
 
-          <div className="queue-container">
-            <div
-              className="search-container"
-              style={{
-                marginTop: "2em",
-              }}
-            >
-              <div className="cdx-search-input cdx-search-input--has-end-button">
+              <div className="queue-container">
                 <div
-                  className="cdx-text-input cdx-text-input--has-start-icon"
-                  style={{ width: "100%" }}
+                  className="search-container"
+                  style={{
+                    marginTop: "2em",
+                  }}
                 >
-                  <input
-                    onChange={(e) => onSearch(e)}
-                    className="cdx-text-input__input"
-                    type="search"
-                    placeholder="Search by Job ID, Title, Username or Status"
-                    style={{
-                      height: "48px",
-                      width: "100%",
-                    }}
-                  />
-                  <span className="cdx-text-input__icon cdx-text-input__start-icon"></span>
+                  <div className="cdx-search-input cdx-search-input--has-end-button">
+                    <div
+                      className="cdx-text-input cdx-text-input--has-start-icon"
+                      style={{ width: "100%" }}
+                    >
+                      <input
+                        onChange={(e) => onSearch(e)}
+                        className="cdx-text-input__input"
+                        type="search"
+                        placeholder="Search by Job ID, Title, Username or Status"
+                        style={{
+                          height: "48px",
+                          width: "100%",
+                        }}
+                      />
+                      <span className="cdx-text-input__icon cdx-text-input__start-icon"></span>
+                    </div>
+                  </div>
                 </div>
               </div>
+              <QueueTable
+                isSearch={isSearch}
+                queue_name={queueName}
+                tableData={searchResult}
+              />
+            </>
+          ) : (
+            <div className="text-center">
+              <h3>No such queue was found</h3>
+              <h4>
+                Go back to the <a href="/queue?queue=gb">queues page</a>
+              </h4>
             </div>
-          </div>
-          <QueueTable
-            isSearch={isSearch}
-            queue_name={queueName}
-            tableData={searchResult}
-          />
+          )}
         </div>
       </div>
     </div>
