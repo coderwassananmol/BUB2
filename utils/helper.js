@@ -517,12 +517,11 @@ module.exports = {
       };
 
       const wikiDataAPI = await fetch(
-        "https://www.wikidata.org/w/rest.php/wikibase/v0/entities/items",
+        `${process.env.NEXT_PUBLIC_WIKIDATA_URL}/w/rest.php/wikibase/v0/entities/items`,
         {
           method: "POST",
           headers: {
-            Authorization:
-              "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI5N2I2ZWI0NDUyMTkxNGVhZjEwMWEzNDYxODIwY2VkYiIsImp0aSI6ImVkZDFhNjUyNTVmZDBjZmRiY2MwYjBjZDM4OTAzYTU0YzUzYjYwYmZlNTg0OGEzNDFmZDkxY2RjNzBhYTFmNjUyODU1ODAxNDM0ODk5YmQzIiwiaWF0IjoxNzE3NjEwNDM5Ljk1MTQ4MSwibmJmIjoxNzE3NjEwNDM5Ljk1MTQ4NSwiZXhwIjozMzI3NDUxOTIzOS45NDgyNjUsInN1YiI6IjQ0NzUwMDc2IiwiaXNzIjoiaHR0cHM6Ly9tZXRhLndpa2ltZWRpYS5vcmciLCJyYXRlbGltaXQiOnsicmVxdWVzdHNfcGVyX3VuaXQiOjUwMDAsInVuaXQiOiJIT1VSIn0sInNjb3BlcyI6WyJiYXNpYyIsImNyZWF0ZWVkaXRtb3ZlcGFnZSJdfQ.Q9Az8klW2dgriBi_nxrcVBWkHQYVgmAhnI_0sJerpzfGbUovaX3FKwO2HeRSzuD6mPE28qOGm0-GcEz48vGSmzjkvSBipNggVdg_pI2FERSe-5Go-3FFlGB7KE3p7y_DZOJlBFOZ6groho151uDUlZyZ7vJEpfcl0Nz0MkwNaN46_vJ9SZ5iPMcZBJmf4VPnEDv8B2BSB8wQxD78H6OBf9tlscSlwvXYaLg4jNQrTehRblM_KSen6h6Ph7Ctnmv2IVn3GrhoE6KHvpY6H8BNbN9exOujC_gDbfAG9uLiWfRIqozybOqudndZ_GEScp-1qgb7QI95QRkYIy3G0FvEl9FwQwUQ9mYuoD9rh-01tC3keCf-hJY7oItbTnZcatBKCQ01UU1pFFa-0AoaMtWGy3-d9dHKjKFW-ae2_WuQjp9XsHLJFzOKYBGUVdls5q7e3pPUfW6vUcviokaMDPhFQ3CZ1y7sRhJ-DIh0q3Ghl88uxHmjK1FjhcYtLLo2QCl6Xi8ePvQjJKXB3Cg5Zi2e20gS0Mb6HnBgR9UmvTuKCGp4SDmkC-QHfhZY-6_k69Ing_-AO03joMecT7zWwJ_hYq7shPDBwXp3k21eWCx6NxqC1C0L1bsdAObygIULlM9omvfjhErVwokjirlVQL-Hf-8kiWay2eo-PuZika67zfE",
+            Authorization: metadata.oauthToken,
             "Content-Type": "application/json",
           },
           body: JSON.stringify(GBWikiDataPayload),
