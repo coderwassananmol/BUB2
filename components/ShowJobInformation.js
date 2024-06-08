@@ -164,7 +164,7 @@ const ShowJobInformation = (props) => {
             {data.wikimedia_links.wikidata !== "Not Integrated" ? (
               <Link
                 passHref
-                href={`https://www.wikidata.org/wiki/${data.wikimedia_links.wikidata}`}
+                href={`${process.env.NEXT_PUBLIC_WIKIDATA_URL}/wiki/${data.wikimedia_links.wikidata}`}
               >
                 <Button
                   sx={styles.button}

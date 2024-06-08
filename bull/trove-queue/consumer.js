@@ -131,14 +131,14 @@ TroveQueue.process((job, done) => {
                     null,
                     downloadFileUrl,
                     job.data.details,
+                    "trove",
                     async (commonsResponse) => {
                       if (commonsResponse.status === true) {
                         job.progress({
                           step: "Upload to Wikimedia Commons",
                           value: `(${100}%)`,
                           wikiLinks: {
-                            commons: await commonsResponse.value.commons
-                              .filename,
+                            commons: await commonsResponse.value.filename,
                             wikidata:
                               (await commonsResponse.value.wikidata) !== 404
                                 ? await commonsResponse.value.wikidata

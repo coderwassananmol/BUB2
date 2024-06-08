@@ -392,240 +392,167 @@ module.exports = {
       await fs.promises.unlink("commonsFilePayload.pdf");
       logger.log({
         level: "error",
-        message: `uploadToCommons: ${error}`,
+        message: `uploadToCommons (catch): ${error}`,
       });
       return error;
     }
   },
-  uploadToWikiData: async (metadata, commonsItemFilename) => {
-    const bot = await Mwn.init({
-      apiUrl: "https://www.wikidata.org/w/api.php",
-      OAuth2AccessToken: metadata.oauthToken,
-      userAgent: "bub2.toolforge ([[https://bub2.toolforge.org]])",
-      defaultParams: {
-        assert: "user",
-      },
-    });
 
-    async function createEntity(csrf_token) {
+  uploadToWikiData: async (metadata, commonsItemFilename, libraryName) => {
+    if (libraryName !== "gb") {
+      return 404;
+    }
+
+    function createEntity() {
       try {
         const title = metadata.details.volumeInfo.title || "";
         const id = metadata.details.id || "";
         const authorsArr = metadata.details.volumeInfo.authors
           ? metadata.details.volumeInfo.authors.join().trim()
           : null;
-        const authors = authorsArr || "";
-        // Mapping for the labels/properties defined in `payload` - https://prop-explorer.toolforge.org/
-        const payload = {
-          labels: {
-            en: {
-              language: "en",
-              value: commonsItemFilename,
+
+        const GBWikiDataPayload = {
+          item: {
+            labels: {
+              en: title,
+            },
+            descriptions: {
+              en: "edition of a written work",
+            },
+            statements: {
+              P675: [
+                {
+                  rank: "normal",
+                  property: {
+                    id: "P675",
+                  },
+                  value: {
+                    content: id,
+                    type: "value",
+                  },
+                  qualifiers: [],
+                  references: [],
+                },
+              ],
+              P31: [
+                {
+                  rank: "normal",
+                  property: {
+                    id: "P31",
+                    "data-type": "wikibase-item",
+                  },
+                  value: {
+                    type: "value",
+                    content: "Q47461344", //wikidata id for 'written work'
+                  },
+                  qualifiers: [],
+                  references: [],
+                },
+              ],
+              P996: [
+                {
+                  rank: "normal",
+                  property: {
+                    id: "P996",
+                    "data-type": "commonsMedia",
+                  },
+                  value: {
+                    content: commonsItemFilename,
+                    type: "value",
+                  },
+                  qualifiers: [],
+                  references: [],
+                },
+              ],
+              P2093: [
+                {
+                  rank: "normal",
+                  property: {
+                    id: "P2093",
+                  },
+                  value: {
+                    content: authorsArr,
+                    type: "value",
+                  },
+                  qualifiers: [],
+                  references: [],
+                },
+              ],
+              P373: [
+                {
+                  rank: "normal",
+                  property: {
+                    id: "P373",
+                  },
+                  value: {
+                    content: "Files_uploaded_with_BUB2",
+                    type: "value",
+                  },
+                  qualifiers: [],
+                  references: [],
+                },
+              ],
+              P1476: [
+                {
+                  rank: "normal",
+                  property: {
+                    id: "P1476",
+                    "data-type": "monolingualtext",
+                  },
+                  value: {
+                    type: "value",
+                    content: {
+                      text: title,
+                      language: "en",
+                    },
+                  },
+                  qualifiers: [],
+                  references: [],
+                },
+              ],
             },
           },
-          descriptions: {
-            en: {
-              language: "en",
-              value: title,
-            },
-          },
-          claims: {
-            file_name: [
-              {
-                mainsnak: {
-                  snaktype: "value",
-                  property: "P18",
-                  datavalue: {
-                    value: commonsItemFilename,
-                    type: "string",
-                  },
-                },
-                type: "statement",
-                rank: "normal",
-              },
-            ],
-            file_url: [
-              {
-                mainsnak: {
-                  snaktype: "value",
-                  property: "P4765",
-                  datavalue: {
-                    value: `https://commons.wikimedia.org/wiki/File:${commonsItemFilename}`,
-                    type: "string",
-                  },
-                },
-                type: "statement",
-                rank: "normal",
-              },
-            ],
-            commons_category: [
-              {
-                mainsnak: {
-                  snaktype: "value",
-                  property: "P373",
-                  datavalue: {
-                    value: "Bub.wikimedia",
-                    type: "string",
-                  },
-                },
-                type: "statement",
-                rank: "normal",
-              },
-            ],
-            internet_archive_id: id
-              ? [
-                  {
-                    mainsnak: {
-                      snaktype: "value",
-                      property: "P724",
-                      datavalue: {
-                        value: id,
-                        type: "string",
-                      },
-                    },
-                    type: "statement",
-                    rank: "normal",
-                  },
-                ]
-              : undefined,
-            collection: [
-              {
-                mainsnak: {
-                  snaktype: "value",
-                  property: "P195",
-                  datavalue: {
-                    value: {
-                      "entity-type": "item",
-                      "numeric-id": 39162,
-                      id: "Q39162", //wikidataID for 'opensource'
-                    },
-                    type: "wikibase-entityid",
-                  },
-                },
-                type: "statement",
-                rank: "normal",
-              },
-            ],
-            title: title
-              ? [
-                  {
-                    mainsnak: {
-                      snaktype: "value",
-                      property: "P1476",
-                      datavalue: {
-                        value: {
-                          text: title,
-                          language: "en",
-                        },
-                        type: "monolingualtext",
-                      },
-                    },
-                    type: "statement",
-                    rank: "normal",
-                  },
-                ]
-              : undefined,
-            name: title
-              ? [
-                  {
-                    mainsnak: {
-                      snaktype: "value",
-                      property: "P2561",
-                      datavalue: {
-                        value: {
-                          text: title,
-                          language: "en",
-                        },
-                        type: "monolingualtext",
-                      },
-                    },
-                    type: "statement",
-                    rank: "normal",
-                  },
-                ]
-              : undefined,
-            file_format: [
-              {
-                mainsnak: {
-                  snaktype: "value",
-                  property: "P2701",
-                  datavalue: {
-                    value: {
-                      "entity-type": "item",
-                      "numeric-id": 42332,
-                      id: "Q42332", // wikidataID for PDF
-                    },
-                    type: "wikibase-entityid",
-                  },
-                },
-                type: "statement",
-                rank: "normal",
-              },
-            ],
-            author_name: authors
-              ? [
-                  {
-                    mainsnak: {
-                      snaktype: "value",
-                      property: "P2093",
-                      datavalue: {
-                        value: authors,
-                        type: "string",
-                      },
-                    },
-                    type: "statement",
-                    rank: "normal",
-                  },
-                ]
-              : undefined,
-            URL: [
-              {
-                mainsnak: {
-                  snaktype: "value",
-                  property: "P2699",
-                  datavalue: {
-                    value: `https://commons.wikimedia.org/wiki/File:${commonsItemFilename}`,
-                    type: "string",
-                  },
-                },
-                type: "statement",
-                rank: "normal",
-              },
-            ],
-            copyright_status: [
-              {
-                mainsnak: {
-                  snaktype: "value",
-                  property: "P6216",
-                  datavalue: {
-                    value: {
-                      "entity-type": "item",
-                      "numeric-id": 6938433,
-                      id: "Q6938433", // wikidataID for CC0 license
-                    },
-                    type: "wikibase-entityid",
-                  },
-                },
-                type: "statement",
-                rank: "normal",
-              },
-            ],
-          },
+          tags: [],
+          bot: false,
+          comment: "Metadata updated by BUB2",
         };
 
-        const res = await bot.request({
-          action: "wbeditentity",
-          new: "item",
-          summary: "bub2.toolforge.org: upload commons item to wikidata",
-          tags: "wikimedia-commons-app",
-          data: JSON.stringify(payload),
-          token: csrf_token,
-        });
-        logger.log({
-          level: "info",
-          message: `uploadToWikidata: Upload of ${commonsItemFilename} metadata to wikidata successful`,
-        });
-        return res.entity.id;
+        fetch(
+          "https://www.wikidata.org/w/rest.php/wikibase/v0/entities/items",
+          {
+            method: "POST",
+            headers: {
+              Authorization:
+                "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI5N2I2ZWI0NDUyMTkxNGVhZjEwMWEzNDYxODIwY2VkYiIsImp0aSI6ImVkZDFhNjUyNTVmZDBjZmRiY2MwYjBjZDM4OTAzYTU0YzUzYjYwYmZlNTg0OGEzNDFmZDkxY2RjNzBhYTFmNjUyODU1ODAxNDM0ODk5YmQzIiwiaWF0IjoxNzE3NjEwNDM5Ljk1MTQ4MSwibmJmIjoxNzE3NjEwNDM5Ljk1MTQ4NSwiZXhwIjozMzI3NDUxOTIzOS45NDgyNjUsInN1YiI6IjQ0NzUwMDc2IiwiaXNzIjoiaHR0cHM6Ly9tZXRhLndpa2ltZWRpYS5vcmciLCJyYXRlbGltaXQiOnsicmVxdWVzdHNfcGVyX3VuaXQiOjUwMDAsInVuaXQiOiJIT1VSIn0sInNjb3BlcyI6WyJiYXNpYyIsImNyZWF0ZWVkaXRtb3ZlcGFnZSJdfQ.Q9Az8klW2dgriBi_nxrcVBWkHQYVgmAhnI_0sJerpzfGbUovaX3FKwO2HeRSzuD6mPE28qOGm0-GcEz48vGSmzjkvSBipNggVdg_pI2FERSe-5Go-3FFlGB7KE3p7y_DZOJlBFOZ6groho151uDUlZyZ7vJEpfcl0Nz0MkwNaN46_vJ9SZ5iPMcZBJmf4VPnEDv8B2BSB8wQxD78H6OBf9tlscSlwvXYaLg4jNQrTehRblM_KSen6h6Ph7Ctnmv2IVn3GrhoE6KHvpY6H8BNbN9exOujC_gDbfAG9uLiWfRIqozybOqudndZ_GEScp-1qgb7QI95QRkYIy3G0FvEl9FwQwUQ9mYuoD9rh-01tC3keCf-hJY7oItbTnZcatBKCQ01UU1pFFa-0AoaMtWGy3-d9dHKjKFW-ae2_WuQjp9XsHLJFzOKYBGUVdls5q7e3pPUfW6vUcviokaMDPhFQ3CZ1y7sRhJ-DIh0q3Ghl88uxHmjK1FjhcYtLLo2QCl6Xi8ePvQjJKXB3Cg5Zi2e20gS0Mb6HnBgR9UmvTuKCGp4SDmkC-QHfhZY-6_k69Ing_-AO03joMecT7zWwJ_hYq7shPDBwXp3k21eWCx6NxqC1C0L1bsdAObygIULlM9omvfjhErVwokjirlVQL-Hf-8kiWay2eo-PuZika67zfE",
+            },
+            body: GBWikiDataPayload,
+          }
+        )
+          .then(function (response) {
+            if (response.status === 201) {
+              return response.json();
+            } else {
+              logger.log({
+                level: "error",
+                message: `wikiDataAPIFailure (fetch):${JSON.stringify(err)}`,
+              });
+              return 404;
+            }
+          })
+          .then((resp) => {
+            if (resp === 404) {
+              return 404;
+            } else {
+              return resp.id;
+            }
+          })
+          .catch((err) => {
+            logger.log({
+              level: "error",
+              message: `uploadToWikidata (fetch):${err}`,
+            });
+            return 404;
+          });
       } catch (error) {
         logger.log({
           level: "error",
@@ -634,7 +561,6 @@ module.exports = {
         return 404;
       }
     }
-    const csrf_token = await bot.getCsrfToken();
-    return await createEntity(csrf_token);
+    return createEntity();
   },
 };

@@ -66,7 +66,7 @@ GoogleBooksQueue.process((job, done) => {
           "X-Archive-Meta-Collection": "opensource",
           "X-Archive-Ignore-Preexisting-Bucket": 1,
           "X-archive-meta-title": `uri(${encodeURI(title.trim())})`,
-          "X-archive-meta-date": publishedDate.trim(),
+          "X-archive-meta-date": publishedDate ? publishedDate.trim() : "",
           "X-archive-meta-language": language.trim(),
           "X-archive-meta-mediatype": "texts",
           "X-archive-meta-licenseurl":
@@ -120,45 +120,58 @@ GoogleBooksQueue.process((job, done) => {
               step: "Uploading to Wikimedia Commons",
               value: `(${50}%)`,
             });
-            CommonsProducer(null, null, job.data, async (commonsResponse) => {
-              if (commonsResponse.status === true) {
-                job.progress({
-                  step: "Upload to Wikimedia Commons",
-                  value: `(${100}%)`,
-                  wikiLinks: {
-                    commons: await commonsResponse.value.commons.filename,
-                    wikidata:
-                      (await commonsResponse.value.wikidata) !== 404
-                        ? await commonsResponse.value.wikidata
-                        : 404,
-                  },
-                });
-                if (job.data.isEmailNotification === "true") {
-                  const commonsLink =
-                    process.env.NEXT_PUBLIC_COMMONS_URL +
-                    `/wiki/File:${commonsResponse.value.filename}`;
-                  EmailProducer(
-                    job.data.userName,
-                    title,
-                    { archiveLink: trueURI, commonsLink: commonsLink },
-                    { archive: true, commons: true }
-                  );
-                }
-                return done(null, true);
-              } else {
-                job.progress({
-                  step: "Upload To IA (100%), Upload To Commons",
-                  value: `(Failed)`,
-                });
-                if (job.data.isEmailNotification === "true") {
-                  EmailProducer(job.data.userName, title, trueURI, {
-                    archive: true,
-                    commons: false,
+            CommonsProducer(
+              null,
+              null,
+              job.data,
+              "gb",
+              async (commonsResponse) => {
+                if (commonsResponse.status === true) {
+                  job.progress({
+                    step: "Upload to Wikimedia Commons",
+                    value: `(${100}%)`,
+                    wikiLinks: {
+                      commons:
+                        (await commonsResponse.value.filename) ||
+                        commonsResponse.filename ||
+                        commonsResponse.value.commons.filename,
+                      wikidata:
+                        (await commonsResponse.value.wikidata) !== 404
+                          ? await commonsResponse.value.wikidata
+                          : 404,
+                    },
                   });
+                  if (job.data.isEmailNotification === "true") {
+                    const commonsLink =
+                      process.env.NEXT_PUBLIC_COMMONS_URL +
+                      `/wiki/File:${
+                        commonsResponse.value.filename ||
+                        commonsResponse.filename ||
+                        commonsResponse.value.commons.filename
+                      }`;
+                    EmailProducer(
+                      job.data.userName,
+                      title,
+                      { archiveLink: trueURI, commonsLink: commonsLink },
+                      { archive: true, commons: true }
+                    );
+                  }
+                  return done(null, true);
+                } else {
+                  job.progress({
+                    step: "Upload To IA (100%), Upload To Commons",
+                    value: `(Failed)`,
+                  });
+                  if (job.data.isEmailNotification === "true") {
+                    EmailProducer(job.data.userName, title, trueURI, {
+                      archive: true,
+                      commons: false,
+                    });
+                  }
+                  return done(null, true);
                 }
-                return done(null, true);
               }
-            });
+            );
           }
         }
       }
