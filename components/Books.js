@@ -448,6 +448,19 @@ const Books = () => {
                   </div>
                 </span>
               </div>
+              {isUploadCommons ? (
+                <div
+                  class="cdx-message cdx-message--block cdx-message--success"
+                  aria-live="polite"
+                  style={{ marginTop: "10px" }}
+                >
+                  <span class="cdx-message__icon"></span>
+                  <div class="cdx-message__content">
+                    [NEW] BUB2 will create Wikidata entries for the file
+                    metadata. Only applicable for <b>Google Books.</b>
+                  </div>
+                </div>
+              ) : null}
               <div style={{ marginTop: "10px" }} className="section">
                 <span className="cdx-checkbox">
                   <input

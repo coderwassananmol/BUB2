@@ -266,6 +266,7 @@ function uploadPdfToIA(pdfUrl, job, metadata, trueURI, done) {
                 null,
                 null,
                 job.data.details,
+                "pdl",
                 async (commonsResponse) => {
                   if (commonsResponse.status === true) {
                     job.progress({
