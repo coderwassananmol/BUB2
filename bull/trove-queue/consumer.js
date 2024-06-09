@@ -108,6 +108,12 @@ TroveQueue.process((job, done) => {
                   value: `(${100}%)`,
                 });
                 if (
+                  isEmailNotification !== "true" &&
+                  job.data.details.isUploadCommons !== "true"
+                ) {
+                  done(null, true);
+                }
+                if (
                   isEmailNotification === "true" &&
                   job.data.details.isUploadCommons !== "true"
                 ) {
@@ -125,13 +131,18 @@ TroveQueue.process((job, done) => {
                     null,
                     downloadFileUrl,
                     job.data.details,
+                    "trove",
                     async (commonsResponse) => {
                       if (commonsResponse.status === true) {
                         job.progress({
                           step: "Upload to Wikimedia Commons",
-                          value: `(100%)`,
+                          value: `(${100}%)`,
                           wikiLinks: {
                             commons: await commonsResponse.value.filename,
+                            wikidata:
+                              (await commonsResponse.value.wikidata) !== 404
+                                ? await commonsResponse.value.wikidata
+                                : 404,
                           },
                         });
                         if (job.data.isEmailNotification === "true") {
@@ -141,7 +152,10 @@ TroveQueue.process((job, done) => {
                           EmailProducer(
                             userName,
                             name,
-                            { archiveLink: trueURI, commonsLink: commonsLink },
+                            {
+                              archiveLink: trueURI,
+                              commonsLink: commonsLink,
+                            },
                             { archive: true, commons: true }
                           );
                         }

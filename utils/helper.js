@@ -392,9 +392,175 @@ module.exports = {
       await fs.promises.unlink("commonsFilePayload.pdf");
       logger.log({
         level: "error",
-        message: `uploadToCommons: ${error}`,
+        message: `uploadToCommons (catch): ${error}`,
       });
       return error;
     }
+  },
+
+  uploadToWikiData: async (metadata, commonsItemFilename, libraryName) => {
+    if (libraryName !== "gb") {
+      return 404;
+    }
+
+    function createEntity() {
+      try {
+        const title = metadata.details.volumeInfo.title || "";
+        const id = metadata.details.id || "";
+        const authorsArr = metadata.details.volumeInfo.authors
+          ? metadata.details.volumeInfo.authors.join().trim()
+          : null;
+
+        const GBWikiDataPayload = {
+          item: {
+            labels: {
+              en: title,
+            },
+            descriptions: {
+              en: "edition of a written work",
+            },
+            statements: {
+              P675: [
+                {
+                  rank: "normal",
+                  property: {
+                    id: "P675",
+                  },
+                  value: {
+                    content: id,
+                    type: "value",
+                  },
+                  qualifiers: [],
+                  references: [],
+                },
+              ],
+              P31: [
+                {
+                  rank: "normal",
+                  property: {
+                    id: "P31",
+                    "data-type": "wikibase-item",
+                  },
+                  value: {
+                    type: "value",
+                    content: "Q47461344", //wikidata id for 'written work'
+                  },
+                  qualifiers: [],
+                  references: [],
+                },
+              ],
+              P996: [
+                {
+                  rank: "normal",
+                  property: {
+                    id: "P996",
+                    "data-type": "commonsMedia",
+                  },
+                  value: {
+                    content: commonsItemFilename,
+                    type: "value",
+                  },
+                  qualifiers: [],
+                  references: [],
+                },
+              ],
+              P2093: [
+                {
+                  rank: "normal",
+                  property: {
+                    id: "P2093",
+                  },
+                  value: {
+                    content: authorsArr,
+                    type: "value",
+                  },
+                  qualifiers: [],
+                  references: [],
+                },
+              ],
+              P373: [
+                {
+                  rank: "normal",
+                  property: {
+                    id: "P373",
+                  },
+                  value: {
+                    content: "Files_uploaded_with_BUB2",
+                    type: "value",
+                  },
+                  qualifiers: [],
+                  references: [],
+                },
+              ],
+              P1476: [
+                {
+                  rank: "normal",
+                  property: {
+                    id: "P1476",
+                    "data-type": "monolingualtext",
+                  },
+                  value: {
+                    type: "value",
+                    content: {
+                      text: title,
+                      language: "en",
+                    },
+                  },
+                  qualifiers: [],
+                  references: [],
+                },
+              ],
+            },
+          },
+          tags: [],
+          bot: false,
+          comment: "Metadata updated by BUB2",
+        };
+
+        fetch(
+          "https://www.wikidata.org/w/rest.php/wikibase/v0/entities/items",
+          {
+            method: "POST",
+            headers: {
+              Authorization:
+                "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI5N2I2ZWI0NDUyMTkxNGVhZjEwMWEzNDYxODIwY2VkYiIsImp0aSI6ImVkZDFhNjUyNTVmZDBjZmRiY2MwYjBjZDM4OTAzYTU0YzUzYjYwYmZlNTg0OGEzNDFmZDkxY2RjNzBhYTFmNjUyODU1ODAxNDM0ODk5YmQzIiwiaWF0IjoxNzE3NjEwNDM5Ljk1MTQ4MSwibmJmIjoxNzE3NjEwNDM5Ljk1MTQ4NSwiZXhwIjozMzI3NDUxOTIzOS45NDgyNjUsInN1YiI6IjQ0NzUwMDc2IiwiaXNzIjoiaHR0cHM6Ly9tZXRhLndpa2ltZWRpYS5vcmciLCJyYXRlbGltaXQiOnsicmVxdWVzdHNfcGVyX3VuaXQiOjUwMDAsInVuaXQiOiJIT1VSIn0sInNjb3BlcyI6WyJiYXNpYyIsImNyZWF0ZWVkaXRtb3ZlcGFnZSJdfQ.Q9Az8klW2dgriBi_nxrcVBWkHQYVgmAhnI_0sJerpzfGbUovaX3FKwO2HeRSzuD6mPE28qOGm0-GcEz48vGSmzjkvSBipNggVdg_pI2FERSe-5Go-3FFlGB7KE3p7y_DZOJlBFOZ6groho151uDUlZyZ7vJEpfcl0Nz0MkwNaN46_vJ9SZ5iPMcZBJmf4VPnEDv8B2BSB8wQxD78H6OBf9tlscSlwvXYaLg4jNQrTehRblM_KSen6h6Ph7Ctnmv2IVn3GrhoE6KHvpY6H8BNbN9exOujC_gDbfAG9uLiWfRIqozybOqudndZ_GEScp-1qgb7QI95QRkYIy3G0FvEl9FwQwUQ9mYuoD9rh-01tC3keCf-hJY7oItbTnZcatBKCQ01UU1pFFa-0AoaMtWGy3-d9dHKjKFW-ae2_WuQjp9XsHLJFzOKYBGUVdls5q7e3pPUfW6vUcviokaMDPhFQ3CZ1y7sRhJ-DIh0q3Ghl88uxHmjK1FjhcYtLLo2QCl6Xi8ePvQjJKXB3Cg5Zi2e20gS0Mb6HnBgR9UmvTuKCGp4SDmkC-QHfhZY-6_k69Ing_-AO03joMecT7zWwJ_hYq7shPDBwXp3k21eWCx6NxqC1C0L1bsdAObygIULlM9omvfjhErVwokjirlVQL-Hf-8kiWay2eo-PuZika67zfE",
+            },
+            body: GBWikiDataPayload,
+          }
+        )
+          .then(function (response) {
+            if (response.status === 201) {
+              return response.json();
+            } else {
+              logger.log({
+                level: "error",
+                message: `wikiDataAPIFailure (fetch):${JSON.stringify(err)}`,
+              });
+              return 404;
+            }
+          })
+          .then((resp) => {
+            if (resp === 404) {
+              return 404;
+            } else {
+              return resp.id;
+            }
+          })
+          .catch((err) => {
+            logger.log({
+              level: "error",
+              message: `uploadToWikidata (fetch):${err}`,
+            });
+            return 404;
+          });
+      } catch (error) {
+        logger.log({
+          level: "error",
+          message: `uploadToWikidata:${error}`,
+        });
+        return 404;
+      }
+    }
+    return createEntity();
   },
 };

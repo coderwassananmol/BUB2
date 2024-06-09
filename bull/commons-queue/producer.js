@@ -5,6 +5,7 @@ module.exports = async (
   type = "other",
   downloadFileURL = null,
   metadata,
+  libraryName,
   callback
 ) => {
   const job = await CommonsQueue.add({
@@ -12,6 +13,7 @@ module.exports = async (
     downloadFileURL,
     metadata,
     callback,
+    libraryName,
   });
   process.on(`commonsJobComplete:${job.id}`, (commonsResponse) => {
     callback(commonsResponse);

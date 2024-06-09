@@ -188,9 +188,16 @@ app
                 uploadLink: getUploadLink(job, trueURI),
                 isUploaded: jobState === "completed" ? true : false,
               },
-              wikimedia_links: job.progress().wikiLinks?.commons
-                ? job.progress().wikiLinks.commons
-                : "Not Integrated",
+              wikimedia_links: {
+                commons: job.progress().wikiLinks?.commons
+                  ? job.progress().wikiLinks.commons
+                  : "Not Integrated",
+                wikidata: job.progress().wikiLinks?.wikidata
+                  ? job.progress().wikiLinks.wikidata !== 404
+                    ? job.progress().wikiLinks.wikidata
+                    : "Not Integrated"
+                  : "Not Integrated",
+              },
             };
 
             res.send(
