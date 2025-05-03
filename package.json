@@ -44,6 +44,7 @@
     "fs": "0.0.1-security",
     "http": "0.0.0",
     "https": "^1.0.0",
+    "ioredis": "^5.4.1",
     "isomorphic-fetch": "^3.0.0",
     "isomorphic-unfetch": "^3.0.0",
     "jsdom": "^20.0.0",

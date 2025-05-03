@@ -368,6 +368,8 @@ module.exports = {
         },
       });
 
+      bot.userinfo();
+
       const commonsFilePayload = "commonsFilePayload.pdf";
       let title =
         metadata.details?.volumeInfo?.title || metadata.name || metadata.title;
@@ -393,6 +395,10 @@ module.exports = {
       logger.log({
         level: "error",
         message: `uploadToCommons (catch): ${error}`,
+      });
+      logger.log({
+        level: "error",
+        message: `accessToken: ${metadata.oauthToken}`,
       });
       return error;
     }
@@ -511,6 +517,33 @@ module.exports = {
             ],
           },
         },
+      };
+
+      const TestPayload = {
+        item: {
+          labels: {
+            en: "test12",
+          },
+          descriptions: {
+            en: "test1123",
+          },
+          statements: {
+            P97012: [
+              {
+                rank: "normal",
+                property: {
+                  id: "P97012",
+                },
+                value: {
+                  content: "hello 1",
+                  type: "value",
+                },
+                qualifiers: [],
+                references: [],
+              },
+            ],
+          },
+        },
         tags: [],
         bot: false,
         comment: "Metadata updated by BUB2",
@@ -521,13 +554,16 @@ module.exports = {
         {
           method: "POST",
           headers: {
-            Authorization: metadata.oauthToken,
+            Authorization:
+              "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIzM2I4ODg5NTJhOGQ3ZWVjMTNiNmVkNjMxNmQ2YjdiMSIsImp0aSI6IjU1NjY1MTM4M2Y1NmIwZTQ4YWVlNWE4NGYxYmZlNjAzZWIyYzRlYTk5MWZhN2M4YzY1ZGZkMTMxMGRkMzYyMTNmNmM2N2FjNzQ0MDVmOGRhIiwiaWF0IjoxNzE3ODcwMjQ5LjI5Mzc0NywibmJmIjoxNzE3ODcwMjQ5LjI5Mzc1LCJleHAiOjE3MTc4ODQ2NDkuMjg0MTg3LCJzdWIiOiI0NDc1MDA3NiIsImlzcyI6Imh0dHBzOi8vbWV0YS53aWtpbWVkaWEub3JnIiwicmF0ZWxpbWl0Ijp7InJlcXVlc3RzX3Blcl91bml0Ijo1MDAwLCJ1bml0IjoiSE9VUiJ9LCJzY29wZXMiOlsiYmFzaWMiLCJlZGl0cGFnZSIsImNyZWF0ZWVkaXRtb3ZlcGFnZSIsInVwbG9hZGZpbGUiLCJ1cGxvYWRlZGl0bW92ZWZpbGUiLCJzZW5kZW1haWwiXX0.M3OHvdO37MjlcfqAVzLHuXNodO87BrgS5YjIZ5VJn9_Tp1oEvBBydnJH5wyJdxSfHCAay7c8NdBglbrNCTRdOnFAWw2LbfMK8D8W53x2ilFmgq7oXG3EMRICgztYgA0YUCHvbq2TlpnizfrMqVcSeiSidDUH9s1DiT2xce1110e5VfFTDh1l0YB3BGXPHNezEnXsaLm_90dobrZeSiW6T94CCwpQ7dy88SEOfYPjNLRUTTmeAlOgV1ogdoDkJVUumzCnBj-05l_GVbPCQ6VbV-m4aDurnBli2Fjj_Nl4CV8K14ce1HxSi8MuNgbZsSwpNm73PVqFF_0aqBquGURdw2ysep61_MaPxGY9suNTW3uZ8pVVAypbrLeI8aczIbepbc-Vf8k0gVJXaJzTOo_l-xRNAXOdTzMd-6dMnypk4u4o0SITPD1prO8_kzgKtSdAUrrEQZgoexg1RUWQvwdk2cSlwStnIUjY-5qY9g2Y-W2qQJXq4I1-UTF8NL5DPjTpfdl0Qm2BdUNWyvKtqxFBi_96g9lmO8-vFOcuCSiFPM2nY1dHcnGgh7pzqQYmEEJ1p1YXYsHB4_rHujNP0NrlkCOk_zCieL0pRhDS-qZLZnNwVBb1fZj6dlV260TSRwWHIgF1fjCC2uJVgMTpR2-IO2bJUJoUgbQE9tyMbrlqxOE",
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(GBWikiDataPayload),
+          body: JSON.stringify(TestPayload),
         }
       );
+      console.log(metadata.oauthToken, "::oauthToken");
       if (wikiDataAPI.status === 201) {
+        console.log("success");
         const data = await wikiDataAPI.json();
         return data.id;
       } else {

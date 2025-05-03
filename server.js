@@ -87,17 +87,16 @@ app
      */
 
     server.get("/getstats", async (req, res) => {
-      const pdl_queue = await config.getNewQueue("pdl-queue").getJobCounts();
-      const google_books_queue = await config
-        .getNewQueue("google-books-queue")
-        .getJobCounts();
-      const trove_queue = await config
-        .getNewQueue("trove-queue")
-        .getJobCounts();
+      const pdl_queue = config.getNewQueue("pdl-queue");
+      const google_books_queue = config.getNewQueue("google-books-queue");
+      const trove_queue = config.getNewQueue("trove-queue");
+      const pdl_queue_count = await pdl_queue.getJobCounts();
+      const google_books_queue_count = await google_books_queue.getJobCounts();
+      const trove_queue_count = await trove_queue.getJobCounts();
       const queueStats = {
-        pdl: pdl_queue,
-        gb: google_books_queue,
-        trove: trove_queue,
+        pdl: pdl_queue_count,
+        gb: google_books_queue_count,
+        trove: trove_queue_count,
       };
       const commonsRes = await customFetch(
         process.env.NEXT_PUBLIC_COMMONS_URL +
@@ -199,7 +198,6 @@ app
                   : "Not Integrated",
               },
             };
-
             res.send(
               Object.assign(
                 {},

@@ -2,7 +2,19 @@ import Head from "next/head";
 // import global styles
 import "./../styles/global.less";
 import Footer from "../components/Footer";
-import { SessionProvider } from "next-auth/react";
+import { SessionProvider, useSession, signOut } from "next-auth/react";
+import { useEffect } from "react";
+
+function SessionWrapper({ children }) {
+  const { data: session } = useSession();
+  useEffect(() => {
+    console.log(session, "::session");
+    if (session?.expired === true) {
+      signOut({ redirect: false });
+    }
+  }, [session?.accessToken]);
+  return <>{children}</>;
+}
 
 function MyApp({ Component, pageProps }) {
   return (
@@ -192,7 +204,9 @@ function MyApp({ Component, pageProps }) {
         />
       </Head>
       <SessionProvider refetchOnWindowFocus={false}>
-        <Component {...pageProps} />
+        <SessionWrapper>
+          <Component {...pageProps} />
+        </SessionWrapper>
       </SessionProvider>
       <Footer />
     </div>

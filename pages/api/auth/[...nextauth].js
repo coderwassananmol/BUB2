@@ -49,6 +49,10 @@ export const authOptions = {
   logger: {
     debug(code, metadata) {
       // store logs for every user logging in using OAuth
+      logger.log({
+        level: "info",
+        message: metadata,
+      });
       if (code === "OAUTH_CALLBACK_RESPONSE" && metadata.account.access_token) {
         logger.log({
           level: "info",
@@ -87,6 +91,8 @@ export const authOptions = {
             token.refreshToken = new_session.refresh_token;
             token.expiresIn =
               Date.now() + threeHoursThirtyMinutesInMilliseconds;
+          } else {
+            token.expired = true;
           }
           return token;
         } catch (error) {
@@ -100,8 +106,12 @@ export const authOptions = {
     },
     async session({ session, token, user }) {
       // Add the access token to the session object
-      session.accessToken = token.accessToken;
-      session.expiresIn = token.expiresIn;
+      if (token.expired === true) {
+        session.expired = true;
+      } else {
+        session.accessToken = token.accessToken;
+        session.expiresIn = token.expiresIn;
+      }
       return session;
     },
   },
